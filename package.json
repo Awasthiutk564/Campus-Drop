@@ -1,0 +1,25 @@
+{
+  "name": "campus-drop",
+  "version": "1.0.0",
+  "description": "Smart Campus Delivery Box - Full Web App and IoT Hardware Integration",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/api_test.js"
+  },
+  "keywords": [
+    "iot",
+    "smart-box",
+    "campus-delivery",
+    "esp32",
+    "servo",
+    "parcel-locker"
+  ],
+  "author": "CampusDrop Team",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "ws": "^8.17.0"
+  }
+}

@@ -1,0 +1,408 @@
+{
+  "boxes": [
+    {
+      "id": "B01",
+      "no": "01",
+      "name": "Smart Box 01",
+      "place": "Hostel A, main gate",
+      "online": true,
+      "servoAngle": 0,
+      "locked": true,
+      "parcelPresent": true,
+      "ip": "192.168.1.101"
+    },
+    {
+      "id": "B02",
+      "no": "02",
+      "name": "Smart Box 02",
+      "place": "Central library entrance",
+      "online": true,
+      "servoAngle": 0,
+      "locked": true,
+      "parcelPresent": false,
+      "ip": "192.168.1.102"
+    },
+    {
+      "id": "B03",
+      "no": "03",
+      "name": "Smart Box 03",
+      "place": "Hostel B lobby",
+      "online": true,
+      "servoAngle": 0,
+      "locked": true,
+      "parcelPresent": false,
+      "ip": "192.168.1.103"
+    },
+    {
+      "id": "B04",
+      "no": "04",
+      "name": "Smart Box 04",
+      "place": "Admin block",
+      "online": true,
+      "servoAngle": 0,
+      "locked": true,
+      "parcelPresent": false,
+      "ip": "192.168.1.104"
+    },
+    {
+      "id": "B05",
+      "no": "05",
+      "name": "Smart Box 05",
+      "place": "Food court",
+      "online": true,
+      "servoAngle": 0,
+      "locked": true,
+      "parcelPresent": false,
+      "ip": "192.168.1.105"
+    },
+    {
+      "id": "B06",
+      "no": "06",
+      "name": "Smart Box 06",
+      "place": "Sports complex",
+      "online": false,
+      "servoAngle": 0,
+      "locked": true,
+      "parcelPresent": false,
+      "ip": "192.168.1.106"
+    }
+  ],
+  "students": [
+    {
+      "id": "22BCE1043",
+      "name": "Aarav Reddy",
+      "phone": "+91 98480 14310",
+      "hostel": "Hostel A, room 214",
+      "color": "#7B61FF"
+    },
+    {
+      "id": "22BEC0871",
+      "name": "Diya Sharma",
+      "phone": "+91 90002 55871",
+      "hostel": "Hostel C, room 108",
+      "color": "#E0875A"
+    },
+    {
+      "id": "23BME0412",
+      "name": "Kiran Varma",
+      "phone": "+91 99665 20412",
+      "hostel": "Hostel B, room 331",
+      "color": "#2FA58B"
+    },
+    {
+      "id": "21BIT0199",
+      "name": "Sneha Iyer",
+      "phone": "+91 97011 60199",
+      "hostel": "Hostel C, room 015",
+      "color": "#D05C8E"
+    },
+    {
+      "id": "23BCS0620",
+      "name": "Rohan Das",
+      "phone": "+91 88850 70620",
+      "hostel": "Hostel A, room 402",
+      "color": "#4A86E8"
+    },
+    {
+      "id": "22BDS0115",
+      "name": "Ananya Patel",
+      "phone": "+91 98123 45678",
+      "hostel": "Hostel B, room 105",
+      "color": "#F59E0B"
+    }
+  ],
+  "orders": [
+    {
+      "id": "123456789012",
+      "boxId": "B01",
+      "studentId": "22BCE1043",
+      "studentName": "Aarav Reddy",
+      "phone": "+91 98480 14310",
+      "hostel": "Hostel A, room 214",
+      "courier": "Amazon",
+      "size": "Medium",
+      "pin": "9012",
+      "status": "collected",
+      "attempts": 0,
+      "createdAt": 1790152032634,
+      "collectedAt": 1790152530185
+    },
+    {
+      "id": "402972247375",
+      "boxId": "B01",
+      "studentId": "22BCE1043",
+      "studentName": "Aarav Reddy",
+      "phone": "+91 98480 14310",
+      "hostel": "Hostel A, room 214",
+      "courier": "Amazon",
+      "size": "Medium",
+      "pin": "7375",
+      "status": "collected",
+      "attempts": 0,
+      "createdAt": 1790151022013,
+      "collectedAt": 1790151022019
+    }
+  ],
+  "events": [
+    {
+      "id": "EV-1790152920035-386",
+      "t": 1790152920035,
+      "dir": "in",
+      "boxId": "B01",
+      "action": "sensor.trigger",
+      "payload": {
+        "parcelPresent": true,
+        "distanceCm": 10.5
+      }
+    },
+    {
+      "id": "EV-1790152909009-947",
+      "t": 1790152909009,
+      "dir": "out",
+      "boxId": "B01",
+      "action": "servo.lock",
+      "payload": {
+        "reason": "admin_override"
+      }
+    },
+    {
+      "id": "EV-1790152907100-246",
+      "t": 1790152907100,
+      "dir": "out",
+      "boxId": "B05",
+      "action": "servo.lock",
+      "payload": {
+        "reason": "admin_override"
+      }
+    },
+    {
+      "id": "EV-1790152905903-846",
+      "t": 1790152905903,
+      "dir": "out",
+      "boxId": "B05",
+      "action": "servo.unlock",
+      "payload": {
+        "reason": "admin_override",
+        "orderId": null,
+        "by": "system"
+      }
+    },
+    {
+      "id": "EV-1790152902498-877",
+      "t": 1790152902498,
+      "dir": "out",
+      "boxId": "B01",
+      "action": "servo.unlock",
+      "payload": {
+        "reason": "admin_override",
+        "orderId": null,
+        "by": "system"
+      }
+    },
+    {
+      "id": "EV-1790152530186-229",
+      "t": 1790152530186,
+      "dir": "out",
+      "boxId": "B01",
+      "action": "servo.lock",
+      "payload": {
+        "reason": "collection_complete"
+      }
+    },
+    {
+      "id": "EV-1790152530185-662",
+      "t": 1790152530185,
+      "dir": "in",
+      "boxId": "B01",
+      "action": "parcel.collected",
+      "payload": {
+        "orderId": "123456789012"
+      }
+    },
+    {
+      "id": "EV-1790152514875-991",
+      "t": 1790152514875,
+      "dir": "out",
+      "boxId": "B01",
+      "action": "servo.unlock",
+      "payload": {
+        "reason": "pin_verified",
+        "orderId": "123456789012"
+      }
+    },
+    {
+      "id": "EV-1790152514874-137",
+      "t": 1790152514874,
+      "dir": "in",
+      "boxId": "B01",
+      "action": "pin.verified",
+      "payload": {
+        "orderId": "123456789012"
+      }
+    },
+    {
+      "id": "EV-1790152032635-792",
+      "t": 1790152032635,
+      "dir": "out",
+      "boxId": "B01",
+      "action": "notify.student",
+      "payload": {
+        "studentId": "22BCE1043",
+        "pin": "9012",
+        "phone": "+91 98480 14310"
+      }
+    },
+    {
+      "id": "EV-1790152032634-790",
+      "t": 1790152032634,
+      "dir": "in",
+      "boxId": "B01",
+      "action": "order.registered",
+      "payload": {
+        "orderId": "123456789012",
+        "student": "Aarav Reddy"
+      }
+    },
+    {
+      "id": "EV-1790152032622-42",
+      "t": 1790152032622,
+      "dir": "in",
+      "boxId": "B01",
+      "action": "sensor.trigger",
+      "payload": {
+        "parcelPresent": true,
+        "distanceCm": 10.5
+      }
+    },
+    {
+      "id": "EV-1790152031928-244",
+      "t": 1790152031928,
+      "dir": "out",
+      "boxId": "B01",
+      "action": "servo.lock",
+      "payload": {
+        "reason": "app_command"
+      }
+    },
+    {
+      "id": "EV-1790151930398-765",
+      "t": 1790151930398,
+      "dir": "out",
+      "boxId": "B01",
+      "action": "servo.unlock",
+      "payload": {
+        "reason": "delivery_drop",
+        "orderId": null,
+        "by": "system"
+      }
+    },
+    {
+      "id": "EV-1790151219747-59",
+      "t": 1790151219747,
+      "dir": "out",
+      "boxId": "B05",
+      "action": "servo.lock",
+      "payload": {
+        "reason": "admin_override"
+      }
+    },
+    {
+      "id": "EV-1790151217659-896",
+      "t": 1790151217659,
+      "dir": "out",
+      "boxId": "B05",
+      "action": "servo.unlock",
+      "payload": {
+        "reason": "admin_override",
+        "orderId": null,
+        "by": "system"
+      }
+    },
+    {
+      "id": "EV-1790151022020-338",
+      "t": 1790151022020,
+      "dir": "in",
+      "boxId": "B01",
+      "action": "sensor.trigger",
+      "payload": {
+        "parcelPresent": true,
+        "distanceCm": 11.4
+      }
+    },
+    {
+      "id": "EV-1790151022019-821",
+      "t": 1790151022019,
+      "dir": "out",
+      "boxId": "B01",
+      "action": "servo.lock",
+      "payload": {
+        "reason": "collection_complete"
+      }
+    },
+    {
+      "id": "EV-1790151022019-94",
+      "t": 1790151022019,
+      "dir": "in",
+      "boxId": "B01",
+      "action": "parcel.collected",
+      "payload": {
+        "orderId": "402972247375"
+      }
+    },
+    {
+      "id": "EV-1790151022017-52",
+      "t": 1790151022017,
+      "dir": "out",
+      "boxId": "B01",
+      "action": "servo.unlock",
+      "payload": {
+        "reason": "pin_verified",
+        "orderId": "402972247375"
+      }
+    },
+    {
+      "id": "EV-1790151022017-316",
+      "t": 1790151022017,
+      "dir": "in",
+      "boxId": "B01",
+      "action": "pin.verified",
+      "payload": {
+        "orderId": "402972247375"
+      }
+    },
+    {
+      "id": "EV-1790151022015-45",
+      "t": 1790151022015,
+      "dir": "in",
+      "boxId": "B01",
+      "action": "pin.rejected",
+      "payload": {
+        "orderId": "402972247375",
+        "attempts": 1
+      }
+    },
+    {
+      "id": "EV-1790151022013-175",
+      "t": 1790151022013,
+      "dir": "out",
+      "boxId": "B01",
+      "action": "notify.student",
+      "payload": {
+        "studentId": "22BCE1043",
+        "pin": "7375",
+        "phone": "+91 98480 14310"
+      }
+    },
+    {
+      "id": "EV-1790151022013-892",
+      "t": 1790151022013,
+      "dir": "in",
+      "boxId": "B01",
+      "action": "order.registered",
+      "payload": {
+        "orderId": "402972247375",
+        "student": "Aarav Reddy"
+      }
+    }
+  ]
+}

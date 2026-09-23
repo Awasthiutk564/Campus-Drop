@@ -1,0 +1,2289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CampusDrop – Smart Campus Delivery Box System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{
+  --bg:#F5F4FA; --bg-glow-a:rgba(151,125,255,.18); --bg-glow-b:rgba(232,170,110,.14);
+  --panel:rgba(255,255,255,.88); --panel-solid:#FFFFFF; --panel-strong:#FFFFFF;
+  --line:rgba(46,34,110,.08); --line-strong:rgba(46,34,110,.15);
+  --text:#1C1840; --muted:#646086; --faint:#9B98BE;
+  --lav:#6E55F5; --lav-soft:#EBE7FF; --lav-ink:#FFFFFF;
+  --kraft:#B8732F; --kraft-soft:#FCEEE0;
+  --ok:#17995F; --ok-soft:#D8F4E6; --bad:#D63F50; --bad-soft:#FCE1E4;
+  --shadow:0 18px 45px -22px rgba(45,30,110,.15);
+  --stage:radial-gradient(120% 90% at 50% 20%, #FFFFFF 0%, #EDE7FD 75%);
+  --font-d:"Unbounded","Arial Black",system-ui,sans-serif;
+  --font-b:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --bg:#0C0F28; --bg-glow-a:rgba(123,97,255,.30); --bg-glow-b:rgba(230,174,110,.14);
+  --panel:rgba(26,31,70,.68); --panel-solid:#161A3E; --panel-strong:rgba(32,38,84,.94);
+  --line:rgba(190,180,255,.12); --line-strong:rgba(190,180,255,.24);
+  --text:#ECEAFB; --muted:#9C99C4; --faint:#6B689A;
+  --lav:#B3A1FF; --lav-soft:rgba(179,161,255,.16); --lav-ink:#140F3A;
+  --kraft:#E8B073; --kraft-soft:rgba(232,176,115,.16);
+  --ok:#63E6A5; --ok-soft:rgba(99,230,165,.14); --bad:#FF7D8B; --bad-soft:rgba(255,125,139,.16);
+  --shadow:0 24px 60px -28px rgba(0,0,0,.7);
+  --stage:radial-gradient(120% 90% at 50% 15%, #232A63 0%, #10132F 75%);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  font-family:var(--font-b); color:var(--text); background:var(--bg);
+  background-image:radial-gradient(60vw 50vw at 8% -10%, var(--bg-glow-a), transparent 60%),
+                   radial-gradient(50vw 40vw at 105% 110%, var(--bg-glow-b), transparent 60%);
+  background-attachment:fixed; font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased;
+}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--lav);outline-offset:2px}
+img,svg,canvas{max-width:100%}
+
+/* App Shell */
+.app{display:grid;grid-template-columns:92px 1fr;min-height:100vh}
+.rail{position:sticky;top:0;height:100vh;padding:20px 0;display:flex;flex-direction:column;align-items:center;gap:12px;border-right:1px solid var(--line);background:var(--panel);backdrop-filter:blur(18px);z-index:30}
+.logo{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(145deg,var(--lav),#E8B073);margin-bottom:16px;box-shadow:var(--shadow);cursor:pointer;transition:transform .2s}
+.logo:hover{transform:scale(1.05)}
+.logo svg{width:28px;height:28px}
+.nav{display:flex;flex-direction:column;gap:8px;width:100%;align-items:center}
+.nav a{position:relative;width:72px;padding:10px 4px 8px;border-radius:16px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);text-decoration:none;font-size:11px;font-weight:700;transition:all .2s;text-align:center}
+.nav a svg{width:22px;height:22px}
+.nav a:hover{color:var(--text);background:var(--lav-soft)}
+.nav a[aria-current="page"]{color:var(--lav-ink);background:var(--lav);box-shadow:0 8px 20px -8px var(--lav)}
+.badge{position:absolute;top:4px;right:10px;min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:var(--kraft);color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center}
+.badge[hidden]{display:none}
+
+.rail-footer{margin-top:auto;display:flex;flex-direction:column;gap:10px;align-items:center}
+.theme-btn{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--panel-strong);display:grid;place-items:center;color:var(--muted);transition:all .2s}
+.theme-btn:hover{color:var(--text);background:var(--lav-soft)}
+
+/* Header & Top Bar */
+main{padding:24px clamp(16px,3vw,36px) 60px;max-width:1440px;width:100%;margin:0 auto;min-width:0}
+.role-banner{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 20px;border-radius:18px;background:var(--panel);border:1px solid var(--line);margin-bottom:20px;backdrop-filter:blur(14px);flex-wrap:wrap}
+.role-tabs{display:flex;gap:6px;background:var(--lav-soft);padding:4px;border-radius:14px}
+.role-tab{border:0;background:transparent;padding:7px 14px;border-radius:10px;font-weight:700;font-size:13px;color:var(--muted);transition:all .2s}
+.role-tab[aria-selected="true"]{background:var(--panel-solid);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.role-tab svg{width:16px;height:16px;vertical-align:-3px;margin-right:4px}
+.role-extras{display:flex;align-items:center;gap:10px}
+
+.topbar{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.topbar h1{font-family:var(--font-d);font-weight:600;font-size:clamp(24px,3vw,32px);letter-spacing:-.02em;line-height:1.15;margin:0}
+.topbar p{margin:6px 0 0;color:var(--muted);max-width:65ch}
+.sync{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:99px;border:1px solid var(--line);background:var(--panel);font-size:13px;font-weight:600;color:var(--muted)}
+.sync i{width:8px;height:8px;border-radius:50%;background:var(--faint);transition:background .3s}
+.sync.live i{background:var(--ok);box-shadow:0 0 0 4px var(--ok-soft)}
+
+/* Views */
+.view{display:none}
+.view.active{display:block;animation:viewIn .4s cubic-bezier(.2,.7,.2,1)}
+@keyframes viewIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* Panels */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:24px;backdrop-filter:blur(20px);box-shadow:var(--shadow);min-width:0}
+.panel-pad{padding:22px}
+.panel h2{font-family:var(--font-d);font-weight:600;font-size:16px;letter-spacing:-.01em;margin:0}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+
+/* Buttons & Chips */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:14px;padding:11px 18px;font-weight:700;font-size:14px;transition:all .18s;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--lav);color:var(--lav-ink)}
+.btn-primary:hover{filter:brightness(1.08);box-shadow:0 6px 18px -4px var(--lav)}
+.btn-ghost{background:transparent;border-color:var(--line-strong)}
+.btn-ghost:hover{background:var(--lav-soft)}
+.btn-kraft{background:var(--kraft);color:#fff}
+.btn-kraft:hover{filter:brightness(1.08);box-shadow:0 6px 18px -4px var(--kraft)}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.btn-lg{padding:14px 22px;font-size:15px;border-radius:16px;width:100%}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;font-size:12px;font-weight:700;white-space:nowrap}
+.chip-ok{background:var(--ok-soft);color:var(--ok)}
+.chip-kraft{background:var(--kraft-soft);color:var(--kraft)}
+.chip-bad{background:var(--bad-soft);color:var(--bad)}
+.chip-lav{background:var(--lav-soft);color:var(--lav)}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+
+/* Dashboard Grid */
+.hero{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:18px}
+.wall{position:relative;overflow:hidden;min-height:460px;background:var(--stage)}
+.wall .stage3d{position:absolute;inset:0}
+.wall-caption{position:absolute;left:22px;top:20px;right:22px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;pointer-events:none;z-index:2}
+.wall-caption h2{font-size:18px}
+.wall-caption p{margin:4px 0 0;font-size:13px;color:var(--muted)}
+.legend{display:flex;gap:12px;font-size:12px;font-weight:600;color:var(--muted);flex-wrap:wrap;justify-content:flex-end}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:9px;height:9px;border-radius:50%}
+.tags{position:absolute;inset:0;pointer-events:none;z-index:1}
+.tag{position:absolute;transform:translate(-50%,-100%);padding:5px 10px;border-radius:99px;font-size:11px;font-weight:800;background:var(--panel-strong);border:1px solid var(--line);white-space:nowrap;box-shadow:var(--shadow);transition:opacity .2s}
+.tag b{font-family:var(--font-d);font-weight:600;margin-right:6px}
+.wall-hint{position:absolute;left:22px;bottom:18px;font-size:12px;color:var(--muted);z-index:2;pointer-events:none}
+
+.detail{display:flex;flex-direction:column}
+.detail-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.boxno{font-family:var(--font-d);font-weight:600;font-size:52px;line-height:1;letter-spacing:-.04em}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:10px 18px;margin:20px 0;font-size:14px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;font-weight:700;text-align:right;min-width:0;overflow-wrap:anywhere}
+.detail .actions{margin-top:auto;display:grid;gap:10px}
+
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin:18px 0}
+.stat{padding:18px 20px}
+.stat .n{font-family:var(--font-d);font-weight:600;font-size:32px;letter-spacing:-.03em;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat .l{font-size:13px;color:var(--muted);font-weight:600}
+.stat .s{font-size:12px;margin-top:6px;color:var(--faint)}
+
+.row2{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:18px;margin-bottom:18px}
+.chart svg{width:100%;height:auto;display:block}
+.console{font-size:12.5px;max-height:280px;overflow:auto;display:flex;flex-direction:column;gap:3px}
+.ev{display:grid;grid-template-columns:58px 22px 1fr;gap:6px;padding:7px 10px;border-radius:10px;align-items:center}
+.ev:nth-child(odd){background:var(--lav-soft)}
+.ev time{color:var(--faint);font-variant-numeric:tabular-nums;font-size:11px}
+.ev .dir{font-weight:800;font-size:13px}
+.ev .dir.out{color:var(--lav)}
+.ev .dir.in{color:var(--ok)}
+.ev code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.empty-mini{color:var(--muted);font-size:13px;padding:18px 8px;text-align:center}
+
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.filters button{border:1px solid var(--line-strong);background:transparent;border-radius:99px;padding:6px 14px;font-size:13px;font-weight:700;color:var(--muted);transition:all .2s}
+.filters button[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text)}
+.search{border:1.5px solid var(--line-strong);background:var(--panel-strong);border-radius:12px;padding:8px 14px;min-width:220px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:720px}
+th{text-align:left;font-size:12px;color:var(--muted);font-weight:700;padding:10px 12px;border-bottom:1px solid var(--line)}
+td{padding:13px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+.who{display:flex;align-items:center;gap:10px}
+.avatar{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;flex:none;color:#fff}
+.oid{font-variant-numeric:tabular-nums;font-weight:700}
+.sample-note{font-size:11px;color:var(--faint);font-weight:600}
+
+/* Delivery & Collect Flows */
+.flow{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:20px;align-items:start}
+.stage-panel{position:sticky;top:20px;overflow:hidden;background:var(--stage);min-height:540px}
+.stage-panel .stage3d{position:absolute;inset:0}
+.stage-foot{position:absolute;left:18px;right:18px;bottom:18px;display:flex;justify-content:space-between;gap:10px;align-items:flex-end;z-index:2;pointer-events:none}
+.stage-foot .card{pointer-events:auto;background:var(--panel-strong);border:1px solid var(--line);border-radius:16px;padding:10px 16px;font-size:13px;box-shadow:var(--shadow)}
+.stage-foot .card b{display:block;font-family:var(--font-d);font-weight:600;font-size:15px}
+
+.steps{display:flex;gap:8px;margin-bottom:24px;padding:0}
+.steps li{flex:1;list-style:none;display:flex;flex-direction:column;gap:8px;font-size:12px;font-weight:700;color:var(--faint)}
+.steps li::before{content:"";height:6px;border-radius:9px;background:var(--line-strong);transition:background .3s}
+.steps li.done{color:var(--muted)}
+.steps li.done::before{background:var(--lav)}
+.steps li.current{color:var(--text)}
+.steps li.current::before{background:linear-gradient(90deg,var(--lav),var(--kraft))}
+.step-title{font-family:var(--font-d);font-weight:600;font-size:22px;letter-spacing:-.02em;margin:0 0 6px;line-height:1.2}
+.step-sub{color:var(--muted);margin:0 0 20px}
+
+/* Scanner */
+.scanner-container{position:relative;margin:0 auto 20px;max-width:320px}
+.scanner{position:relative;aspect-ratio:1;border-radius:24px;background:#fff;padding:24px;overflow:hidden;display:grid;place-items:center;box-shadow:var(--shadow)}
+.scanner canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
+.scanner video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
+.scanner.video-active video{display:block}
+.scanner::before{content:"";position:absolute;inset:12px;border:3px solid var(--lav);border-radius:18px;clip-path:polygon(0 0,28% 0,28% 6px,6px 6px,6px 28%,0 28%,0 72%,6px 72%,6px calc(100% - 6px),28% calc(100% - 6px),28% 100%,72% 100%,72% calc(100% - 6px),calc(100% - 6px) calc(100% - 6px),calc(100% - 6px) 72%,100% 72%,100% 28%,calc(100% - 6px) 28%,calc(100% - 6px) 6px,72% 6px,72% 0,100% 0,100% 100%,0 100%);pointer-events:none}
+.laser{position:absolute;left:14px;right:14px;height:3px;top:12%;border-radius:3px;background:var(--lav);box-shadow:0 0 20px 5px var(--lav);opacity:0;pointer-events:none}
+.scanning .laser{opacity:1;animation:laser 1.2s ease-in-out infinite alternate}
+@keyframes laser{from{top:12%}to{top:86%}}
+.scanned-ok{position:absolute;inset:0;display:grid;place-items:center;background:rgba(23,153,95,.92);color:#fff;font-family:var(--font-d);font-weight:600;font-size:16px;opacity:0;transition:opacity .3s;pointer-events:none}
+.scanner.ok .scanned-ok{opacity:1}
+.cam-toggle-row{display:flex;justify-content:center;gap:10px;margin-bottom:18px}
+
+.box-pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px}
+.box-pick button{text-align:left;border:1.5px solid var(--line-strong);background:var(--panel-strong);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:3px;transition:all .2s}
+.box-pick button b{font-family:var(--font-d);font-weight:600;font-size:14px}
+.box-pick button span{font-size:12px;color:var(--muted)}
+.box-pick button[aria-pressed="true"]{border-color:var(--lav);background:var(--lav-soft);box-shadow:0 4px 12px -2px var(--lav-soft)}
+.box-pick button[disabled]{opacity:.5;cursor:not-allowed}
+
+/* Form Fields */
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:13px;font-weight:700}
+.field .hint{font-size:12px;color:var(--muted)}
+.field .err{font-size:12px;color:var(--bad);font-weight:600;min-height:0}
+.input{border:1.5px solid var(--line-strong);background:var(--panel-strong);border-radius:14px;padding:12px 14px;width:100%;min-width:0;transition:border-color .2s}
+.input:focus{border-color:var(--lav);outline:none;box-shadow:0 0 0 3px var(--lav-soft)}
+.input.invalid{border-color:var(--bad)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.seg{display:flex;background:var(--lav-soft);border-radius:14px;padding:4px;gap:4px}
+.seg button{flex:1;border:0;background:transparent;border-radius:10px;padding:9px 6px;font-weight:700;font-size:13px;color:var(--muted);transition:all .2s}
+.seg button[aria-pressed="true"]{background:var(--panel-solid);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+
+/* PIN Preview Card */
+.pinpreview{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 20px;border-radius:18px;background:var(--kraft-soft);margin:10px 0 22px;border:1px solid rgba(184,115,47,.2);flex-wrap:wrap}
+.pinpreview p{margin:0;font-size:13px;color:var(--muted);max-width:30ch}
+.pinpreview p b{color:var(--text)}
+.pin-digits{display:flex;gap:8px}
+.pin-digits span{width:46px;height:54px;border-radius:12px;background:var(--panel-solid);display:grid;place-items:center;font-family:var(--font-d);font-weight:700;font-size:24px;color:var(--kraft);border:1.5px solid var(--line-strong);box-shadow:0 4px 10px rgba(0,0,0,.04)}
+
+/* Checklist */
+.checklist{list-style:none;padding:0;margin:0 0 24px;display:grid;gap:10px}
+.checklist li{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:16px;border:1px solid var(--line);background:var(--panel-strong);font-weight:600;font-size:14px;color:var(--muted);transition:all .3s}
+.checklist li .ck{width:28px;height:28px;border-radius:50%;border:2px solid var(--line-strong);display:grid;place-items:center;flex:none;transition:all .3s}
+.checklist li.done{color:var(--text);border-color:rgba(23,153,95,.3)}
+.checklist li.done .ck{background:var(--ok);border-color:var(--ok);color:#fff}
+.checklist li.busy{border-color:var(--lav);color:var(--text)}
+.checklist li.busy .ck{border-color:var(--lav);border-top-color:transparent;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.receipt{border-radius:20px;border:1.5px dashed var(--line-strong);padding:20px;margin-bottom:20px;background:var(--panel)}
+.bigok{width:68px;height:68px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;margin-bottom:16px;animation:pop .5s cubic-bezier(.2,1.6,.4,1);box-shadow:0 12px 28px -6px var(--ok)}
+@keyframes pop{from{transform:scale(.3);opacity:0}}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap}
+.btn-row .btn{flex:1}
+
+/* Student Collect Portal */
+.signin{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:20px;background:var(--lav-soft);margin-bottom:20px;flex-wrap:wrap}
+.signin select{border:0;background:transparent;font-weight:800;font-size:15px;padding:4px 0;min-width:0;flex:1;cursor:pointer}
+.inbox{display:grid;gap:12px;margin-bottom:12px}
+.parcel{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:16px;border-radius:20px;border:1.5px solid var(--line);background:var(--panel-strong);text-align:left;width:100%;transition:all .2s;cursor:pointer}
+.parcel:hover{border-color:var(--lav);transform:translateY(-2px);box-shadow:0 8px 24px -10px var(--lav)}
+.parcel .pic{width:52px;height:52px;border-radius:16px;background:var(--kraft-soft);display:grid;place-items:center;color:var(--kraft)}
+.parcel .pic svg{width:28px;height:28px}
+.parcel b{display:block;font-size:15px;margin-bottom:2px}
+.parcel span{font-size:13px;color:var(--muted)}
+
+/* Interactive Keypad */
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:320px;margin:0 auto 20px}
+.keypad button{height:60px;border-radius:16px;border:1.5px solid var(--line);background:var(--panel-strong);font-family:var(--font-d);font-weight:600;font-size:22px;transition:all .15s}
+.keypad button:hover{background:var(--lav-soft);border-color:var(--lav)}
+.keypad button:active{transform:scale(.94)}
+.keypad button.fn{font-family:var(--font-b);font-size:13px;font-weight:800;color:var(--muted)}
+
+.pin-entry{display:flex;justify-content:center;gap:12px;margin:0 0 20px}
+.pin-entry span{width:58px;height:68px;border-radius:18px;border:2px solid var(--line-strong);display:grid;place-items:center;font-family:var(--font-d);font-size:30px;font-weight:700;background:var(--panel-strong);transition:border-color .2s}
+.pin-entry span.filled{border-color:var(--lav);box-shadow:0 0 0 3px var(--lav-soft)}
+.pin-entry.bad span{border-color:var(--bad);color:var(--bad)}
+.pin-entry.bad{animation:shake .45s}
+.pin-entry.good span{border-color:var(--ok);color:var(--ok)}
+@keyframes shake{20%,60%{transform:translateX(-10px)}40%,80%{transform:translateX(10px)}}
+.msg{text-align:center;font-size:13px;font-weight:700;min-height:22px;margin-bottom:14px}
+.msg.bad{color:var(--bad)}
+.msg.ok{color:var(--ok)}
+.empty{padding:32px 20px;border-radius:24px;border:2px dashed var(--line-strong);text-align:center}
+.empty h3{font-family:var(--font-d);font-weight:600;font-size:18px;margin:0 0 6px}
+.empty p{color:var(--muted);margin:0 auto 18px;max-width:42ch;font-size:14px}
+.back{border:0;background:none;color:var(--muted);font-weight:700;font-size:13px;padding:0;margin-bottom:16px;display:inline-flex;gap:6px;align-items:center}
+.back:hover{color:var(--text)}
+
+/* Mobile Notification Simulator Banner */
+.phone-lockscreen-banner{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:90;width:min(420px,calc(100vw - 32px));background:rgba(25,22,50,.88);color:#fff;border-radius:22px;padding:14px 18px;border:1px solid rgba(255,255,255,.2);box-shadow:0 24px 60px rgba(0,0,0,.6);backdrop-filter:blur(24px);animation:notifSlideIn .5s cubic-bezier(.2,1.2,.4,1);cursor:pointer;display:none}
+@keyframes notifSlideIn{from{opacity:0;transform:translate(-50%,-30px) scale(.92)}}
+.pl-header{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:rgba(255,255,255,.65);margin-bottom:6px;font-weight:700}
+.pl-app{display:flex;align-items:center;gap:6px}
+.pl-app svg{width:16px;height:16px;color:var(--lav)}
+.pl-content b{display:block;font-size:14.5px;color:#fff;margin-bottom:2px}
+.pl-content p{margin:0;font-size:13px;color:rgba(255,255,255,.85);line-height:1.35}
+.pl-pin-badge{display:inline-block;margin-top:6px;padding:3px 8px;border-radius:6px;background:var(--kraft);color:#fff;font-family:var(--font-d);font-weight:700;font-size:11px}
+
+/* Toasts */
+.toasts{position:fixed;top:18px;right:18px;z-index:80;display:grid;gap:10px;width:min(360px,calc(100vw - 36px))}
+.toast{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;padding:14px 16px;border-radius:18px;background:var(--panel-strong);border:1px solid var(--line);box-shadow:0 20px 50px -20px rgba(0,0,0,.45);backdrop-filter:blur(20px);animation:toastIn .45s cubic-bezier(.2,1.2,.4,1);cursor:pointer;text-align:left}
+.toast .ti{width:38px;height:38px;border-radius:12px;background:var(--kraft-soft);color:var(--kraft);display:grid;place-items:center}
+.toast b{display:block;font-size:14px}
+.toast span{font-size:13px;color:var(--muted)}
+.toast.out{animation:toastOut .3s forwards}
+@keyframes toastIn{from{opacity:0;transform:translateY(-14px) scale(.96)}}
+@keyframes toastOut{to{opacity:0;transform:translateX(30px)}}
+
+/* Hardware Bench View */
+.hw-bench{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px}
+.hw-box-mock{background:#171933;color:#fff;border-radius:28px;padding:26px;box-shadow:0 24px 60px rgba(0,0,0,.5);border:2px solid #2B2F57;position:relative}
+.hw-header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #2B2F57;padding-bottom:14px;margin-bottom:20px}
+.hw-header b{font-family:var(--font-d);font-size:18px;color:#ECEAFB}
+.oled-screen{background:#040608;border:2px solid #212542;border-radius:12px;padding:14px 18px;font-family:ui-monospace,Menlo,monospace;color:#5DF0A6;box-shadow:inset 0 0 16px rgba(93,240,166,.15);margin-bottom:20px}
+.oled-screen .title{color:#B3A1FF;font-size:12px;border-bottom:1px dashed #212542;padding-bottom:4px;margin-bottom:6px}
+.oled-screen .main-line{font-size:18px;font-weight:700;letter-spacing:1px}
+.oled-screen .sub-line{font-size:12px;color:#A29FC2;margin-top:4px}
+.hw-controls-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.hw-ctrl-card{background:#202448;border-radius:16px;padding:14px;border:1px solid #333866}
+.hw-ctrl-card label{display:block;font-size:12px;font-weight:700;color:#9C99C4;margin-bottom:8px}
+.servo-gauge{display:flex;align-items:center;gap:12px}
+.gauge-dial{width:54px;height:54px;border-radius:50%;background:#12142B;border:3px solid #6E55F5;display:grid;place-items:center;font-family:var(--font-d);font-size:14px;font-weight:700;color:#B3A1FF;transition:transform .4s}
+.code-preview{background:#0C0F28;border-radius:14px;padding:14px;font-family:ui-monospace,monospace;font-size:12px;color:#A29FC2;max-height:220px;overflow:auto;line-height:1.45;border:1px solid #232752}
+
+@media (max-width:1080px){
+  .hero,.row2,.flow,.hw-bench{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stage-panel{position:relative;top:0;min-height:400px}
+}
+@media (max-width:760px){
+  .app{grid-template-columns:1fr}
+  .rail{position:fixed;top:auto;bottom:0;left:0;right:0;height:auto;flex-direction:row;padding:8px 10px calc(8px + env(safe-area-inset-bottom));border-right:0;border-top:1px solid var(--line);z-index:40;justify-content:center}
+  .logo,.rail-footer{display:none}
+  .nav{flex-direction:row;gap:4px;width:100%;justify-content:space-around}
+  .nav a{width:auto;flex:1;padding:8px 2px}
+  main{padding:16px 14px 110px}
+  .wall{min-height:360px}
+  .stats{gap:10px}
+  .stat{padding:14px}
+  .stat .n{font-size:24px}
+  .grid2{grid-template-columns:1fr}
+  .boxno{font-size:42px}
+  .legend{display:none}
+  .stage-panel{min-height:340px}
+  .panel-pad{padding:18px}
+  .role-banner{flex-direction:column;align-items:stretch}
+  .role-tabs{overflow-x:auto}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Navigation Rail -->
+  <nav class="rail" aria-label="Main Navigation">
+    <div class="logo" id="logoBtn" title="CampusDrop Home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></svg>
+    </div>
+    <div class="nav">
+      <a href="#/dashboard" data-route="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7.5" height="9" rx="2"/><rect x="13.5" y="3" width="7.5" height="5.5" rx="2"/><rect x="3" y="15" width="7.5" height="6" rx="2"/><rect x="13.5" y="11.5" width="7.5" height="9.5" rx="2"/></svg>
+        Admin
+      </a>
+      <a href="#/deliver" data-route="deliver">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h11v10H2zM13 9h4.5L21 12.5V16h-8"/><circle cx="6" cy="17.5" r="2"/><circle cx="17" cy="17.5" r="2"/></svg>
+        Deliver
+      </a>
+      <a href="#/collect" data-route="collect">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4 4-6 8-6s7.2 2 8 6"/></svg>
+        Student
+        <span class="badge" id="collectBadge" hidden>0</span>
+      </a>
+      <a href="#/hardware" data-route="hardware">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg>
+        IoT Bench
+      </a>
+    </div>
+    <div class="rail-footer">
+      <button class="theme-btn" id="themeToggle" title="Toggle Theme" aria-label="Toggle dark/light mode">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <main>
+    <!-- Role Switcher Banner -->
+    <header class="role-banner">
+      <div class="role-tabs" role="tablist" aria-label="Portals">
+        <button class="role-tab" data-target="dashboard" aria-selected="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/></svg>
+          Admin Dashboard
+        </button>
+        <button class="role-tab" data-target="deliver" aria-selected="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6h11v10H2zM13 9h4.5L21 12.5V16h-8"/><circle cx="6" cy="17.5" r="2"/><circle cx="17" cy="17.5" r="2"/></svg>
+          Delivery Boy App
+        </button>
+        <button class="role-tab" data-target="collect" aria-selected="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4 4-6 8-6s7.2 2 8 6"/></svg>
+          Student Portal
+        </button>
+        <button class="role-tab" data-target="hardware" aria-selected="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="12" cy="12" r="3"/></svg>
+          ESP32 IoT Bench
+        </button>
+      </div>
+
+      <div class="role-extras">
+        <span class="sync" data-sync title="Real-time Server & WebSocket Status">
+          <i></i><span id="syncText">Connecting to server...</span>
+        </span>
+        <button class="btn btn-ghost" id="topThemeToggle" style="padding:6px 14px;font-size:12px;gap:6px" title="Toggle Light / Dark Mode">
+          <span id="topThemeIcon">☀️</span>
+          <span id="topThemeLabel">Light Mode</span>
+        </button>
+        <button class="btn btn-ghost" id="quickSeed" style="padding:6px 12px;font-size:12px" title="Seed Demo Parcels">
+          + Add Demo Parcels
+        </button>
+      </div>
+    </header>
+
+    <!-- 1. DASHBOARD VIEW (ADMIN) -->
+    <section class="view" id="view-dashboard" aria-labelledby="t-dash">
+      <div class="topbar">
+        <div>
+          <h1 id="t-dash">Campus Overview</h1>
+          <p>Real-time telemetry from every smart box on campus, parcel occupancy, and servo lock states.</p>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-ghost" id="refreshBtn" title="Refresh State">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      <div class="hero">
+        <div class="panel wall" id="wallPanel">
+          <div class="wall-caption">
+            <div>
+              <h2>Box Network 3D</h2>
+              <p id="wallSummary">Loading box telemetry...</p>
+            </div>
+            <div class="legend">
+              <span><i style="background:#4FDC98"></i>Free</span>
+              <span><i style="background:#E8A05C"></i>Parcel Inside</span>
+              <span><i style="background:#B3A1FF"></i>Door Open</span>
+              <span><i style="background:#FF6F7F"></i>Offline</span>
+            </div>
+          </div>
+          <div class="stage3d" id="wallStage"></div>
+          <div class="tags" id="wallTags"></div>
+          <div class="wall-hint">Drag to rotate 3D campus locker grid. Tap any box to inspect.</div>
+        </div>
+
+        <aside class="panel panel-pad detail" id="boxDetail" aria-live="polite"></aside>
+      </div>
+
+      <div class="stats" id="stats"></div>
+
+      <div class="row2">
+        <div class="panel panel-pad chart">
+          <div class="panel-head">
+            <h2>Weekly Volume Activity</h2>
+            <div class="legend" style="display:flex">
+              <span><i style="background:var(--lav)"></i>Delivered</span>
+              <span><i style="background:var(--kraft)"></i>Collected</span>
+            </div>
+          </div>
+          <div id="chart"></div>
+        </div>
+
+        <div class="panel panel-pad">
+          <div class="panel-head">
+            <h2>Live IoT Hardware Console</h2>
+            <span class="chip chip-lav" id="hwMode"><span class="dot"></span>ESP32 Telemetry</span>
+          </div>
+          <div class="console" id="console"></div>
+        </div>
+      </div>
+
+      <div class="panel panel-pad">
+        <div class="panel-head">
+          <h2>All Registered Orders</h2>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+            <div class="filters" id="orderFilters" role="group" aria-label="Filter orders">
+              <button aria-pressed="true" data-f="all">All</button>
+              <button aria-pressed="false" data-f="awaiting">Waiting</button>
+              <button aria-pressed="false" data-f="collected">Collected</button>
+            </div>
+            <input class="search" id="orderSearch" type="search" placeholder="Search order ID or student..." aria-label="Search orders">
+            <button class="btn btn-ghost" id="exportCsv" style="padding:6px 12px;font-size:12px">Export CSV</button>
+          </div>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Order ID</th><th>Student</th><th>Box</th><th>Courier</th><th>Arrived</th><th>Status</th></tr></thead>
+          <tbody id="ordersBody"></tbody>
+        </table></div>
+      </div>
+    </section>
+
+    <!-- 2. DELIVER VIEW (DELIVERY BOY) -->
+    <section class="view" id="view-deliver" aria-labelledby="t-del">
+      <div class="topbar">
+        <div>
+          <h1 id="t-del">Delivery Partner Portal</h1>
+          <p>Scan box QR, register order ID, place parcel inside, and let the sensor notify the student.</p>
+        </div>
+      </div>
+      <div class="flow">
+        <div class="panel stage-panel">
+          <div class="stage3d" id="deliverStage"></div>
+          <div class="stage-foot">
+            <div class="card" id="deliverBoxCard"><b>Box #01</b><span class="muted">Scan QR to connect</span></div>
+            <span class="chip chip-lav" id="deliverLed"><span class="dot"></span>Waiting</span>
+          </div>
+        </div>
+        <div class="panel panel-pad">
+          <ol class="steps" id="deliverSteps" aria-label="Delivery Steps">
+            <li>1. Scan Box</li><li>2. Order Details</li><li>3. Drop Parcel</li><li>4. Done</li>
+          </ol>
+          <div id="deliverBody"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. COLLECT VIEW (STUDENT PORTAL) -->
+    <section class="view" id="view-collect" aria-labelledby="t-col">
+      <div class="topbar">
+        <div>
+          <h1 id="t-col">Student Pickup Portal</h1>
+          <p>View pending parcels, verify presence at the box, and enter your 4-digit PIN to unlock.</p>
+        </div>
+        <button class="btn btn-ghost" id="testNotifBtn" style="font-size:13px">
+          🔔 Test Push Notification
+        </button>
+      </div>
+      <div class="flow">
+        <div class="panel stage-panel">
+          <div class="stage3d" id="collectStage"></div>
+          <div class="stage-foot">
+            <div class="card" id="collectBoxCard"><b>Your Box</b><span class="muted">Select parcel to inspect</span></div>
+            <span class="chip chip-lav" id="collectLed"><span class="dot"></span>Locked</span>
+          </div>
+        </div>
+        <div class="panel panel-pad">
+          <div class="signin">
+            <div class="avatar" id="meAvatar">AR</div>
+            <div style="display:flex;flex-direction:column;flex:1;min-width:0">
+              <label for="studentSelect" class="small muted" style="font-weight:700">Signed In As</label>
+              <select id="studentSelect" aria-label="Select student"></select>
+            </div>
+          </div>
+          <div id="collectBody"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. IOT BENCH VIEW (HARDWARE SIMULATOR & FIRMWARE) -->
+    <section class="view" id="view-hardware" aria-labelledby="t-hw">
+      <div class="topbar">
+        <div>
+          <h1 id="t-hw">ESP32 IoT Hardware Bench</h1>
+          <p>Real-time physical simulation of the Smart Delivery Box: Servo actuator, IR/Ultrasonic sensor, Keypad, and OLED.</p>
+        </div>
+      </div>
+
+      <div class="hw-bench">
+        <!-- Virtual Hardware Mockup -->
+        <div class="hw-box-mock">
+          <div class="hw-header">
+            <div>
+              <b>CampusDrop Smart Box #01</b>
+              <div class="small muted" style="margin-top:2px">ESP32-WROOM-32 Firmware v1.2</div>
+            </div>
+            <span class="chip chip-ok" id="hwBenchStatus"><span class="dot"></span>Hardware Ready</span>
+          </div>
+
+          <!-- Virtual OLED Display -->
+          <div class="oled-screen" id="oledScreen">
+            <div class="title">I2C OLED 128x64 SSD1306</div>
+            <div class="main-line" id="oledLine1">CampusDrop Box #01</div>
+            <div class="sub-line" id="oledLine2">STATUS: READY</div>
+            <div class="sub-line" id="oledLine3">Scan QR or Enter PIN</div>
+          </div>
+
+          <!-- Controls & Sensors -->
+          <div class="hw-controls-grid">
+            <div class="hw-ctrl-card">
+              <label>SERVO LOCK ACTUATOR (GPIO 13)</label>
+              <div class="servo-gauge">
+                <div class="gauge-dial" id="gaugeDial">0°</div>
+                <div>
+                  <b id="servoStateText" style="display:block;font-size:14px;color:#ECEAFB">LOCKED (0°)</b>
+                  <span class="small muted">SG90 / MG996R</span>
+                </div>
+              </div>
+              <div style="display:flex;gap:6px;margin-top:10px">
+                <button class="btn btn-ghost" id="hwManualUnlock" style="padding:6px 10px;font-size:12px">Unlock (90°)</button>
+                <button class="btn btn-ghost" id="hwManualLock" style="padding:6px 10px;font-size:12px">Lock (0°)</button>
+              </div>
+            </div>
+
+            <div class="hw-ctrl-card">
+              <label>PARCEL SENSOR (IR / ULTRASONIC)</label>
+              <b id="sensorStateText" style="display:block;font-size:14px;color:#4FDC98;margin-bottom:4px">EMPTY (No parcel)</b>
+              <span class="small muted" id="sensorDistText">Distance: &gt; 25 cm</span>
+              <div style="display:flex;gap:6px;margin-top:10px">
+                <button class="btn btn-ghost" id="hwTriggerSensor" style="padding:6px 10px;font-size:12px">Simulate Parcel In</button>
+                <button class="btn btn-ghost" id="hwClearSensor" style="padding:6px 10px;font-size:12px">Simulate Empty</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Physical Keypad Simulator -->
+          <div style="margin-top:16px">
+            <div class="small muted" style="font-weight:700;margin-bottom:8px">PHYSICAL KEYPAD ON BOX (4x4 MATRIX)</div>
+            <div class="keypad" style="max-width:280px;margin:0 0 10px">
+              <button class="hw-k" data-k="1">1</button>
+              <button class="hw-k" data-k="2">2</button>
+              <button class="hw-k" data-k="3">3</button>
+              <button class="hw-k" data-k="4">4</button>
+              <button class="hw-k" data-k="5">5</button>
+              <button class="hw-k" data-k="6">6</button>
+              <button class="hw-k" data-k="7">7</button>
+              <button class="hw-k" data-k="8">8</button>
+              <button class="hw-k" data-k="9">9</button>
+              <button class="hw-k fn" data-k="*">*</button>
+              <button class="hw-k" data-k="0">0</button>
+              <button class="hw-k fn" data-k="#">#</button>
+            </div>
+            <span class="small muted">Press numbers followed by <b>#</b> to verify PIN on the physical box. Press <b>*</b> to clear.</span>
+          </div>
+        </div>
+
+        <!-- Documentation & Hardware Integration API -->
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="panel panel-pad">
+            <h2>Hardware Integration Guide</h2>
+            <p class="muted small" style="margin:6px 0 14px">
+              Connect real ESP32 microcontrollers over WiFi to this backend server via REST and WebSockets.
+            </p>
+            <div class="code-preview">
+// Example: ESP32 HTTP POST to report parcel sensor detection
+HTTPClient http;
+http.begin("http://localhost:3000/api/boxes/B01/sensor");
+http.addHeader("Content-Type", "application/json");
+http.POST("{\"parcelPresent\":true,\"distanceCm\":10.2}");
+http.end();
+            </div>
+            <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+              <a class="btn btn-primary" href="firmware/esp32_campusdrop.ino" target="_blank" download style="font-size:13px">
+                Download ESP32 Code (.ino)
+              </a>
+              <a class="btn btn-ghost" href="firmware/HARDWARE_GUIDE.md" target="_blank" style="font-size:13px">
+                View Wiring Schematics
+              </a>
+            </div>
+          </div>
+
+          <div class="panel panel-pad">
+            <h2>REST API Endpoints</h2>
+            <div class="table-wrap">
+              <table style="font-size:13px;min-width:480px">
+                <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead>
+                <tbody>
+                  <tr><td><code>GET</code></td><td>/api/boxes</td><td>Fetch all boxes & lock states</td></tr>
+                  <tr><td><code>POST</code></td><td>/api/boxes/:id/unlock</td><td>Trigger servo unlock (90°)</td></tr>
+                  <tr><td><code>POST</code></td><td>/api/boxes/:id/lock</td><td>Trigger servo lock (0°)</td></tr>
+                  <tr><td><code>POST</code></td><td>/api/boxes/:id/sensor</td><td>Report IR/Ultrasonic parcel state</td></tr>
+                  <tr><td><code>POST</code></td><td>/api/orders/verify-pin</td><td>Verify 4-digit PIN & unlock</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Interactive Mobile Push Notification Simulator Banner -->
+<div class="phone-lockscreen-banner" id="mobileNotifBanner" role="alert">
+  <div class="pl-header">
+    <div class="pl-app">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/></svg>
+      <span>CAMPUSDROP • JUST NOW</span>
+    </div>
+    <span>Swipe to open</span>
+  </div>
+  <div class="pl-content">
+    <b id="notifTitle">Parcel Arrived! 📦</b>
+    <p id="notifBody">Your Amazon order is waiting in Smart Box #01. Enter last 4 digits PIN to collect.</p>
+    <span class="pl-pin-badge" id="notifPinBadge">PIN: 9012</span>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+/* ==========================================================================
+   CampusDrop - Complete Web App & Hardware Engine
+   ========================================================================== */
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- Audio FX Engine (Web Audio API) ---------- */
+const Sound = {
+  ctx: null,
+  init() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx && !this.ctx) this.ctx = new AudioCtx();
+    } catch(e) {}
+  },
+  play(fn) {
+    try {
+      this.init();
+      if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+      if (this.ctx) fn(this.ctx);
+    } catch(e) {}
+  },
+  keypadClick() {
+    this.play(ctx => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(800, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.04);
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.04);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(); osc.stop(ctx.currentTime + 0.04);
+    });
+  },
+  servoHum() {
+    this.play(ctx => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(140, ctx.currentTime);
+      osc.frequency.linearRampToValueAtTime(180, ctx.currentTime + 0.35);
+      gain.gain.setValueAtTime(0.04, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.35);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(); osc.stop(ctx.currentTime + 0.35);
+    });
+  },
+  success() {
+    this.play(ctx => {
+      [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.08);
+        gain.gain.setValueAtTime(0.12, ctx.currentTime + i * 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.08 + 0.28);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + i * 0.08);
+        osc.stop(ctx.currentTime + i * 0.08 + 0.28);
+      });
+    });
+  },
+  alert() {
+    this.play(ctx => {
+      [440, 554.37].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.12);
+        gain.gain.setValueAtTime(0.15, ctx.currentTime + i * 0.12);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.25);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + i * 0.12);
+        osc.stop(ctx.currentTime + i * 0.12 + 0.25);
+      });
+    });
+  },
+  errorBuzz() {
+    this.play(ctx => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(150, ctx.currentTime);
+      gain.gain.setValueAtTime(0.14, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.25);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(); osc.stop(ctx.currentTime + 0.25);
+    });
+  }
+};
+
+/* ---------- Data Store & Dual-Mode Backend Service ---------- */
+const BOXES = [
+  { id:'B01', no:'01', name:'Smart Box 01', place:'Hostel A, main gate',     online:true, servoAngle:0, locked:true, parcelPresent:false },
+  { id:'B02', no:'02', name:'Smart Box 02', place:'Central library entrance', online:true, servoAngle:0, locked:true, parcelPresent:false },
+  { id:'B03', no:'03', name:'Smart Box 03', place:'Hostel B lobby',           online:true, servoAngle:0, locked:true, parcelPresent:false },
+  { id:'B04', no:'04', name:'Smart Box 04', place:'Admin block',              online:true, servoAngle:0, locked:true, parcelPresent:false },
+  { id:'B05', no:'05', name:'Smart Box 05', place:'Food court',               online:true, servoAngle:0, locked:true, parcelPresent:false },
+  { id:'B06', no:'06', name:'Smart Box 06', place:'Sports complex',           online:false, servoAngle:0, locked:true, parcelPresent:false },
+];
+const STUDENTS = [
+  { id:'22BCE1043', name:'Aarav Reddy',  phone:'+91 98480 14310', hostel:'Hostel A, room 214', color:'#7B61FF' },
+  { id:'22BEC0871', name:'Diya Sharma',  phone:'+91 90002 55871', hostel:'Hostel C, room 108', color:'#E0875A' },
+  { id:'23BME0412', name:'Kiran Varma',  phone:'+91 99665 20412', hostel:'Hostel B, room 331', color:'#2FA58B' },
+  { id:'21BIT0199', name:'Sneha Iyer',   phone:'+91 97011 60199', hostel:'Hostel C, room 015', color:'#D05C8E' },
+  { id:'23BCS0620', name:'Rohan Das',    phone:'+91 88850 70620', hostel:'Hostel A, room 402', color:'#4A86E8' },
+  { id:'22BDS0115', name:'Ananya Patel', phone:'+91 98123 45678', hostel:'Hostel B, room 105', color:'#F59E0B' },
+];
+const COURIERS = ['Amazon','Flipkart','Delhivery','Blue Dart','DTDC','Meesho','Other'];
+
+const boxById = id => Store.boxes.find(b => b.id === id) || BOXES.find(b => b.id === id);
+const studentById = id => Store.students.find(s => s.id === id) || STUDENTS.find(s => s.id === id);
+const initials = n => n.split(' ').map(p => p[0]).join('').slice(0,2).toUpperCase();
+const pinFor = orderId => String(orderId).slice(-4);
+
+/* Sample historical data for charts */
+const SAMPLE_HISTORY = (() => {
+  let seed = 17; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const out = [], now = Date.now(), day0 = new Date(); day0.setHours(0,0,0,0);
+  for (let d = 6; d >= 0; d--) {
+    const n = 6 + Math.floor(rnd() * 8);
+    for (let i = 0; i < n; i++) {
+      const st = STUDENTS[Math.floor(rnd() * STUDENTS.length)];
+      const created = day0.getTime() - d * 864e5 + (8 + rnd() * 12) * 36e5;
+      if (created > now - 30 * 6e4) continue;
+      const collectedAt = created + (15 + rnd() * 180) * 6e4;
+      if (collectedAt > now) continue;
+      const id = String(402000000000 + Math.floor(rnd() * 99999999));
+      out.push({ id, sample:true, boxId:BOXES[Math.floor(rnd()*5)].id, studentId:st.id, studentName:st.name,
+        courier:COURIERS[Math.floor(rnd()*5)], size:['Small','Medium','Large'][Math.floor(rnd()*3)],
+        pin:pinFor(id), status:'collected', createdAt:created, collectedAt });
+    }
+  }
+  return out;
+})();
+
+const Store = {
+  mode: 'local', // 'live' or 'local'
+  boxes: [...BOXES],
+  students: [...STUDENTS],
+  orders: [],
+  events: [],
+  subs: new Set(),
+  ws: null,
+  KEY: 'campusdrop.store.v2',
+
+  on(fn) { this.subs.add(fn); },
+  emit() { this.subs.forEach(fn => { try { fn(); } catch(e){ console.error(e); } }); },
+
+  loadLocal() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(this.KEY));
+      if (saved) {
+        if (Array.isArray(saved.orders)) this.orders = saved.orders;
+        if (Array.isArray(saved.events)) this.events = saved.events;
+      }
+    } catch(e) {}
+  },
+  saveLocal() {
+    try {
+      localStorage.setItem(this.KEY, JSON.stringify({ orders: this.orders, events: this.events.slice(0, 40) }));
+    } catch(e) {}
+  },
+
+  async init() {
+    this.loadLocal();
+    this.emit();
+
+    // Check if running on localhost Node server
+    try {
+      const res = await fetch('/api/health');
+      if (res.ok) {
+        this.mode = 'live';
+        console.log('[Store] Connected to Node.js Backend Server!');
+        await this.syncFromServer();
+        this.connectWebSocket();
+      }
+    } catch(err) {
+      console.log('[Store] Operating in browser standalone mode (localStorage)');
+      this.mode = 'local';
+    }
+    this.emit();
+  },
+
+  async syncFromServer() {
+    try {
+      const [rBoxes, rOrders, rStudents, rEvents] = await Promise.all([
+        fetch('/api/boxes').then(r => r.json()),
+        fetch('/api/orders').then(r => r.json()),
+        fetch('/api/students').then(r => r.json()),
+        fetch('/api/events').then(r => r.json())
+      ]);
+      if (Array.isArray(rBoxes)) this.boxes = rBoxes;
+      if (Array.isArray(rOrders)) this.orders = rOrders;
+      if (Array.isArray(rStudents)) this.students = rStudents;
+      if (Array.isArray(rEvents)) this.events = rEvents;
+      this.emit();
+    } catch(e) {
+      console.warn('[Sync] Server sync failed:', e);
+    }
+  },
+
+  connectWebSocket() {
+    const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${wsProtocol}//${location.host}/ws`;
+    try {
+      this.ws = new WebSocket(wsUrl);
+      this.ws.onopen = () => {
+        console.log('[WS] Connected to hardware telemetry bridge');
+        this.updateSyncBadge(true);
+      };
+      this.ws.onmessage = (e) => {
+        try {
+          const msg = JSON.parse(e.data);
+          this.handleWsMessage(msg);
+        } catch(err) {}
+      };
+      this.ws.onclose = () => {
+        console.log('[WS] Disconnected, retry in 3s');
+        this.updateSyncBadge(false);
+        setTimeout(() => this.connectWebSocket(), 3000);
+      };
+    } catch(e) {
+      this.updateSyncBadge(false);
+    }
+  },
+
+  updateSyncBadge(isLive) {
+    const el = $('[data-sync]');
+    if (el) {
+      el.classList.toggle('live', isLive);
+      $('#syncText').textContent = isLive ? 'Live Sync & Hardware Online' : 'Local Storage Mode';
+    }
+  },
+
+  handleWsMessage(msg) {
+    console.log('[WS Event]', msg.type, msg.payload);
+    if (msg.type === 'BOX_UPDATED') {
+      const idx = this.boxes.findIndex(b => b.id === msg.payload.id);
+      if (idx !== -1) this.boxes[idx] = msg.payload;
+      this.emit();
+    } else if (msg.type === 'NEW_ORDER') {
+      if (!this.orders.some(o => o.id === msg.payload.id)) {
+        this.orders.unshift(msg.payload);
+      }
+      this.emit();
+    } else if (msg.type === 'NOTIFICATION') {
+      showMobilePushBanner(msg.payload.title, msg.payload.body, msg.payload.order);
+      Sound.alert();
+    } else if (msg.type === 'ORDER_COLLECTED') {
+      const o = this.orders.find(x => x.id === msg.payload.id);
+      if (o) Object.assign(o, msg.payload);
+      this.emit();
+    } else if (msg.type === 'EVENT_LOGGED') {
+      this.events.unshift(msg.payload);
+      if (this.events.length > 60) this.events.pop();
+      Dashboard.renderConsole();
+    } else if (msg.type === 'HARDWARE_COMMAND') {
+      // Synchronize Hardware Bench Gauge & Status
+      HwBench.syncFromCommand(msg.payload);
+    }
+  },
+
+  async addOrder(orderData) {
+    if (this.mode === 'live') {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to register order');
+      await this.syncFromServer();
+      return data.order;
+    } else {
+      // Local fallback
+      const pin = pinFor(orderData.orderId);
+      const st = studentById(orderData.studentId);
+      const newOrder = {
+        id: orderData.orderId,
+        boxId: orderData.boxId,
+        studentId: st ? st.id : orderData.studentId,
+        studentName: st ? st.name : 'Student',
+        phone: st ? st.phone : '',
+        hostel: st ? st.hostel : '',
+        courier: orderData.courier,
+        size: orderData.size,
+        pin,
+        status: 'awaiting',
+        attempts: 0,
+        createdAt: Date.now()
+      };
+      this.orders.unshift(newOrder);
+      const b = this.boxes.find(x => x.id === orderData.boxId);
+      if (b) { b.parcelPresent = true; b.locked = true; b.servoAngle = 0; }
+      Hardware.push({ t:Date.now(), dir:'in', boxId:b.id, action:'order.registered', payload:{ orderId:newOrder.id } });
+      Hardware.push({ t:Date.now(), dir:'out', boxId:b.id, action:'notify.student', payload:{ pin } });
+      this.saveLocal();
+      this.emit();
+      showMobilePushBanner('Parcel Arrived! 📦', `Your ${newOrder.courier} parcel is in Box ${b.no}. PIN: ${newOrder.pin}`, newOrder);
+      Sound.alert();
+      return newOrder;
+    }
+  },
+
+  async verifyPin(orderId, pin) {
+    if (this.mode === 'live') {
+      const res = await fetch('/api/orders/verify-pin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId, pin })
+      });
+      const data = await res.json();
+      await this.syncFromServer();
+      return data;
+    } else {
+      // Local fallback
+      const order = this.orders.find(o => o.id === orderId && o.status === 'awaiting');
+      if (!order) return { success: false, error: 'Order not found' };
+      if (String(pin) === String(order.pin)) {
+        order.attempts = 0;
+        const b = this.boxes.find(x => x.id === order.boxId);
+        if (b) { b.locked = false; b.servoAngle = 90; }
+        Hardware.push({ t:Date.now(), dir:'in', boxId:order.boxId, action:'pin.verified', payload:{ orderId } });
+        Hardware.push({ t:Date.now(), dir:'out', boxId:order.boxId, action:'servo.unlock', payload:{ angle:90 } });
+        this.saveLocal();
+        this.emit();
+        return { success: true, message: 'PIN verified. Door unlocked!' };
+      } else {
+        order.attempts = (order.attempts || 0) + 1;
+        let locked = false, waitSec = 0;
+        if (order.attempts % 5 === 0) {
+          order.lockedUntil = Date.now() + 30000;
+          locked = true; waitSec = 30;
+        }
+        Hardware.push({ t:Date.now(), dir:'in', boxId:order.boxId, action:'pin.rejected', payload:{ attempts:order.attempts } });
+        this.saveLocal();
+        this.emit();
+        return { success: false, message: 'Incorrect PIN', attempts: order.attempts, locked, waitSec };
+      }
+    }
+  },
+
+  async collectOrder(orderId) {
+    if (this.mode === 'live') {
+      const res = await fetch(`/api/orders/${orderId}/collect`, { method: 'POST' });
+      const data = await res.json();
+      await this.syncFromServer();
+      return data;
+    } else {
+      const order = this.orders.find(o => o.id === orderId);
+      if (order) {
+        order.status = 'collected';
+        order.collectedAt = Date.now();
+        const b = this.boxes.find(x => x.id === order.boxId);
+        if (b) { b.parcelPresent = false; b.locked = true; b.servoAngle = 0; }
+        Hardware.push({ t:Date.now(), dir:'in', boxId:order.boxId, action:'parcel.collected', payload:{ orderId } });
+        Hardware.push({ t:Date.now(), dir:'out', boxId:order.boxId, action:'servo.lock', payload:{ angle:0 } });
+        this.saveLocal();
+        this.emit();
+      }
+      return { success: true };
+    }
+  },
+
+  awaitingIn(boxId) { return this.orders.find(o => o.boxId === boxId && o.status === 'awaiting'); },
+  all() { return [...this.orders, ...SAMPLE_HISTORY].sort((a,b) => b.createdAt - a.createdAt); }
+};
+
+/* ---------- Hardware Bridge & Telemetry Logger ---------- */
+const Hardware = {
+  push(ev) {
+    Store.events.unshift(ev);
+    if (Store.events.length > 60) Store.events.pop();
+    Dashboard.renderConsole();
+  },
+  async send(boxId, action, payload = {}) {
+    this.push({ t:Date.now(), dir:'out', boxId, action, payload });
+    Sound.servoHum();
+    if (Store.mode === 'live') {
+      try {
+        if (action === 'servo.unlock') {
+          await fetch(`/api/boxes/${boxId}/unlock`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+        } else if (action === 'servo.lock') {
+          await fetch(`/api/boxes/${boxId}/lock`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+        }
+      } catch(e) {}
+    } else {
+      await sleep(500);
+    }
+    this.push({ t:Date.now(), dir:'in', boxId, action: action + '.ack', payload: { ok:true } });
+    HwBench.syncFromCommand({ boxId, action, angle: action === 'servo.unlock' ? 90 : 0 });
+    return { ok:true };
+  },
+  sensor(boxId, parcelPresent) {
+    this.push({ t:Date.now(), dir:'in', boxId, action:'ir.sensor', payload:{ parcel: parcelPresent } });
+    if (Store.mode === 'live') {
+      fetch(`/api/boxes/${boxId}/sensor`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ parcelPresent, distanceCm: parcelPresent ? 10.5 : 35.0 })
+      }).catch(e => {});
+    }
+  }
+};
+
+/* ---------- Notifications & Toasts ---------- */
+function toast(title, body, kind = 'parcel', onClick) {
+  const el = document.createElement('button');
+  el.className = 'toast'; el.type = 'button';
+  const icon = kind === 'ok'
+    ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7"/></svg>'
+    : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></svg>';
+  el.innerHTML = `<span class="ti" style="${kind==='ok'?'background:var(--ok-soft);color:var(--ok)':''}">${icon}</span><div><b>${esc(title)}</b><span>${esc(body)}</span></div>`;
+  const kill = () => { el.classList.add('out'); setTimeout(() => el.remove(), 300); };
+  el.onclick = () => { if (onClick) onClick(); kill(); };
+  $('#toasts').prepend(el);
+  setTimeout(kill, 6500);
+}
+
+function showMobilePushBanner(title, body, order) {
+  const b = $('#mobileNotifBanner');
+  if (!b) return;
+  $('#notifTitle').textContent = title;
+  $('#notifBody').textContent = body;
+  $('#notifPinBadge').textContent = order ? `PIN: ${order.pin}` : 'CampusDrop';
+  b.style.display = 'block';
+  b.onclick = () => {
+    b.style.display = 'none';
+    if (order) {
+      Collect.setStudent(order.studentId);
+      location.hash = '#/collect';
+    }
+  };
+  clearTimeout(b._timer);
+  b._timer = setTimeout(() => { b.style.display = 'none'; }, 8000);
+}
+
+/* ---------- Time Helpers ---------- */
+function ago(t) {
+  const s = Math.round((Date.now() - t) / 1000);
+  if (s < 45) return 'just now';
+  const m = Math.round(s / 60); if (m < 60) return `${m}m ago`;
+  const h = Math.round(m / 60); if (h < 24) return `${h}h ago`;
+  const d = Math.round(h / 24); return d === 1 ? 'yesterday' : `${d}d ago`;
+}
+const clock = t => new Date(t).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false });
+
+/* ==========================================================================
+   Three.js 3D Visualizer & Textures
+   ========================================================================== */
+function qrMatrix(seedStr, n = 25) {
+  let seed = 0; for (const c of seedStr) seed = (seed * 31 + c.charCodeAt(0)) >>> 0;
+  const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
+  const m = Array.from({ length:n }, () => Array.from({ length:n }, () => rnd() > .52));
+  const finder = (x, y) => { for (let i = -1; i < 8; i++) for (let j = -1; j < 8; j++) {
+    const xx = x + i, yy = y + j; if (xx < 0 || yy < 0 || xx >= n || yy >= n) continue;
+    const edge = i === 0 || i === 6 || j === 0 || j === 6, core = i >= 2 && i <= 4 && j >= 2 && j <= 4;
+    m[yy][xx] = (i >= 0 && i <= 6 && j >= 0 && j <= 6) && (edge || core);
+  }};
+  finder(0,0); finder(n-7,0); finder(0,n-7);
+  return m;
+}
+function drawQR(canvas, seedStr) {
+  const m = qrMatrix(seedStr), n = m.length, s = 10, pad = 2;
+  canvas.width = canvas.height = (n + pad * 2) * s;
+  const c = canvas.getContext('2d');
+  c.fillStyle = '#fff'; c.fillRect(0,0,canvas.width,canvas.height);
+  c.fillStyle = '#15123A';
+  m.forEach((row, y) => row.forEach((v, x) => { if (v) c.fillRect((x + pad) * s, (y + pad) * s, s, s); }));
+  return canvas;
+}
+function canvasTex(canvas) { const t = new THREE.CanvasTexture(canvas); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; return t; }
+function labelCanvas(no) {
+  const cv = document.createElement('canvas'); cv.width = 640; cv.height = 160;
+  const c = cv.getContext('2d');
+  c.fillStyle = '#EDEAFF';
+  c.font = '600 64px Unbounded, "Arial Black", sans-serif'; c.textBaseline = 'middle';
+  c.fillText('CampusDrop', 18, 62);
+  c.fillStyle = '#B3A1FF';
+  c.font = '700 38px Manrope, system-ui, sans-serif';
+  c.fillText('Smart Box ' + no, 22, 126);
+  return cv;
+}
+function keypadCanvas() {
+  const cv = document.createElement('canvas'); cv.width = 256; cv.height = 340;
+  const c = cv.getContext('2d');
+  const rr = (x,y,w,h,r) => { c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r); c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.fill(); };
+  c.fillStyle = '#0B0C1E'; rr(0,0,256,340,26);
+  c.fillStyle = '#123D2C'; rr(22,20,212,56,10);
+  c.fillStyle = '#5DF0A6'; c.font = '700 26px Manrope, sans-serif'; c.textBaseline = 'middle'; c.fillText('Enter PIN', 40, 49);
+  const keys = ['1','2','3','4','5','6','7','8','9','*','0','#'];
+  keys.forEach((k, i) => {
+    const x = 22 + (i % 3) * 74, y = 94 + Math.floor(i / 3) * 60;
+    c.fillStyle = '#25284A'; rr(x, y, 64, 50, 10);
+    c.fillStyle = '#D8D6F2'; c.font = '700 26px Manrope, sans-serif'; c.textAlign = 'center'; c.fillText(k, x + 32, y + 26); c.textAlign = 'left';
+  });
+  return cv;
+}
+function glowCanvas() {
+  const cv = document.createElement('canvas'); cv.width = cv.height = 128;
+  const c = cv.getContext('2d'); const g = c.createRadialGradient(64,64,0,64,64,64);
+  g.addColorStop(0,'rgba(255,255,255,1)'); g.addColorStop(.25,'rgba(255,255,255,.5)'); g.addColorStop(1,'rgba(255,255,255,0)');
+  c.fillStyle = g; c.fillRect(0,0,128,128); return cv;
+}
+function shadowCanvas() {
+  const cv = document.createElement('canvas'); cv.width = cv.height = 256;
+  const c = cv.getContext('2d'); const g = c.createRadialGradient(128,128,10,128,128,128);
+  g.addColorStop(0,'rgba(20,14,60,.55)'); g.addColorStop(1,'rgba(20,14,60,0)');
+  c.fillStyle = g; c.fillRect(0,0,256,256); return cv;
+}
+
+const LED = { free:0x4FDC98, occupied:0xE8A05C, offline:0xFF6F7F, open:0xB3A1FF };
+function roundedRect(w, h, r) {
+  const s = new THREE.Shape(), x = -w/2, y = -h/2;
+  s.moveTo(x+r, y); s.lineTo(x+w-r, y); s.quadraticCurveTo(x+w, y, x+w, y+r);
+  s.lineTo(x+w, y+h-r); s.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  s.lineTo(x+r, y+h); s.quadraticCurveTo(x, y+h, x, y+h-r);
+  s.lineTo(x, y+r); s.quadraticCurveTo(x, y, x+r, y);
+  return s;
+}
+
+const SHARED = {};
+function sharedTex() {
+  if (!SHARED.glow) { SHARED.glow = canvasTex(glowCanvas()); SHARED.shadow = canvasTex(shadowCanvas()); SHARED.keypad = canvasTex(keypadCanvas()); }
+  return SHARED;
+}
+
+function buildUnit(box) {
+  const T = sharedTex();
+  const W = 1.8, H = 1.6, D = 1.4, hx0 = -0.8, hx1 = 0.26, hy0 = -0.66, hy1 = 0.40;
+  const g = new THREE.Group();
+
+  const bodyMat = new THREE.MeshStandardMaterial({ color:0x2B2F57, metalness:.45, roughness:.38, emissive:0x000000 });
+  const innerMat = new THREE.MeshStandardMaterial({ color:0x12132B, metalness:.1, roughness:.9 });
+  const doorMat = new THREE.MeshStandardMaterial({ color:0x363B6B, metalness:.5, roughness:.32 });
+  const chromeMat = new THREE.MeshStandardMaterial({ color:0xC9C6E8, metalness:.9, roughness:.2 });
+
+  const shape = roundedRect(W, H, .14);
+  const hole = new THREE.Path();
+  hole.moveTo(hx0, hy0); hole.lineTo(hx0, hy1); hole.lineTo(hx1, hy1); hole.lineTo(hx1, hy0); hole.lineTo(hx0, hy0);
+  shape.holes.push(hole);
+  const bodyGeo = new THREE.ExtrudeGeometry(shape, { depth:D, bevelEnabled:true, bevelThickness:.04, bevelSize:.035, bevelSegments:3, curveSegments:8 });
+  bodyGeo.translate(0, 0, -D/2);
+  const body = new THREE.Mesh(bodyGeo, bodyMat); g.add(body);
+
+  const back = new THREE.Mesh(new THREE.BoxGeometry(W - .1, H - .1, .05), innerMat);
+  back.position.z = -D/2 + .06; g.add(back);
+  const cavityLight = new THREE.Mesh(new THREE.PlaneGeometry(hx1 - hx0 - .1, .03), new THREE.MeshBasicMaterial({ color:0xB3A1FF }));
+  cavityLight.rotation.x = Math.PI / 2; cavityLight.position.set((hx0+hx1)/2, hy1 - .012, 0); g.add(cavityLight);
+
+  // Label, QR, LED, Keypad
+  const labelTex = canvasTex(labelCanvas(box.no));
+  const label = new THREE.Mesh(new THREE.PlaneGeometry(1.0, .25), new THREE.MeshBasicMaterial({ map:labelTex, transparent:true }));
+  label.position.set(-.3, .6, D/2 + .041); g.add(label);
+
+  const qrTex = canvasTex(drawQR(document.createElement('canvas'), 'campusdrop:' + box.id));
+  const qr = new THREE.Mesh(new THREE.PlaneGeometry(.36, .36), new THREE.MeshBasicMaterial({ map:qrTex }));
+  qr.position.set(.56, .52, D/2 + .042); g.add(qr);
+
+  const ledColor = new THREE.Color(LED.free);
+  const ledMat = new THREE.MeshBasicMaterial({ color:ledColor });
+  const led = new THREE.Mesh(new THREE.SphereGeometry(.035, 16, 12), ledMat);
+  led.position.set(.56, .24, D/2 + .05); g.add(led);
+  const haloMat = new THREE.SpriteMaterial({ map:T.glow, color:ledColor, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending, opacity:.9 });
+  const halo = new THREE.Sprite(haloMat); halo.scale.set(.32, .32, 1); halo.position.copy(led.position); halo.position.z += .01; g.add(halo);
+
+  const keypad = new THREE.Mesh(new THREE.BoxGeometry(.42, .56, .03), [innerMat, innerMat, innerMat, innerMat, new THREE.MeshBasicMaterial({ map:T.keypad }), innerMat]);
+  keypad.position.set(.56, -.3, D/2 + .05); g.add(keypad);
+
+  // Door on servo hinge
+  const dw = hx1 - hx0 + .07, dh = hy1 - hy0 + .07;
+  const doorGeo = new THREE.ExtrudeGeometry(roundedRect(dw, dh, .05), { depth:.06, bevelEnabled:true, bevelThickness:.015, bevelSize:.015, bevelSegments:2, curveSegments:4 });
+  const pivot = new THREE.Group(); pivot.position.set(hx0 - .035, (hy0 + hy1) / 2, D/2 + .045); g.add(pivot);
+  const door = new THREE.Mesh(doorGeo, doorMat); door.position.x = dw / 2; pivot.add(door);
+  const inset = new THREE.Mesh(new THREE.PlaneGeometry(dw - .22, dh - .26), new THREE.MeshStandardMaterial({ color:0x2E3260, metalness:.4, roughness:.5 }));
+  inset.position.set(dw / 2 - .02, -.03, .077); pivot.add(inset);
+  const handle = new THREE.Mesh(new THREE.CylinderGeometry(.022, .022, .3, 12), chromeMat);
+  handle.position.set(dw - .09, 0, .12); pivot.add(handle);
+  const stripMat = new THREE.MeshBasicMaterial({ color:ledColor });
+  const strip = new THREE.Mesh(new THREE.BoxGeometry(dw * .42, .022, .01), stripMat);
+  strip.position.set(dw / 2 - .02, dh / 2 - .08, .08); pivot.add(strip);
+
+  // Parcel Box
+  const kraft = new THREE.MeshStandardMaterial({ color:0xC98F54, roughness:.85, metalness:0 });
+  const tape = new THREE.MeshStandardMaterial({ color:0xE9D3B0, roughness:.5 });
+  const parcel = new THREE.Group();
+  parcel.add(new THREE.Mesh(new THREE.BoxGeometry(.72, .52, .72), kraft));
+  const t1 = new THREE.Mesh(new THREE.BoxGeometry(.13, .525, .725), tape); parcel.add(t1);
+  const sticker = new THREE.Mesh(new THREE.PlaneGeometry(.2, .13), new THREE.MeshBasicMaterial({ color:0xFFFFFF }));
+  sticker.position.set(.22, .1, .362); parcel.add(sticker);
+  const parcelHome = new THREE.Vector3((hx0 + hx1) / 2, hy0 + .27, -.05);
+  parcel.position.copy(parcelHome); parcel.visible = false; g.add(parcel);
+
+  // Shadow
+  const shadow = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 2.4), new THREE.MeshBasicMaterial({ map:T.shadow, transparent:true, depthWrite:false }));
+  shadow.rotation.x = -Math.PI / 2; shadow.position.y = -H/2 - .06; g.add(shadow);
+
+  g.traverse(o => { o.userData.unit = true; });
+  return {
+    box, group:g, body, bodyMat, pivot, parcel, parcelHome, ledMat, haloMat, stripMat, labelMesh:label, qrMesh:qr,
+    open:0, openT:0, pIn:0, pInT:0, size:1, hover:0, selected:false, state:'free',
+    setBox(b) {
+      this.box = b;
+      label.material.map.dispose(); label.material.map = canvasTex(labelCanvas(b.no)); label.material.needsUpdate = true;
+      qr.material.map.dispose(); qr.material.map = canvasTex(drawQR(document.createElement('canvas'), 'campusdrop:' + b.id)); qr.material.needsUpdate = true;
+    },
+    setState(s) {
+      this.state = s;
+      const c = LED[s] ?? LED.free;
+      ledMat.color.setHex(c); haloMat.color.setHex(c); stripMat.color.setHex(c);
+    }
+  };
+}
+
+const Scenes = [];
+class LockerScene {
+  constructor(host, { boxes, onPick, tagsEl } = {}) {
+    this.host = host; this.onPick = onPick; this.tagsEl = tagsEl;
+    this.renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    this.renderer.outputEncoding = THREE.sRGBEncoding;
+    this.renderer.domElement.style.cssText = 'width:100%;height:100%;display:block;touch-action:pan-y';
+    host.appendChild(this.renderer.domElement);
+    this.scene = new THREE.Scene();
+    this.camera = new THREE.PerspectiveCamera(30, 1, .1, 100);
+    this.scene.add(new THREE.HemisphereLight(0xE4DEFF, 0x1B1745, 1.0));
+    const key = new THREE.DirectionalLight(0xFFFFFF, 1.15); key.position.set(4, 6, 7); this.scene.add(key);
+    const rim = new THREE.DirectionalLight(0xB3A1FF, 1.1); rim.position.set(-6, 3, -3); this.scene.add(rim);
+    const warm = new THREE.PointLight(0xE8B073, .9, 30); warm.position.set(3.5, -1.5, 4.5); this.scene.add(warm);
+
+    this.root = new THREE.Group(); this.scene.add(this.root);
+    this.multi = boxes.length > 1;
+    const cols = this.multi ? 3 : 1, rows = Math.ceil(boxes.length / cols), sx = 2.25, sy = 2.0;
+    this.bounds = this.multi ? { w: cols * sx, h: rows * sy } : { w: 3.1, h: 2.5 };
+    this.units = boxes.map((b, i) => {
+      const u = buildUnit(b);
+      const c = i % cols, r = Math.floor(i / cols);
+      u.group.position.set((c - (cols - 1) / 2) * sx, ((rows - 1) / 2 - r) * sy, 0);
+      u.group.userData.index = i;
+      this.root.add(u.group);
+      if (tagsEl) { u.tag = document.createElement('div'); u.tag.className = 'tag'; tagsEl.appendChild(u.tag); }
+      return u;
+    });
+    this.baseRotY = this.multi ? -.18 : -.42; this.baseRotX = this.multi ? .06 : .1;
+    this.rotY = this.baseRotY; this.rotX = this.baseRotX; this.dragY = 0; this.dragX = 0;
+    this.pointer = { x:0, y:0 };
+    this.raycaster = new THREE.Raycaster(); this.ndc = new THREE.Vector2();
+    this.bindInput();
+    this.ro = new ResizeObserver(() => this.resize()); this.ro.observe(host); this.resize();
+    Scenes.push(this);
+  }
+  bindInput() {
+    const el = this.renderer.domElement;
+    let down = null, moved = false;
+    const setNdc = e => { const r = el.getBoundingClientRect(); this.ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1); };
+    el.addEventListener('pointermove', e => {
+      const r = el.getBoundingClientRect();
+      this.pointer.x = ((e.clientX - r.left) / r.width) * 2 - 1; this.pointer.y = ((e.clientY - r.top) / r.height) * 2 - 1;
+      if (down) {
+        const dx = e.clientX - down.x, dy = e.clientY - down.y;
+        if (Math.abs(dx) + Math.abs(dy) > 5) moved = true;
+        this.dragY = Math.max(-.9, Math.min(.9, down.ry + dx * .006));
+        this.dragX = Math.max(-.25, Math.min(.35, down.rx + dy * .003));
+      } else if (this.onPick) {
+        setNdc(e); const u = this.pick(); this.units.forEach(x => x.hover = x === u ? 1 : 0); el.style.cursor = u ? 'pointer' : 'grab';
+      }
+    });
+    el.addEventListener('pointerdown', e => { if (e.pointerType === 'touch') { down = null; moved = false; return; } down = { x:e.clientX, y:e.clientY, ry:this.dragY, rx:this.dragX }; moved = false; });
+    window.addEventListener('pointerup', () => { down = null; });
+    el.addEventListener('pointerleave', () => { this.pointer.x = 0; this.pointer.y = 0; this.units.forEach(x => x.hover = 0); });
+    el.addEventListener('click', e => {
+      if (moved || !this.onPick) return;
+      setNdc(e); const u = this.pick(); if (u) this.onPick(this.units.indexOf(u));
+    });
+  }
+  pick() {
+    this.raycaster.setFromCamera(this.ndc, this.camera);
+    const hit = this.raycaster.intersectObjects(this.root.children, true)[0];
+    if (!hit) return null;
+    let o = hit.object; while (o && o.userData.index === undefined) o = o.parent;
+    return o ? this.units[o.userData.index] : null;
+  }
+  resize() {
+    const w = this.host.clientWidth, h = this.host.clientHeight; if (!w || !h) return;
+    this.renderer.setSize(w, h, false);
+    this.camera.aspect = w / h;
+    const t = Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2));
+    const m = this.multi ? 1.12 : 1.35;
+    const dist = Math.max((this.bounds.h * m) / (2 * t), (this.bounds.w * m) / (2 * t * this.camera.aspect)) + 1.2;
+    this.camera.position.set(0, this.multi ? .2 : .35, dist);
+    this.camera.lookAt(0, this.multi ? -.1 : -.15, 0);
+    this.camera.updateProjectionMatrix();
+    this.w = w; this.h = h;
+  }
+  tick(dt, t) {
+    const k = 1 - Math.pow(.001, dt);
+    const ty = this.baseRotY + this.dragY + this.pointer.x * .12;
+    const tx = this.baseRotX + this.dragX + this.pointer.y * .05;
+    this.rotY += (ty - this.rotY) * k * .6; this.rotX += (tx - this.rotX) * k * .6;
+    this.root.rotation.y = this.rotY; this.root.rotation.x = this.rotX;
+    this.root.position.y = reduceMotion ? 0 : Math.sin(t * .9) * .045;
+    for (const u of this.units) {
+      u.open += (u.openT - u.open) * k * .55;
+      const eo = 1 - Math.pow(1 - Math.min(1, Math.max(0, u.open)), 3);
+      u.pivot.rotation.y = -1.85 * eo;
+      u.pIn += (u.pInT - u.pIn) * k * .45;
+      const p = u.pIn;
+      u.parcel.visible = p > .01;
+      u.parcel.position.set(u.parcelHome.x, u.parcelHome.y, u.parcelHome.z + (1 - p) * 2.2);
+      const sc = u.size * Math.min(1, p / .25);
+      u.parcel.scale.setScalar(Math.max(.001, sc));
+      u.parcel.position.y = u.parcelHome.y - (1 - u.size) * .26;
+      const pulse = u.state === 'occupied' && !reduceMotion ? .75 + Math.sin(t * 3) * .25 : 1;
+      u.haloMat.opacity = (u.state === 'offline' ? .45 + Math.sin(t * 6) * .3 : .9) * pulse;
+      const glow = u.selected ? .16 : u.hover ? .09 : 0;
+      u.bodyMat.emissive.setRGB(.42 * glow, .33 * glow, glow);
+    }
+    this.renderer.render(this.scene, this.camera);
+    if (this.tagsEl) this.placeTags();
+  }
+  placeTags() {
+    const v = new THREE.Vector3();
+    for (const u of this.units) {
+      if (!u.tag) continue;
+      v.set(0, .95, .3); u.group.localToWorld(v); v.project(this.camera);
+      u.tag.style.left = ((v.x + 1) / 2 * this.w) + 'px';
+      u.tag.style.top = ((1 - v.y) / 2 * this.h) + 'px';
+    }
+  }
+}
+
+let lastT = performance.now();
+function loop(now) {
+  const dt = Math.min(.05, (now - lastT) / 1000); lastT = now;
+  for (const s of Scenes) if (s.host.offsetParent !== null) s.tick(dt, now / 1000);
+  requestAnimationFrame(loop);
+}
+const HAS3D = (() => { try { if (typeof THREE === 'undefined') return false; const c = document.createElement('canvas'); return !!(c.getContext('webgl') || c.getContext('experimental-webgl')); } catch(e){ return false; } })();
+function no3d(host) { host.innerHTML = '<div class="no3d">3D preview requires WebGL. All features work normally.</div>'; }
+const sizeScale = s => s === 'Small' ? .72 : s === 'Large' ? 1.08 : .9;
+
+/* ==========================================================================
+   1. Dashboard (Admin Management)
+   ========================================================================== */
+const Dashboard = {
+  selected: 0, filter: 'all', query: '', wall: null, opening: null,
+  init() {
+    if (HAS3D) this.wall = new LockerScene($('#wallStage'), { boxes:Store.boxes, tagsEl:$('#wallTags'), onPick: i => { this.selected = i; this.render(); } });
+    else no3d($('#wallStage'));
+
+    $('#orderFilters').onclick = e => {
+      const b = e.target.closest('button'); if (!b) return;
+      this.filter = b.dataset.f; $$('#orderFilters button').forEach(x => x.setAttribute('aria-pressed', x === b));
+      this.renderOrders();
+    };
+    $('#orderSearch').oninput = e => { this.query = e.target.value.trim().toLowerCase(); this.renderOrders(); };
+    $('#exportCsv').onclick = () => this.exportCsv();
+    $('#refreshBtn').onclick = async () => { await Store.syncFromServer(); toast('Synced', 'Fetched latest campus telemetry', 'ok'); };
+  },
+  boxState(b) {
+    if (!b.online) return 'offline';
+    if (this.opening === b.id || (!b.locked && b.servoAngle > 0)) return 'open';
+    return Store.awaitingIn(b.id) ? 'occupied' : 'free';
+  },
+  render() {
+    const states = Store.boxes.map(b => this.boxState(b));
+    const free = states.filter(s => s === 'free').length, occ = states.filter(s => s === 'occupied').length, off = states.filter(s => s === 'offline').length;
+    $('#wallSummary').textContent = `${free} free boxes, ${occ} holding parcels, ${off} offline`;
+    if (this.wall) this.wall.units.forEach((u, i) => {
+      const s = states[i]; u.setState(s);
+      const o = Store.awaitingIn(Store.boxes[i].id);
+      u.pInT = o ? 1 : 0; u.size = o ? sizeScale(o.size) : u.size;
+      u.openT = (this.opening === Store.boxes[i].id || (!Store.boxes[i].locked && Store.boxes[i].servoAngle > 0)) ? 1 : 0;
+      u.selected = i === this.selected;
+      const txt = { free:'Free', occupied:'Parcel Inside', offline:'Offline', open:'Door Open' }[s];
+      const col = { free:'var(--ok)', occupied:'var(--kraft)', offline:'var(--bad)', open:'var(--lav)' }[s];
+      u.tag.innerHTML = `<b>${Store.boxes[i].no}</b><span style="color:${col}">${txt}</span>`;
+    });
+    this.renderDetail(); this.renderStats(); this.renderChart(); this.renderOrders(); this.renderConsole();
+  },
+  renderDetail() {
+    const b = Store.boxes[this.selected] || Store.boxes[0];
+    const s = this.boxState(b), o = Store.awaitingIn(b.id);
+    const chip = { free:'<span class="chip chip-ok"><span class="dot"></span>Free</span>', occupied:'<span class="chip chip-kraft"><span class="dot"></span>Parcel inside</span>', offline:'<span class="chip chip-bad"><span class="dot"></span>Offline</span>', open:'<span class="chip chip-lav"><span class="dot"></span>Door open</span>' }[s];
+    const rows = o ? `
+      <dt>Student</dt><dd>${esc(o.studentName)}</dd>
+      <dt>Order ID</dt><dd class="oid">${esc(o.id)}</dd>
+      <dt>Courier</dt><dd>${esc(o.courier)}, ${esc(o.size.toLowerCase())}</dd>
+      <dt>Dropped</dt><dd>${ago(o.createdAt)}</dd>
+      <dt>PIN Status</dt><dd>•••• ${esc(o.pin.slice(-2))}</dd>` : `
+      <dt>Location</dt><dd>${esc(b.place)}</dd>
+      <dt>Hardware Lock</dt><dd>${b.locked ? 'Servo 0° (Locked)' : 'Servo 90° (Unlocked)'}</dd>
+      <dt>ESP32 IP</dt><dd>${b.ip || '192.168.1.10' + b.no}</dd>
+      <dt>Status</dt><dd>${b.online ? 'Online (Heartbeat OK)' : 'Offline'}</dd>`;
+    $('#boxDetail').innerHTML = `
+      <div class="detail-top">
+        <div><div class="small muted" style="font-weight:700">Selected Box</div><div class="boxno">${b.no}</div></div>
+        ${chip}
+      </div>
+      <div class="small muted" style="margin-top:6px">${esc(b.place)}</div>
+      <dl class="kv">${rows}</dl>
+      <div class="actions">
+        ${b.online ? `<button class="btn btn-ghost" id="remoteUnlock">${b.locked ? 'Emergency Remote Unlock' : 'Emergency Remote Lock'}</button>` : ''}
+        ${!o && s === 'free' ? `<button class="btn btn-primary" id="dropHere">Drop a Parcel Here</button>` : ''}
+        <button class="btn btn-ghost" id="pingBox">Ping ESP32 Device</button>
+      </div>`;
+
+    const ru = $('#remoteUnlock');
+    if (ru) ru.onclick = async () => {
+      ru.disabled = true;
+      if (b.locked) {
+        await Hardware.send(b.id, 'servo.unlock', { reason:'admin_override' });
+        b.locked = false; b.servoAngle = 90;
+      } else {
+        await Hardware.send(b.id, 'servo.lock', { reason:'admin_override' });
+        b.locked = true; b.servoAngle = 0;
+      }
+      this.render();
+      toast('Hardware Command Sent', `Box ${b.no} servo updated.`, 'ok');
+    };
+    const dh = $('#dropHere'); if (dh) dh.onclick = () => { Deliver.reset(b.id); location.hash = '#/deliver'; };
+    const pb = $('#pingBox'); if (pb) pb.onclick = async () => {
+      pb.disabled = true; pb.textContent = 'Pinging...';
+      Hardware.push({ t:Date.now(), dir:'out', boxId:b.id, action:'ping', payload:{} });
+      await sleep(600);
+      Hardware.push({ t:Date.now(), dir:'in', boxId:b.id, action:'ping.ack', payload:{ latency:'14ms', rssi:'-54dBm' } });
+      pb.disabled = false; pb.textContent = 'Ping ESP32 Device';
+      toast('Device Responded', `Box ${b.no} latency: 14ms (RSSI -54dBm)`, 'ok');
+    };
+  },
+  renderStats() {
+    const all = Store.all(), day0 = new Date(); day0.setHours(0,0,0,0);
+    const waiting = Store.orders.filter(o => o.status === 'awaiting').length;
+    const today = all.filter(o => o.createdAt >= day0.getTime()).length;
+    const col = all.filter(o => o.status === 'collected' && o.collectedAt);
+    const avg = col.length ? Math.round(col.reduce((a, o) => a + (o.collectedAt - o.createdAt), 0) / col.length / 6e4) : 0;
+    const online = Store.boxes.filter(b => b.online).length;
+    const stat = (n, l, s) => `<div class="panel stat"><div class="l">${l}</div><div class="n">${n}</div><div class="s">${s}</div></div>`;
+    $('#stats').innerHTML =
+      stat(waiting, 'Awaiting Student Pickup', waiting ? 'PINs dispatched to students' : 'All boxes clear') +
+      stat(today, 'Deliveries Today', 'Dropped into smart boxes') +
+      stat(avg >= 60 ? `${Math.floor(avg/60)}h ${avg%60}m` : `${avg}m`, 'Average Pickup Speed', 'From drop to unlock') +
+      stat(`${online}/${Store.boxes.length}`, 'Smart Boxes Online', online === Store.boxes.length ? 'All devices reporting' : 'Box 06 offline');
+  },
+  renderChart() {
+    const all = Store.all(), days = [];
+    for (let d = 6; d >= 0; d--) {
+      const s = new Date(); s.setHours(0,0,0,0); s.setDate(s.getDate() - d);
+      const e = s.getTime() + 864e5;
+      days.push({
+        label: d === 0 ? 'Today' : s.toLocaleDateString([], { weekday:'short' }),
+        del: all.filter(o => o.createdAt >= s.getTime() && o.createdAt < e).length,
+        col: all.filter(o => o.collectedAt && o.collectedAt >= s.getTime() && o.collectedAt < e).length
+      });
+    }
+    const W = 640, H = 240, pb = 30, pt = 14, max = Math.max(4, ...days.map(d => Math.max(d.del, d.col)));
+    const cw = W / 7, bw = Math.min(22, cw * .26);
+    const y = v => H - pb - (v / max) * (H - pb - pt);
+    let g = '';
+    [0, .5, 1].forEach(f => { const yy = y(max * f); g += `<line x1="0" x2="${W}" y1="${yy}" y2="${yy}" stroke="var(--line)" stroke-dasharray="${f ? '4 6' : ''}"/>`; });
+    days.forEach((d, i) => {
+      const cx = cw * i + cw / 2;
+      g += `<rect x="${cx - bw - 2}" y="${y(d.del)}" width="${bw}" height="${H - pb - y(d.del)}" rx="6" fill="var(--lav)"><title>${d.del} delivered</title></rect>`;
+      g += `<rect x="${cx + 2}" y="${y(d.col)}" width="${bw}" height="${H - pb - y(d.col)}" rx="6" fill="var(--kraft)"><title>${d.col} collected</title></rect>`;
+      g += `<text x="${cx}" y="${H - 8}" text-anchor="middle" font-size="12" font-weight="${i === 6 ? 800 : 600}" fill="${i === 6 ? 'var(--text)' : 'var(--muted)'}">${d.label}</text>`;
+      if (i === 6) g += `<text x="${cx - bw / 2 - 2}" y="${y(d.del) - 6}" text-anchor="middle" font-size="12" font-weight="800" fill="var(--text)">${d.del}</text>`;
+    });
+    $('#chart').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Delivered and collected parcels">${g}</svg>`;
+  },
+  renderOrders() {
+    let rows = Store.all();
+    if (this.filter !== 'all') rows = rows.filter(o => o.status === this.filter);
+    if (this.query) rows = rows.filter(o => o.id.includes(this.query) || o.studentName.toLowerCase().includes(this.query) || o.studentId.toLowerCase().includes(this.query));
+    rows = rows.slice(0, 16);
+    if (!rows.length) { $('#ordersBody').innerHTML = `<tr><td colspan="6" class="empty-mini">No orders match the filter.</td></tr>`; return; }
+    $('#ordersBody').innerHTML = rows.map(o => {
+      const st = studentById(o.studentId) || { color:'#888' };
+      const status = o.status === 'awaiting' ? '<span class="chip chip-kraft"><span class="dot"></span>Waiting Pickup</span>' : '<span class="chip chip-ok"><span class="dot"></span>Collected</span>';
+      return `<tr>
+        <td><span class="oid">${esc(o.id)}</span>${o.sample ? '<div class="sample-note">Historical Data</div>' : ''}</td>
+        <td><div class="who"><span class="avatar" style="background:${st.color}">${initials(o.studentName)}</span><div><b>${esc(o.studentName)}</b><div class="small muted">${esc(o.studentId)}</div></div></div></td>
+        <td>Box ${esc((boxById(o.boxId) || {}).no || o.boxId)}</td>
+        <td>${esc(o.courier)}</td>
+        <td>${ago(o.createdAt)}</td>
+        <td>${status}</td></tr>`;
+    }).join('');
+  },
+  renderConsole() {
+    const el = $('#console');
+    if (!Store.events.length) { el.innerHTML = '<div class="empty-mini">No hardware events yet. Live commands and sensor readings stream here.</div>'; return; }
+    el.innerHTML = Store.events.map(e => `<div class="ev"><time>${clock(e.t)}</time><span class="dir ${e.dir}">${e.dir === 'out' ? '↑' : '↓'}</span><code title="${esc(JSON.stringify(e.payload))}">${esc(e.boxId)} ${esc(e.action)} ${esc(JSON.stringify(e.payload))}</code></div>`).join('');
+  },
+  exportCsv() {
+    const rows = Store.all().map(o => `"${o.id}","${o.studentName}","${o.studentId}","${o.boxId}","${o.courier}","${o.size}","${o.status}","${new Date(o.createdAt).toISOString()}"`);
+    const csv = 'Order ID,Student Name,Student ID,Box,Courier,Size,Status,CreatedAt\n' + rows.join('\n');
+    const blob = new Blob([csv], { type:'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = `CampusDrop_Orders_${Date.now()}.csv`; a.click();
+    URL.revokeObjectURL(url);
+  }
+};
+
+/* ==========================================================================
+   2. Delivery Partner Flow
+   ========================================================================== */
+const Deliver = {
+  step: 1, boxId: 'B01', form: { orderId: '', studentId: '', courier: 'Amazon', size: 'Medium' },
+  drop: 0, busy: false, last: null, scene: null, useCamera: false, stream: null,
+  init() {
+    if (HAS3D) { this.scene = new LockerScene($('#deliverStage'), { boxes:[Store.boxes[0]] }); this.unit = this.scene.units[0]; }
+    else no3d($('#deliverStage'));
+  },
+  reset(boxId) {
+    this.step = 1; this.boxId = boxId || this.firstFree() || 'B01';
+    this.form = { orderId:'', studentId:'', courier:'Amazon', size:'Medium' };
+    this.drop = 0; this.busy = false; this.stopCamera(); this.render();
+  },
+  firstFree() { const b = Store.boxes.find(b => b.online && !Store.awaitingIn(b.id)); return b ? b.id : null; },
+  sync3d() {
+    const b = boxById(this.boxId);
+    if (this.unit) {
+      if (b && this.unit.box.id !== b.id) this.unit.setBox(b);
+      this.unit.openT = this.step === 3 && this.drop >= 1 && this.drop < 3 ? 1 : 0;
+      this.unit.pInT = (this.step === 3 && this.drop >= 2) || this.step === 4 ? 1 : 0;
+      this.unit.size = sizeScale(this.form.size);
+      const st = !b ? 'free' : this.unit.openT ? 'open' : this.unit.pInT ? 'occupied' : 'free';
+      this.unit.setState(st);
+    }
+    $('#deliverBoxCard').innerHTML = b ? `<b>${esc(b.name)}</b><span class="muted">${esc(b.place)}</span>` : `<b>No Box Selected</b><span class="muted">Scan QR to connect</span>`;
+    const led = $('#deliverLed');
+    const map = {
+      1:['chip-lav','Waiting for Scan'],
+      2:['chip-ok','Box Ready'],
+      3:[this.drop >= 1 && this.drop < 3 ? 'chip-lav' : 'chip-ok', this.drop >= 1 && this.drop < 3 ? 'Door Unlocked (90°)' : 'Locked'],
+      4:['chip-kraft','Parcel Locked Inside']
+    };
+    led.className = 'chip ' + map[this.step][0];
+    led.innerHTML = `<span class="dot"></span>${map[this.step][1]}`;
+  },
+  steps() {
+    $$('#deliverSteps li').forEach((li, i) => {
+      li.className = i + 1 < this.step ? 'done' : i + 1 === this.step ? 'current' : '';
+      if (i + 1 === this.step) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
+    });
+  },
+  render() {
+    this.steps();
+    if (!this.boxId || (Store.awaitingIn(this.boxId) && this.step < 3)) this.boxId = this.firstFree() || 'B01';
+    const body = $('#deliverBody');
+    if (this.step === 1) body.innerHTML = this.viewScan();
+    else if (this.step === 2) body.innerHTML = this.viewForm();
+    else if (this.step === 3) body.innerHTML = this.viewDrop();
+    else if (this.step === 4) body.innerHTML = this.viewDone();
+    this.bind(); this.sync3d();
+  },
+  viewScan() {
+    const freeBox = this.firstFree();
+    return `
+      <h2 class="step-title">1. Arrive & Scan Box QR</h2>
+      <p class="step-sub">Scan the QR code printed on the locker front panel to connect to this smart box.</p>
+      <div class="scanner-container">
+        <div class="scanner" id="scanner">
+          <canvas id="scanQR" aria-label="QR Code"></canvas>
+          <video id="camVideo" playsinline autoplay muted></video>
+          <div class="laser"></div>
+          <div class="scanned-ok">Box ${esc((boxById(this.boxId)||{}).no || '01')} Connected ✓</div>
+        </div>
+      </div>
+      <div class="cam-toggle-row">
+        <button class="btn btn-ghost" id="toggleCamBtn" style="padding:6px 14px;font-size:12px">
+          📷 Toggle Live Camera
+        </button>
+      </div>
+      <div class="small muted" style="font-weight:700;margin-bottom:8px">Or Select Locker Box:</div>
+      <div class="box-pick" role="group" aria-label="Boxes">
+        ${Store.boxes.map(b => {
+          const busy = !b.online || Store.awaitingIn(b.id);
+          return `<button data-box="${b.id}" aria-pressed="${b.id === this.boxId}" ${busy ? 'disabled' : ''}>
+            <b>Box ${b.no}</b>
+            <span>${!b.online ? 'Offline' : Store.awaitingIn(b.id) ? 'Occupied' : 'Ready'}</span>
+          </button>`;
+        }).join('')}
+      </div>
+      <button class="btn btn-primary btn-lg" id="doScan">Simulate / Scan QR Code</button>`;
+  },
+  viewForm() {
+    const f = this.form, pin = /^\d{4,}$/.test(f.orderId) ? pinFor(f.orderId).split('') : ['·','·','·','·'];
+    return `
+      <button class="back" data-back="1">‹ Change Box</button>
+      <h2 class="step-title">2. Enter Order & Student Details</h2>
+      <p class="step-sub">Order ID automatically generates the 4-digit pickup PIN for the student.</p>
+      <div class="field">
+        <label for="fOrder">Order ID (from Parcel Label)</label>
+        <input class="input" id="fOrder" inputmode="numeric" placeholder="e.g. 123456789012" value="${esc(f.orderId)}" maxlength="20">
+        <span class="err" id="eOrder"></span>
+      </div>
+      <div class="field">
+        <label for="fStudent">Select Student Recipient</label>
+        <select class="input" id="fStudent">
+          <option value="">Choose recipient...</option>
+          ${Store.students.map(s => `<option value="${s.id}" ${s.id === f.studentId ? 'selected' : ''}>${esc(s.name)} (${s.id})</option>`).join('')}
+        </select>
+        <span class="hint" id="hStudent">${f.studentId ? esc(studentById(f.studentId).hostel + ' • ' + studentById(f.studentId).phone) : 'Real-time push notification goes to student app.'}</span>
+        <span class="err" id="eStudent"></span>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label for="fCourier">Courier Service</label>
+          <select class="input" id="fCourier">${COURIERS.map(c => `<option ${c === f.courier ? 'selected' : ''}>${c}</option>`).join('')}</select>
+        </div>
+        <div class="field">
+          <label id="lSize">Parcel Size</label>
+          <div class="seg" role="group" aria-labelledby="lSize">${['Small','Medium','Large'].map(s => `<button type="button" data-size="${s}" aria-pressed="${s === f.size}">${s}</button>`).join('')}</div>
+        </div>
+      </div>
+      <div class="pinpreview">
+        <div>
+          <b>AUTOMATIC PICKUP PIN</b>
+          <p>Created from last 4 digits of Order ID. Will be shared with student.</p>
+        </div>
+        <div class="pin-digits" id="pinPreview">${pin.map(d => `<span>${d}</span>`).join('')}</div>
+      </div>
+      <button class="btn btn-primary btn-lg" id="toDrop">Proceed to Place Parcel</button>`;
+  },
+  viewDrop() {
+    const items = [
+      ['Signal Servo to Unlock Box (90°)', 'servo.unlock'],
+      ['Place parcel inside compartment', 'parcel'],
+      ['Close door & lock servo', 'servo.lock'],
+      ['IR / Ultrasonic sensor detects parcel', 'ir.sensor'],
+    ];
+    const label = ['Unlock Box Door', 'I’ve Placed the Parcel Inside', 'Close Door & Register', 'Registering...'][Math.min(this.drop, 3)];
+    return `
+      <h2 class="step-title">3. Place Parcel in Box ${esc((boxById(this.boxId)||{}).no || '01')}</h2>
+      <p class="step-sub">Interact with the smart box. Each step coordinates directly with the IoT hardware.</p>
+      <ul class="checklist">${items.map((it, i) => `<li class="${i < this.drop ? 'done' : (i === this.drop && this.busy) ? 'busy' : ''}"><span class="ck">${i < this.drop ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="m5 12.5 4.5 4.5L19 7"/></svg>' : ''}</span>${it[0]}</li>`).join('')}</ul>
+      <button class="btn btn-primary btn-lg" id="dropAct" ${this.busy || this.drop >= 3 ? 'disabled' : ''}>${label}</button>`;
+  },
+  viewDone() {
+    const o = this.last, b = boxById(o.boxId);
+    return `
+      <div class="bigok"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7"/></svg></div>
+      <h2 class="step-title">Parcel Registered Successfully!</h2>
+      <p class="step-sub">${esc(o.studentName)} has received a real-time notification with PIN ${esc(o.pin)} to collect from ${esc(b.name)}.</p>
+      <div class="receipt"><dl class="kv">
+        <dt>Order ID</dt><dd class="oid">${esc(o.id)}</dd>
+        <dt>Student</dt><dd>${esc(o.studentName)} (${esc(o.studentId)})</dd>
+        <dt>Locker</dt><dd>${esc(b.name)}, ${esc(b.place)}</dd>
+        <dt>Pickup PIN</dt><dd style="font-family:var(--font-d);color:var(--kraft);font-size:18px">•••• ${esc(o.pin.slice(-2))}</dd>
+        <dt>Status</dt><dd><span class="chip chip-kraft">Awaiting Student</span></dd>
+      </dl></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="again">Deliver Another Parcel</button>
+        <button class="btn btn-ghost" id="asStudent">Switch to Student View</button>
+      </div>`;
+  },
+  bind() {
+    const body = $('#deliverBody');
+    if (this.step === 1) {
+      const cv = $('#scanQR'); if (cv) drawQR(cv, 'campusdrop:' + this.boxId);
+      body.querySelectorAll('[data-box]').forEach(b => b.onclick = () => { this.boxId = b.dataset.box; this.render(); });
+      const toggleBtn = $('#toggleCamBtn');
+      if (toggleBtn) toggleBtn.onclick = () => this.toggleCamera();
+      const sc = $('#doScan');
+      if (sc) sc.onclick = async () => {
+        const s = $('#scanner'); sc.disabled = true; sc.textContent = 'Scanning QR...';
+        s.classList.add('scanning'); Sound.keypadClick();
+        await sleep(1200); s.classList.remove('scanning'); s.classList.add('ok');
+        Sound.success();
+        Hardware.push({ t:Date.now(), dir:'in', boxId:this.boxId, action:'qr.scanned', payload:{ by:'delivery_partner' } });
+        await sleep(600); this.stopCamera(); this.step = 2; this.render();
+      };
+    }
+    if (this.step === 2) {
+      const fo = $('#fOrder'), fs = $('#fStudent');
+      fo.oninput = () => {
+        fo.value = fo.value.replace(/\D/g, ''); this.form.orderId = fo.value;
+        fo.classList.remove('invalid'); $('#eOrder').textContent = '';
+        const d = fo.value.length >= 4 ? pinFor(fo.value).split('') : ['·','·','·','·'];
+        $('#pinPreview').innerHTML = d.map(x => `<span>${x}</span>`).join('');
+      };
+      fs.onchange = () => {
+        this.form.studentId = fs.value; const s = studentById(fs.value);
+        $('#hStudent').textContent = s ? `${s.hostel} • ${s.phone}` : 'Real-time push notification goes to student app.';
+        $('#eStudent').textContent = ''; fs.classList.remove('invalid');
+      };
+      $('#fCourier').onchange = e => this.form.courier = e.target.value;
+      body.querySelectorAll('[data-size]').forEach(b => b.onclick = () => {
+        this.form.size = b.dataset.size;
+        body.querySelectorAll('[data-size]').forEach(x => x.setAttribute('aria-pressed', x === b));
+        this.sync3d();
+      });
+      body.querySelector('[data-back]').onclick = () => { this.step = 1; this.render(); };
+      $('#toDrop').onclick = () => {
+        let ok = true;
+        if (!/^\d{4,20}$/.test(this.form.orderId)) {
+          ok = false; fo.classList.add('invalid'); $('#eOrder').textContent = 'Enter a valid numeric Order ID (at least 4 digits).';
+        } else if (Store.all().some(o => o.id === this.form.orderId && o.status === 'awaiting')) {
+          ok = false; fo.classList.add('invalid'); $('#eOrder').textContent = 'This Order ID is already registered.';
+        }
+        if (!this.form.studentId) {
+          ok = false; fs.classList.add('invalid'); $('#eStudent').textContent = 'Please choose a student recipient.';
+        }
+        if (!ok) { Sound.errorBuzz(); return; }
+        this.step = 3; this.drop = 0; this.render();
+      };
+    }
+    if (this.step === 3) {
+      const a = $('#dropAct');
+      if (a) a.onclick = async () => {
+        const id = this.boxId;
+        if (this.drop === 0) {
+          this.busy = true; this.render();
+          await Hardware.send(id, 'servo.unlock', { reason:'delivery_drop' });
+          this.busy = false; this.drop = 1; this.render();
+        } else if (this.drop === 1) {
+          this.drop = 2; this.render();
+        } else if (this.drop === 2) {
+          this.busy = true; this.render();
+          await Hardware.send(id, 'servo.lock', {});
+          this.drop = 3; this.render();
+          await sleep(500);
+          Hardware.sensor(id, true);
+          try {
+            const order = await Store.addOrder({
+              orderId: this.form.orderId,
+              boxId: id,
+              studentId: this.form.studentId,
+              courier: this.form.courier,
+              size: this.form.size
+            });
+            this.last = order;
+            this.busy = false; this.step = 4; this.render();
+            Sound.success();
+            toast('Parcel Dropped!', `Notified ${order.studentName}. Box ${boxById(id).no} locked.`, 'ok');
+          } catch(err) {
+            this.busy = false; this.drop = 2; this.render();
+            toast('Error Registering', err.message, 'warn');
+          }
+        }
+      };
+    }
+    if (this.step === 4) {
+      $('#again').onclick = () => this.reset();
+      $('#asStudent').onclick = () => { Collect.setStudent(this.last.studentId); location.hash = '#/collect'; };
+    }
+  },
+  async toggleCamera() {
+    const video = $('#camVideo');
+    const container = $('#scanner');
+    if (this.stream) {
+      this.stopCamera();
+    } else {
+      try {
+        this.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        video.srcObject = this.stream;
+        container.classList.add('video-active');
+        $('#toggleCamBtn').textContent = '⏹ Stop Camera';
+      } catch(e) {
+        toast('Camera Access', 'Could not open camera stream. Use simulated QR scan button.', 'warn');
+      }
+    }
+  },
+  stopCamera() {
+    if (this.stream) {
+      this.stream.getTracks().forEach(t => t.stop());
+      this.stream = null;
+    }
+    const container = $('#scanner');
+    if (container) container.classList.remove('video-active');
+    const btn = $('#toggleCamBtn');
+    if (btn) btn.textContent = '📷 Toggle Live Camera';
+  }
+};
+
+/* ==========================================================================
+   3. Student Collect Flow
+   ========================================================================== */
+const Collect = {
+  studentId: STUDENTS[0].id, orderId: null, phase: 'list', pin: '', msg: '', msgKind: '', scene: null, justCollected: null,
+  init() {
+    const sel = $('#studentSelect');
+    sel.innerHTML = Store.students.map(s => `<option value="${s.id}">${esc(s.name)} (${s.id})</option>`).join('');
+    try { const saved = localStorage.getItem('campusdrop.student'); if (saved && studentById(saved)) this.studentId = saved; } catch(e){}
+    sel.value = this.studentId;
+    sel.onchange = () => this.setStudent(sel.value);
+    if (HAS3D) { this.scene = new LockerScene($('#collectStage'), { boxes:[Store.boxes[1]] }); this.unit = this.scene.units[0]; }
+    else no3d($('#collectStage'));
+
+    document.addEventListener('keydown', e => {
+      if (location.hash !== '#/collect' || this.phase !== 'pin') return;
+      if (/^\d$/.test(e.key)) this.press(e.key); else if (e.key === 'Backspace') this.press('del');
+    });
+
+    $('#testNotifBtn').onclick = () => {
+      const pending = this.mine()[0];
+      const order = pending || { id:'123456789012', boxId:'B01', pin:'9012', courier:'Amazon', studentId:this.studentId };
+      showMobilePushBanner('Parcel Arrived! 📦', `Your ${order.courier} order #${order.id} is in Box #01. Enter last 4 digits PIN to collect.`, order);
+      Sound.alert();
+    };
+  },
+  setStudent(id) {
+    this.studentId = id; this.orderId = null; this.phase = 'list'; this.pin = ''; this.msg = '';
+    try { localStorage.setItem('campusdrop.student', id); } catch(e){}
+    $('#studentSelect').value = id; this.render();
+  },
+  mine() { return Store.orders.filter(o => o.studentId === this.studentId && o.status === 'awaiting').sort((a,b) => b.createdAt - a.createdAt); },
+  order() { return Store.orders.find(o => o.id === this.orderId); },
+  sync3d() {
+    const o = this.order(), b = o ? boxById(o.boxId) : null;
+    if (this.unit) {
+      if (b && this.unit.box.id !== b.id) this.unit.setBox(b);
+      const open = this.phase === 'open';
+      this.unit.openT = open || this.phase === 'taken' ? (this.phase === 'taken' ? 0 : 1) : 0;
+      this.unit.pInT = o && (this.phase !== 'taken') ? 1 : 0;
+      if (o) this.unit.size = sizeScale(o.size);
+      this.unit.setState(open ? 'open' : o ? 'occupied' : 'free');
+    }
+    $('#collectBoxCard').innerHTML = b ? `<b>${esc(b.name)}</b><span class="muted">${esc(b.place)}</span>` : `<b>Your Smart Box</b><span class="muted">Select parcel to inspect</span>`;
+    const led = $('#collectLed');
+    const [cls, txt] = this.phase === 'open' ? ['chip-lav','Door Unlocked (90°)'] : this.phase === 'taken' ? ['chip-ok','Collected'] : o ? ['chip-kraft','Locked, Parcel Inside'] : ['chip-lav','Locked'];
+    led.className = 'chip ' + cls; led.innerHTML = `<span class="dot"></span>${txt}`;
+  },
+  render() {
+    const st = studentById(this.studentId) || STUDENTS[0];
+    $('#meAvatar').textContent = initials(st.name); $('#meAvatar').style.background = st.color;
+    const n = this.mine().length;
+    const badge = $('#collectBadge'); badge.hidden = !n; badge.textContent = n;
+    if (this.orderId && !this.order() && this.phase !== 'taken') { this.orderId = null; this.phase = 'list'; }
+
+    const body = $('#collectBody');
+    if (this.phase === 'list') body.innerHTML = this.viewList();
+    else if (this.phase === 'scan') body.innerHTML = this.viewScan();
+    else if (this.phase === 'pin') body.innerHTML = this.viewPin();
+    else if (this.phase === 'open') body.innerHTML = this.viewOpen();
+    else if (this.phase === 'taken') body.innerHTML = this.viewTaken();
+    this.bind(); this.sync3d();
+  },
+  viewList() {
+    const list = this.mine(), st = studentById(this.studentId);
+    const done = Store.all().filter(o => o.studentId === this.studentId && o.status === 'collected').slice(0, 3);
+    const parcelIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></svg>';
+    return `
+      <h2 class="step-title">${list.length ? `${list.length === 1 ? '1 Parcel' : list.length + ' Parcels'} Waiting for Pickup` : 'No Pending Parcels'}</h2>
+      <p class="step-sub">${list.length ? 'Tap on your parcel below, head to the box, and enter your 4-digit PIN.' : `When a delivery is made for ${esc(st.name.split(' ')[0])}, it appears here instantly.`}</p>
+      ${list.length ? `<div class="inbox">${list.map(o => { const b = boxById(o.boxId); return `
+        <button class="parcel" data-order="${esc(o.id)}">
+          <span class="pic">${parcelIcon}</span>
+          <span><b>${esc(o.courier)} • Order #${esc(o.id)}</b><span>In Box ${esc(b.no)} (${esc(b.place)}) • Arrived ${ago(o.createdAt)}</span></span>
+          <span class="chip chip-kraft">Collect Now</span>
+        </button>`; }).join('')}</div>` : `
+        <div class="empty">
+          <h3>Your Delivery Shelf is Clear</h3>
+          <p>Drop a parcel using the Delivery Boy portal or add demo parcels to test the student pickup workflow.</p>
+          <div class="btn-row" style="justify-content:center">
+            <button class="btn btn-ghost" id="seedC">+ Add Demo Parcel</button>
+            <a class="btn btn-primary" href="#/deliver">Deliver a Parcel</a>
+          </div>
+        </div>`}
+      ${done.length ? `<div style="margin-top:24px"><div class="small muted" style="font-weight:700;margin-bottom:8px">Recently Collected</div>${done.map(o => `<div class="small" style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)"><span>${esc(o.courier)} #${esc(o.id)}</span><span class="muted">${ago(o.collectedAt)}</span></div>`).join('')}</div>` : ''}`;
+  },
+  viewScan() {
+    const o = this.order(), b = boxById(o.boxId);
+    return `
+      <button class="back" data-back="list">‹ Back to Parcels</button>
+      <h2 class="step-title">8. Reach Box ${esc(b.no)} & Scan QR</h2>
+      <p class="step-sub">Walk to <b>${esc(b.place)}</b> and scan the box QR to verify you're standing in front of the right locker.</p>
+      <div class="scanner-container">
+        <div class="scanner" id="scanner">
+          <canvas id="scanQR" aria-label="QR Code on Box"></canvas>
+          <div class="laser"></div>
+          <div class="scanned-ok">Matched Box ${esc(b.no)} ✓</div>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-lg" id="doScan">Verify Presence at Box</button>`;
+  },
+  viewPin() {
+    const o = this.order(), locked = o.lockedUntil && o.lockedUntil > Date.now();
+    const cls = this.msgKind === 'bad' ? 'bad' : this.msgKind === 'ok' ? 'good' : '';
+    return `
+      <button class="back" data-back="list">‹ Cancel</button>
+      <h2 class="step-title">9. Enter 4-Digit Pickup PIN</h2>
+      <p class="step-sub">PIN is the last 4 digits of Order ID: <b>${esc(o.id.slice(0, -4))}</b><span style="color:var(--kraft);font-weight:800;font-size:16px">${esc(o.pin)}</span></p>
+      <div class="pin-entry ${cls}" id="pinEntry" aria-label="PIN Entry">
+        ${[0,1,2,3].map(i => `<span class="${this.pin[i] ? 'filled' : ''}">${this.pin[i] ? (this.msgKind === 'ok' ? this.pin[i] : '•') : ''}</span>`).join('')}
+      </div>
+      <div class="msg ${this.msgKind}" role="status">${esc(locked ? `Too many wrong attempts. Locked for ${Math.ceil((o.lockedUntil - Date.now())/1000)}s.` : this.msg)}</div>
+      <div class="keypad">
+        ${['1','2','3','4','5','6','7','8','9','clear','0','del'].map(k => `<button data-k="${k}" class="${k.length > 1 ? 'fn' : ''}" ${locked ? 'disabled' : ''}>${k === 'del' ? '⌫' : k === 'clear' ? 'Clear' : k}</button>`).join('')}
+      </div>
+      <button class="btn btn-primary btn-lg" id="verify" ${this.pin.length < 4 || locked ? 'disabled' : ''}>10. Verify PIN & Unlock Box</button>`;
+  },
+  viewOpen() {
+    const o = this.order(), b = boxById(o.boxId);
+    return `
+      <div class="bigok" style="background:var(--lav);color:#fff"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg></div>
+      <h2 class="step-title">11. Box ${esc(b.no)} Unlocked!</h2>
+      <p class="step-sub">The servo motor has unlocked the door. Take your ${esc(o.courier)} parcel inside and close the door.</p>
+      <div class="receipt"><dl class="kv">
+        <dt>Order ID</dt><dd class="oid">${esc(o.id)}</dd>
+        <dt>Locker</dt><dd>${esc(b.name)}, ${esc(b.place)}</dd>
+        <dt>Servo Status</dt><dd style="color:var(--ok);font-weight:700">90° UNLOCKED</dd>
+      </dl></div>
+      <button class="btn btn-kraft btn-lg" id="taken">I’ve Taken My Parcel</button>`;
+  },
+  viewTaken() {
+    const o = this.justCollected;
+    return `
+      <div class="bigok"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="m5 12.5 4.5 4.5L19 7"/></svg></div>
+      <h2 class="step-title">12. Parcel Collected Successfully!</h2>
+      <p class="step-sub">Thank you! Have a nice day 👍. Box ${esc((boxById(o.boxId)||{}).no || '01')} is now locked and ready for the next drop.</p>
+      <button class="btn btn-primary btn-lg" id="backList">Back to Your Shelf</button>`;
+  },
+  press(k) {
+    const o = this.order(); if (!o || (o.lockedUntil && o.lockedUntil > Date.now())) return;
+    Sound.keypadClick();
+    if (this.msgKind) { this.msg = ''; this.msgKind = ''; }
+    if (k === 'del') this.pin = this.pin.slice(0, -1);
+    else if (k === 'clear') this.pin = '';
+    else if (this.pin.length < 4) this.pin += k;
+    this.render();
+    if (this.pin.length === 4) {
+      setTimeout(() => { const v = $('#verify'); if (v && !v.disabled) v.focus(); }, 50);
+    }
+  },
+  bind() {
+    const body = $('#collectBody');
+    body.querySelectorAll('[data-order]').forEach(b => b.onclick = () => { this.orderId = b.dataset.order; this.phase = 'scan'; this.render(); });
+    body.querySelectorAll('[data-back]').forEach(b => b.onclick = () => { this.phase = 'list'; this.orderId = null; this.pin = ''; this.msg = ''; this.msgKind = ''; this.render(); });
+    const sd = $('#seedC'); if (sd) sd.onclick = async () => { await seedDemo(); this.render(); };
+
+    if (this.phase === 'scan') {
+      const o = this.order(); drawQR($('#scanQR'), 'campusdrop:' + o.boxId);
+      $('#doScan').onclick = async () => {
+        const s = $('#scanner'), btn = $('#doScan'); btn.disabled = true; btn.textContent = 'Verifying Box...';
+        s.classList.add('scanning'); Sound.keypadClick();
+        await sleep(1000); s.classList.remove('scanning'); s.classList.add('ok');
+        Sound.success();
+        Hardware.push({ t:Date.now(), dir:'in', boxId:o.boxId, action:'qr.scanned', payload:{ by:this.studentId } });
+        await sleep(500); this.phase = 'pin'; this.pin = ''; this.render();
+      };
+    }
+    if (this.phase === 'pin') {
+      body.querySelectorAll('[data-k]').forEach(b => b.onclick = () => this.press(b.dataset.k));
+      const o = this.order();
+      if (o.lockedUntil && o.lockedUntil > Date.now()) {
+        clearTimeout(this.lockTimer);
+        this.lockTimer = setTimeout(() => { if (this.phase === 'pin') this.render(); }, 1000);
+      }
+      $('#verify').onclick = async () => {
+        const v = $('#verify'); v.disabled = true; v.textContent = 'Verifying PIN...';
+        const res = await Store.verifyPin(o.id, this.pin);
+        if (res.success) {
+          Sound.success();
+          this.msg = 'PIN Correct! Unlocking Box...'; this.msgKind = 'ok'; this.render();
+          await sleep(600);
+          this.phase = 'open'; this.render();
+        } else {
+          Sound.errorBuzz();
+          this.pin = '';
+          this.msg = res.locked ? `Too many wrong PIN attempts. Box locked for ${res.waitSec}s.` : 'Incorrect PIN. Last 4 digits of Order ID.';
+          this.msgKind = 'bad';
+          this.render();
+        }
+      };
+    }
+    if (this.phase === 'open') {
+      $('#taken').onclick = async () => {
+        const o = this.order(), btn = $('#taken'); btn.disabled = true; btn.textContent = 'Locking Box...';
+        this.justCollected = { ...o };
+        Sound.servoHum();
+        await sleep(700);
+        this.phase = 'taken'; this.sync3d();
+        await Store.collectOrder(o.id);
+        Sound.success();
+        toast('Parcel Collected', `Order #${o.id} completed. Have a nice day!`, 'ok');
+        this.orderId = null; this.render();
+      };
+    }
+    if (this.phase === 'taken') {
+      $('#backList').onclick = () => { this.phase = 'list'; this.render(); };
+    }
+  }
+};
+
+/* ==========================================================================
+   4. IoT Hardware Bench & Simulator
+   ========================================================================== */
+const HwBench = {
+  boxId: 'B01', servoAngle: 0, parcelPresent: false, keypadBuffer: '',
+  init() {
+    $('#hwManualUnlock').onclick = async () => {
+      await Hardware.send(this.boxId, 'servo.unlock', { reason:'hw_bench_override' });
+      this.setServo(90);
+    };
+    $('#hwManualLock').onclick = async () => {
+      await Hardware.send(this.boxId, 'servo.lock', { reason:'hw_bench_override' });
+      this.setServo(0);
+    };
+    $('#hwTriggerSensor').onclick = () => {
+      this.parcelPresent = true;
+      Hardware.sensor(this.boxId, true);
+      this.updateSensorUi();
+      toast('IR Sensor Triggered', 'Parcel presence confirmed by sensor (< 15cm).', 'ok');
+    };
+    $('#hwClearSensor').onclick = () => {
+      this.parcelPresent = false;
+      Hardware.sensor(this.boxId, false);
+      this.updateSensorUi();
+      toast('IR Sensor Cleared', 'Box compartment is empty (> 25cm).', 'ok');
+    };
+    $$('.hw-k').forEach(b => b.onclick = () => this.pressKeypad(b.dataset.k));
+  },
+  setServo(deg) {
+    this.servoAngle = deg;
+    const dial = $('#gaugeDial');
+    if (dial) {
+      dial.textContent = deg + '°';
+      dial.style.borderColor = deg > 0 ? '#63E6A5' : '#6E55F5';
+      dial.style.color = deg > 0 ? '#63E6A5' : '#B3A1FF';
+    }
+    $('#servoStateText').textContent = deg > 0 ? 'UNLOCKED (90°)' : 'LOCKED (0°)';
+    $('#servoStateText').style.color = deg > 0 ? 'var(--ok)' : '#ECEAFB';
+    this.updateOled();
+  },
+  updateSensorUi() {
+    const txt = $('#sensorStateText'), dist = $('#sensorDistText');
+    if (txt) {
+      txt.textContent = this.parcelPresent ? 'PARCEL DETECTED' : 'EMPTY (No parcel)';
+      txt.style.color = this.parcelPresent ? 'var(--kraft)' : 'var(--ok)';
+      dist.textContent = this.parcelPresent ? 'Distance: 9.8 cm (Object present)' : 'Distance: > 28 cm';
+    }
+    this.updateOled();
+  },
+  pressKeypad(k) {
+    Sound.keypadClick();
+    if (k === '#') {
+      if (this.keypadBuffer.length >= 4) {
+        this.verifyPhysicalKeypad(this.keypadBuffer);
+      }
+      this.keypadBuffer = '';
+    } else if (k === '*') {
+      this.keypadBuffer = '';
+      this.updateOled();
+    } else if (isDigit(k) && this.keypadBuffer.length < 4) {
+      this.keypadBuffer += k;
+      this.updateOled();
+    }
+  },
+  async verifyPhysicalKeypad(pin) {
+    const o = Store.awaitingIn(this.boxId);
+    if (!o) {
+      $('#oledLine2').textContent = 'NO ORDER IN BOX';
+      Sound.errorBuzz();
+      await sleep(1500); this.updateOled(); return;
+    }
+    const res = await Store.verifyPin(o.id, pin);
+    if (res.success) {
+      $('#oledLine2').textContent = 'PIN OK! UNLOCKED';
+      Sound.success();
+      this.setServo(90);
+    } else {
+      $('#oledLine2').textContent = 'INVALID PIN!';
+      Sound.errorBuzz();
+      await sleep(1500); this.updateOled();
+    }
+  },
+  updateOled() {
+    const b = boxById(this.boxId) || Store.boxes[0];
+    const o = Store.awaitingIn(this.boxId);
+    $('#oledLine1').textContent = `CampusDrop Box #${b.no}`;
+    if (this.keypadBuffer) {
+      $('#oledLine2').textContent = `PIN: ${'•'.repeat(this.keypadBuffer.length)}`;
+      $('#oledLine3').textContent = 'Press # to Enter';
+    } else if (this.servoAngle > 0) {
+      $('#oledLine2').textContent = 'STATUS: UNLOCKED';
+      $('#oledLine3').textContent = 'Door Open (90 deg)';
+    } else if (this.parcelPresent || o) {
+      $('#oledLine2').textContent = 'STATUS: PARCEL INSIDE';
+      $('#oledLine3').textContent = 'Waiting for student PIN';
+    } else {
+      $('#oledLine2').textContent = 'STATUS: READY';
+      $('#oledLine3').textContent = 'Scan QR to Deliver';
+    }
+  },
+  syncFromCommand(cmd) {
+    if (cmd.angle !== undefined) this.setServo(cmd.angle);
+    else if (cmd.action === 'SERVO_UNLOCK') this.setServo(90);
+    else if (cmd.action === 'SERVO_LOCK') this.setServo(0);
+  }
+};
+const isDigit = c => /^\d$/.test(c);
+
+/* ---------- Seed Helper ---------- */
+async function seedDemo() {
+  const free = Store.boxes.filter(b => b.online && !Store.awaitingIn(b.id));
+  if (!free.length) { toast('All boxes full', 'No free online lockers available.', 'warn'); return; }
+  const picks = [[Store.students[0], 'Amazon', 'Medium'], [Store.students[1], 'Flipkart', 'Small']];
+  for (let i = 0; i < picks.length && i < free.length; i++) {
+    const [st, courier, size] = picks[i];
+    const id = String(402900000000 + Math.floor(Math.random() * 9999999) * 10 + 12);
+    await Store.addOrder({ orderId: id, boxId: free[i].id, studentId: st.id, courier, size });
+  }
+  toast('Demo Parcels Added', 'Orders registered for Aarav and Diya.', 'ok');
+}
+
+/* ==========================================================================
+   Router, Theme & Initialization
+   ========================================================================== */
+function route() {
+  const r = (location.hash.replace('#/', '') || 'dashboard');
+  const valid = ['dashboard', 'deliver', 'collect', 'hardware'];
+  const name = valid.includes(r) ? r : 'dashboard';
+
+  $$('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + name));
+  $$('.nav a').forEach(a => a.dataset.route === name ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'));
+  $$('.role-tab').forEach(b => b.setAttribute('aria-selected', b.dataset.target === name));
+
+  requestAnimationFrame(() => Scenes.forEach(s => s.resize()));
+  window.scrollTo({ top: 0 });
+}
+
+function renderAll() {
+  Dashboard.render();
+  if (Deliver.step !== 3 || !Deliver.busy) Deliver.render();
+  if (Collect.phase === 'list' || Collect.phase === 'taken') Collect.render();
+  else {
+    Collect.sync3d();
+    const n = Collect.mine().length;
+    const badge = $('#collectBadge'); badge.hidden = !n; badge.textContent = n;
+  }
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('campusdrop.theme.v2', theme);
+  localStorage.setItem('campusdrop.theme', theme);
+  const isDark = theme === 'dark';
+  const label = $('#topThemeLabel');
+  const icon = $('#topThemeIcon');
+  if (label) label.textContent = isDark ? 'Dark Mode' : 'Light Mode';
+  if (icon) icon.textContent = isDark ? '🌙' : '☀️';
+  const railBtn = $('#themeToggle');
+  if (railBtn) railBtn.title = isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+}
+
+function initTheme() {
+  // Guarantee clean white/light aesthetic by default
+  let saved = localStorage.getItem('campusdrop.theme.v2');
+  if (!saved) {
+    saved = 'light';
+    localStorage.setItem('campusdrop.theme.v2', 'light');
+    localStorage.setItem('campusdrop.theme', 'light');
+  }
+  applyTheme(saved);
+
+  const toggle = () => {
+    const cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    applyTheme(cur);
+  };
+
+  const b1 = $('#themeToggle'); if (b1) b1.onclick = toggle;
+  const b2 = $('#topThemeToggle'); if (b2) b2.onclick = toggle;
+}
+
+function boot() {
+  initTheme();
+  Dashboard.init(); Deliver.init(); Collect.init(); HwBench.init();
+  Store.on(renderAll);
+
+  window.addEventListener('hashchange', route);
+  if (!location.hash) history.replaceState(null, '', '#/dashboard');
+
+  $$('.role-tab').forEach(b => b.onclick = () => { location.hash = '#/' + b.dataset.target; });
+  $('#logoBtn').onclick = () => { location.hash = '#/dashboard'; };
+  $('#quickSeed').onclick = () => seedDemo();
+
+  route();
+  renderAll();
+  Store.init();
+  requestAnimationFrame(loop);
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => Scenes.forEach(s => s.units.forEach(u => u.setBox(u.box))));
+  }
+}
+
+boot();
+</script>
+</body>
+</html>
