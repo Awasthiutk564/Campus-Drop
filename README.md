@@ -2,7 +2,7 @@
 
 An IoT-powered smart locker parcel delivery and pickup platform designed for university campuses and colleges. Built to streamline parcel logistics: **Drop &rarr; Notify &rarr; Verify &rarr; Collect**.
 
-![CampusDrop System Flowchart](flowchart.png)
+![CampusDrop System Flowchart](![alt text](image.png))
 
 ---
 
