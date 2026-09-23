@@ -113,6 +113,21 @@
   ],
   "orders": [
     {
+      "id": "402915991768",
+      "boxId": "B01",
+      "studentId": "22BCE1043",
+      "studentName": "Aarav Reddy",
+      "phone": "+91 98480 14310",
+      "hostel": "Hostel A, room 214",
+      "courier": "Amazon",
+      "size": "Medium",
+      "pin": "1768",
+      "status": "collected",
+      "attempts": 0,
+      "createdAt": 1790154920774,
+      "collectedAt": 1790154920779
+    },
+    {
       "id": "123456789012",
       "boxId": "B01",
       "studentId": "22BCE1043",
@@ -144,6 +159,92 @@
     }
   ],
   "events": [
+    {
+      "id": "EV-1790154920780-892",
+      "t": 1790154920780,
+      "dir": "in",
+      "boxId": "B01",
+      "action": "sensor.trigger",
+      "payload": {
+        "parcelPresent": true,
+        "distanceCm": 11.4
+      }
+    },
+    {
+      "id": "EV-1790154920779-910",
+      "t": 1790154920779,
+      "dir": "out",
+      "boxId": "B01",
+      "action": "servo.lock",
+      "payload": {
+        "reason": "collection_complete"
+      }
+    },
+    {
+      "id": "EV-1790154920779-591",
+      "t": 1790154920779,
+      "dir": "in",
+      "boxId": "B01",
+      "action": "parcel.collected",
+      "payload": {
+        "orderId": "402915991768"
+      }
+    },
+    {
+      "id": "EV-1790154920777-628",
+      "t": 1790154920777,
+      "dir": "out",
+      "boxId": "B01",
+      "action": "servo.unlock",
+      "payload": {
+        "reason": "pin_verified",
+        "orderId": "402915991768"
+      }
+    },
+    {
+      "id": "EV-1790154920777-837",
+      "t": 1790154920777,
+      "dir": "in",
+      "boxId": "B01",
+      "action": "pin.verified",
+      "payload": {
+        "orderId": "402915991768"
+      }
+    },
+    {
+      "id": "EV-1790154920776-326",
+      "t": 1790154920776,
+      "dir": "in",
+      "boxId": "B01",
+      "action": "pin.rejected",
+      "payload": {
+        "orderId": "402915991768",
+        "attempts": 1
+      }
+    },
+    {
+      "id": "EV-1790154920775-441",
+      "t": 1790154920775,
+      "dir": "out",
+      "boxId": "B01",
+      "action": "notify.student",
+      "payload": {
+        "studentId": "22BCE1043",
+        "pin": "1768",
+        "phone": "+91 98480 14310"
+      }
+    },
+    {
+      "id": "EV-1790154920774-271",
+      "t": 1790154920774,
+      "dir": "in",
+      "boxId": "B01",
+      "action": "order.registered",
+      "payload": {
+        "orderId": "402915991768",
+        "student": "Aarav Reddy"
+      }
+    },
     {
       "id": "EV-1790152920035-386",
       "t": 1790152920035,
