@@ -1,118 +1,177 @@
-# CampusDrop Hardware Setup & Wiring Guide
+# CampusDrop Hardware Guide (Smart Box 01)
 
-This guide describes how to connect the ESP32 microcontroller, servo actuator, sensors, keypad, and display to create the physical **Smart Campus Delivery Box** corresponding to the system architecture.
+Box 01 is the real box. It uses **two boards** connected over serial:
+
+- **ESP8266 (NodeMCU)**: WiFi, Firebase, and the 4×4 keypad. Sketch: `esp8266_campusdrop/`
+- **Arduino UNO**: SG90 servo lock, HC-SR04 ultrasonic sensor, and 16×2 I2C LCD. Sketch: `uno_campusdrop/`
+
+Boxes 02–06 on the website are simulated.
 
 ---
 
-## 1. Components Checklist
+## 1. Components
 
-| Component | Specification | Purpose |
+| Part | Connected to | Job |
 |---|---|---|
-| **Microcontroller** | ESP32-WROOM-32 / NodeMCU ESP32 | Main controller with WiFi & GPIOs |
-| **Servo Motor** | TowerPro SG90 (Micro) or MG996R (High Torque) | Lock / Unlock deadbolt mechanism (0° to 90°) |
-| **Parcel Presence Sensor** | HC-SR04 Ultrasonic or TCRT5000 IR Sensor | Detects when parcel is placed inside box (< 18cm) |
-| **Door Sensor** | Magnetic Reed Switch / Limit Switch | Detects physical door closure |
-| **Keypad** | 4x4 or 3x4 Matrix Membrane Keypad | Direct physical PIN entry on the locker door |
-| **Status Display** | 0.96" SSD1306 I2C OLED (128x64) | Shows box instructions, PIN entry, and status |
-| **Status Indicator** | Common Cathode RGB LED (or WS2812 NeoPixel) | Visual feedback (Green=Free, Orange=Parcel, Blue=Open, Red=Error) |
-| **Power Supply** | 5V 2A DC Adapter or Battery Pack | Powers ESP32 and Servo motor |
+| ESP8266 NodeMCU (ESP-12E) | WiFi | Talks to Firebase, reads the keypad, and tells the UNO what to do |
+| Arduino UNO | ESP8266 over serial | Drives the servo, sensor, and LCD |
+| 4×4 membrane keypad | ESP8266 | Student types the 4-digit PIN |
+| SG90 micro servo | UNO D9 | Lock: 0° = locked, 90° = unlocked |
+| HC-SR04 ultrasonic | UNO D7 / D6 | Checks whether a parcel is inside |
+| 16×2 LCD with I2C backpack | UNO A4 / A5 | Shows status and PIN entry on the box |
+| 1 kΩ + 2 kΩ resistors | UNO TX → ESP RX | Drops the UNO's 5 V signal to 3.3 V for the ESP8266 |
 
 ---
 
-## 2. Circuit Wiring & Pinout Table
+## 2. Wiring
 
-### ESP32 Pin Connections
+### Keypad → ESP8266
+
+> **Changed from the first build:** swap the **R1** and **C4** wires.
+> D0 (GPIO16) has no internal pull-up resistor, and the keypad library needs one on every
+> **row** pin, so row 1 (keys 1 2 3 A) never reads on D0. Column pins don't need a pull-up,
+> so C4 works fine on D0.
 
 ```
-                        ESP32 Dev Module
-                     ┌──────────────────┐
-                 3V3 ┤                  ├ GND ────── GND (Common)
-                 EN  ┤                  ├ GPIO 23 ── Keypad Col 4
-             GPIO 36 ┤                  ├ GPIO 22 ── OLED SCL
-             GPIO 39 ┤                  ├ GPIO 21 ── OLED SDA
-             GPIO 34 ┤                  ├ GPIO 19 ── IR Sensor / ECHO
-             GPIO 35 ┤                  ├ GPIO 18 ── Ultrasonic ECHO
-             GPIO 32 ┤                  ├ GPIO 5  ── Ultrasonic TRIG
-             GPIO 33 ┤ Keypad Col 2     ├ GPIO 17 ── LED Blue
-             GPIO 25 ┤ Keypad Col 1     ├ GPIO 16 ── LED Green
-             GPIO 26 ┤ Keypad Row 4     ├ GPIO 4  ── LED Red
-             GPIO 27 ┤ Keypad Row 3     ├ GPIO 2  ── Onboard LED
-             GPIO 14 ┤ Keypad Row 2     ├ GPIO 15 ── Door Switch
-             GPIO 12 ┤ Keypad Row 1     ├ GPIO 13 ── Servo PWM Signal
-                 GND ┤ GND              ├ GND
-                 VIN ┤ +5V Power In     ├ 5V (from regulator)
-                     └──────────────────┘
+4×4 KEYPAD              ESP8266
+R1  ─────────────────── D1   (was D0)
+R2  ─────────────────── D3
+R3  ─────────────────── D4
+R4  ─────────────────── D5
+C1  ─────────────────── D6
+C2  ─────────────────── D7
+C3  ─────────────────── D8
+C4  ─────────────────── D0   (was D1)
 ```
 
-### Detailed Connections
+If you would rather not move the wires: keep R1 on D0, add a **10 kΩ resistor from D0 to 3.3 V**,
+and change `rowPins`/`colPins` in the ESP8266 sketch back to `{D0, D3, D4, D5}` / `{D6, D7, D8, D1}`.
 
-#### 1. Servo Motor (SG90 / MG996R)
-- **Red wire (VCC)**: Connect to external +5V power supply (Do not power high-current servos directly from ESP32 3.3V pin).
-- **Brown/Black wire (GND)**: Common Ground with ESP32.
-- **Orange/Yellow wire (Signal PWM)**: Connect to **GPIO 13**.
+D3, D4, and D8 are pins the ESP8266 checks while it starts up. **Don't hold a key down while powering it on.**
+Normal use afterwards is fine.
 
-#### 2. HC-SR04 Ultrasonic Distance Sensor
-- **VCC**: +5V
-- **GND**: GND
-- **TRIG**: **GPIO 5**
-- **ECHO**: **GPIO 18** (Recommended: 1kΩ / 2kΩ voltage divider from 5V Echo to 3.3V GPIO).
+### HC-SR04 → UNO
+```
+VCC  ─── 5V
+GND  ─── GND
+TRIG ─── D7
+ECHO ─── D6
+```
 
-*Alternative:* TCRT5000 IR Sensor:
-- **VCC**: 3.3V
-- **GND**: GND
-- **OUT (Digital)**: **GPIO 19**
+### 16×2 I2C LCD → UNO
+```
+GND ─── GND
+VCC ─── 5V
+SDA ─── A4
+SCL ─── A5
+```
+If the screen lights up but shows nothing, turn the blue contrast potentiometer on the back.
+If it still shows nothing, change `LCD_ADDRESS` in the UNO sketch from `0x27` to `0x3F`.
 
-#### 3. SSD1306 0.96" I2C OLED Display
-- **VCC**: 3.3V
-- **GND**: GND
-- **SDA**: **GPIO 21**
-- **SCL**: **GPIO 22**
+### SG90 servo → UNO
+```
+RED          ─── 5V
+BROWN/BLACK  ─── GND
+ORANGE/YELLOW ── D9
+```
+An SG90 can run from the UNO's 5 V pin. If the UNO resets or the LCD flickers when the servo moves,
+add a 470 µF capacitor across the servo's 5 V and GND, or give the servo its own 5 V supply
+(with GND shared with the UNO).
 
-#### 4. RGB Status LED
-- **Red Pin**: 220Ω resistor &rarr; **GPIO 4**
-- **Green Pin**: 220Ω resistor &rarr; **GPIO 16**
-- **Blue Pin**: 220Ω resistor &rarr; **GPIO 17**
-- **Cathode (Long Pin)**: GND
+### UNO ↔ ESP8266 (serial, 9600 baud)
+```
+UNO TX (pin 1) ── 1kΩ ──┬──────→ ESP8266 RX
+                        │
+                       2kΩ
+                        │
+                       GND
 
-#### 5. 4x4 Matrix Keypad
-- **Rows (R1, R2, R3, R4)**: **GPIO 12, GPIO 14, GPIO 27, GPIO 26**
-- **Columns (C1, C2, C3, C4)**: **GPIO 25, GPIO 33, GPIO 32, GPIO 23**
+UNO RX (pin 0) ←──────────────── ESP8266 TX
+UNO GND ──────────────────────── ESP8266 GND
+```
+5 V × 2k / (1k + 2k) ≈ 3.3 V, which is safe for the ESP8266. The ESP8266's 3.3 V TX signal
+is read correctly by the UNO without a divider.
 
----
+**Both boards share these RX/TX pins with their USB port.** When uploading a sketch:
+- to the **UNO**: unplug the wire on UNO pin 0 (RX)
+- to the **ESP8266**: unplug the wire on the ESP8266 RX pin
 
-## 3. How the Hardware Operates
-
-1. **Idle State (Box Free)**:
-   - Servo is at **0°** (Locked).
-   - LED is **Green**.
-   - OLED screen displays `CampusDrop - Box #01 / STATUS: READY`.
-
-2. **Delivery Drop-off**:
-   - Delivery partner scans the QR code on the box.
-   - App calls `POST /api/boxes/B01/unlock`.
-   - ESP32 receives command &rarr; Servo turns to **90°** (Unlocked).
-   - LED turns **Blue** (Door open).
-   - Delivery partner places parcel inside and closes door.
-   - Ultrasonic/IR sensor detects distance < 18cm &rarr; reports to server `parcelPresent: true`.
-   - Servo locks back to **0°**.
-   - LED turns **Orange** (Parcel inside).
-
-3. **Student Pickup**:
-   - Student receives mobile notification with PIN = last 4 digits of Order ID (e.g. `9012`).
-   - Student approaches Box #01.
-   - Student either enters PIN on the web app or directly on the physical keypad (`9012#`).
-   - Server or ESP32 verifies the PIN:
-     - **Match**: Servo turns to **90°**, LED turns Blue, student takes parcel.
-     - IR sensor detects box is empty &rarr; servo locks to **0°**, LED turns Green (Ready for next parcel).
-     - Status updates to `Collected`.
+Plug the wires back in afterwards and press reset on both boards.
 
 ---
 
-## 4. Software Dependencies in Arduino IDE
+## 3. Flashing
 
-Install via Arduino IDE **Library Manager**:
-1. `ESP32Servo` by Kevin Harrington
-2. `ArduinoJson` by Benoit Blanchon (Version 6.x)
-3. `Adafruit GFX Library`
-4. `Adafruit SSD1306`
-5. `Keypad` by Mark Stanley
+Arduino IDE → **File → Preferences → Additional boards manager URLs**:
+```
+https://arduino.esp8266.com/stable/package_esp8266com_index.json
+```
+Then install:
+- **Boards Manager:** `esp8266` by ESP8266 Community (board: *NodeMCU 1.0 (ESP-12E Module)*). The *Arduino AVR Boards* package is already there for the UNO.
+- **Library Manager:** `Keypad` by Mark Stanley, `ArduinoJson` by Benoit Blanchon (v7), `LiquidCrystal I2C` by Frank de Brabander. `Servo` is built in.
+
+1. Open `uno_campusdrop/uno_campusdrop.ino`, select *Arduino Uno*, and upload.
+2. Open `esp8266_campusdrop/esp8266_campusdrop.ino` and fill in:
+   - `WIFI_SSID`, `WIFI_PASSWORD` (the ESP8266 needs **2.4 GHz** WiFi)
+   - `FIREBASE_HOST`: your Realtime Database URL **without** `https://` and without the trailing `/`,
+     e.g. `campusdrop-1234-default-rtdb.asia-southeast1.firebasedatabase.app`
+3. Select *NodeMCU 1.0 (ESP-12E Module)* and upload.
+
+### Calibrating the parcel sensor
+With the box **empty and closed**, open the Serial Monitor on the ESP8266 at 9600 baud. Every
+10 s you'll see a `STATE:1:0:<cm>` line from the UNO; `<cm>` is the empty-box distance.
+In the UNO sketch, set `PARCEL_THRESHOLD_CM` a few cm below that value (e.g. empty = 18 cm → 12)
+and upload again.
+
+---
+
+## 4. How it works
+
+```
+Website (any phone/laptop)  ⇄  Firebase Realtime Database  ⇄  ESP8266  ⇄ serial ⇄  UNO → servo / LCD
+                                                                  ↑                ↑
+                                                               keypad         ultrasonic
+```
+
+**Drop-off (delivery person, on the website):**
+1. The courier scans Box 01 and enters the order ID and student. The PIN is the last 4 digits of the order ID.
+2. **Unlock door**: the website writes `boxes/B01/command = unlock`. The ESP8266 checks for it every second, tells the UNO `UNLOCK` (servo goes to 90°), and writes `commandAck`.
+3. The courier places the parcel. The ultrasonic sensor sees it and the ESP8266 sets `parcelPresent: true`.
+4. **Close door and register**: the servo goes back to 0°, the order is saved, `boxes/B01/currentOrder` is set, and the student sees the notification on the website.
+
+**Pickup (student, at the box):**
+1. The student types the PIN on the **physical keypad** (`*` clears, `#` deletes a digit). Each digit shows as `*` on the LCD, and as a dot on the website's Collect page in real time.
+2. After the 4th digit, the ESP8266 reads `currentOrder` and compares the PIN with its last 4 digits.
+3. **Correct:** the order is marked *collected*, the servo unlocks, the LCD shows "Take your parcel", and the box re-locks by itself after 15 s.
+4. **Wrong:** the website shows the attempt count. After 5 wrong tries the keypad is blocked for 30 s.
+
+**Admin (dashboard):** *Unlock remotely* opens Box 01 for a few seconds.
+
+**Heartbeat:** the ESP8266 reports every 10 s. If the website hears nothing for 30 s, Box 01 shows **Offline**.
+
+### Serial messages between the boards
+| From → To | Message | Meaning |
+|---|---|---|
+| ESP → UNO | `LOCK` / `UNLOCK` | Move the servo |
+| ESP → UNO | `LCD:<line1>\|<line2>` | Show text (16 characters per line) |
+| ESP → UNO | `STATUS` | Ask for the current state |
+| UNO → ESP | `ACK:LOCK` / `ACK:UNLOCK` | Servo moved |
+| UNO → ESP | `PARCEL:<0/1>:<cm>` | Parcel appeared or disappeared |
+| UNO → ESP | `STATE:<locked>:<parcel>:<cm>` | Reply to `STATUS` |
+| UNO → ESP | `READY` | UNO has started |
+
+Lines starting with `#` are ESP8266 debug messages; the UNO ignores them.
+
+---
+
+## 5. Troubleshooting
+
+| Problem | Check |
+|---|---|
+| Box 01 shows Offline on the website | Is the ESP8266 powered and on 2.4 GHz WiFi? Is `FIREBASE_HOST` correct (no `https://`)? Open the Serial Monitor and look for `# ... -> 401` (database rules) or `-> -1` (network). |
+| "Box 01 didn't respond" when unlocking | Same as above. The website waits 10 s for the ESP8266 to confirm. |
+| Keys 1, 2, 3, A don't work | R1 is still on D0; see the wiring note above. |
+| ESP8266 won't start or upload | Unplug the UNO's wire from ESP RX, and don't press keys while it powers on. |
+| Servo moves but the UNO resets | Add a 470 µF capacitor, or give the servo its own 5 V supply. |
+| LCD blank | Adjust contrast; try `LCD_ADDRESS 0x3F`. |
+| Parcel never detected | Recalibrate `PARCEL_THRESHOLD_CM` (section 3). The sensor must point into the box. |

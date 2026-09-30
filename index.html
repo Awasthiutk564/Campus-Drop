@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>CampusDrop – Smart Campus Delivery Box System</title>
+<title>CampusDrop – Smart Campus Delivery</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
 :root{
@@ -48,64 +48,52 @@ button{cursor:pointer}
 :focus-visible{outline:2px solid var(--lav);outline-offset:2px}
 img,svg,canvas{max-width:100%}
 
-/* App Shell */
-.app{display:grid;grid-template-columns:92px 1fr;min-height:100vh}
-.rail{position:sticky;top:0;height:100vh;padding:20px 0;display:flex;flex-direction:column;align-items:center;gap:12px;border-right:1px solid var(--line);background:var(--panel);backdrop-filter:blur(18px);z-index:30}
-.logo{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(145deg,var(--lav),#E8B073);margin-bottom:16px;box-shadow:var(--shadow);cursor:pointer;transition:transform .2s}
-.logo:hover{transform:scale(1.05)}
-.logo svg{width:28px;height:28px}
-.nav{display:flex;flex-direction:column;gap:8px;width:100%;align-items:center}
-.nav a{position:relative;width:72px;padding:10px 4px 8px;border-radius:16px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);text-decoration:none;font-size:11px;font-weight:700;transition:all .2s;text-align:center}
+/* shell */
+.app{display:grid;grid-template-columns:88px 1fr;min-height:100vh}
+.rail{position:sticky;top:0;height:100vh;padding:22px 0;display:flex;flex-direction:column;align-items:center;gap:10px;border-right:1px solid var(--line);background:var(--panel);backdrop-filter:blur(18px);z-index:30}
+.logo{width:46px;height:46px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(145deg,var(--lav),#E8B073);margin-bottom:22px;box-shadow:var(--shadow);cursor:pointer}
+.logo svg{width:26px;height:26px}
+.nav{display:flex;flex-direction:column;gap:8px}
+.nav a{position:relative;width:62px;padding:10px 0 8px;border-radius:16px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);text-decoration:none;font-size:11px;font-weight:700;transition:background .2s,color .2s}
 .nav a svg{width:22px;height:22px}
 .nav a:hover{color:var(--text);background:var(--lav-soft)}
-.nav a[aria-current="page"]{color:var(--lav-ink);background:var(--lav);box-shadow:0 8px 20px -8px var(--lav)}
-.badge{position:absolute;top:4px;right:10px;min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:var(--kraft);color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center}
+.nav a[aria-current="page"]{color:var(--lav-ink);background:var(--lav)}
+.badge{position:absolute;top:4px;right:9px;min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:var(--kraft);color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center}
 .badge[hidden]{display:none}
 
-.rail-footer{margin-top:auto;display:flex;flex-direction:column;gap:10px;align-items:center}
-.theme-btn{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--panel-strong);display:grid;place-items:center;color:var(--muted);transition:all .2s}
+.rail-footer{margin-top:auto;display:flex;flex-direction:column;gap:8px;align-items:center}
+.theme-btn{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:var(--panel-strong);display:grid;place-items:center;color:var(--muted);transition:all .2s;cursor:pointer}
 .theme-btn:hover{color:var(--text);background:var(--lav-soft)}
 
-/* Header & Top Bar */
-main{padding:24px clamp(16px,3vw,36px) 60px;max-width:1440px;width:100%;margin:0 auto;min-width:0}
-.role-banner{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 20px;border-radius:18px;background:var(--panel);border:1px solid var(--line);margin-bottom:20px;backdrop-filter:blur(14px);flex-wrap:wrap}
-.role-tabs{display:flex;gap:6px;background:var(--lav-soft);padding:4px;border-radius:14px}
-.role-tab{border:0;background:transparent;padding:7px 14px;border-radius:10px;font-weight:700;font-size:13px;color:var(--muted);transition:all .2s}
-.role-tab[aria-selected="true"]{background:var(--panel-solid);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.08)}
-.role-tab svg{width:16px;height:16px;vertical-align:-3px;margin-right:4px}
-.role-extras{display:flex;align-items:center;gap:10px}
-
+main{padding:26px clamp(16px,3vw,40px) 60px;max-width:1400px;width:100%;margin:0 auto;min-width:0}
 .topbar{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
-.topbar h1{font-family:var(--font-d);font-weight:600;font-size:clamp(24px,3vw,32px);letter-spacing:-.02em;line-height:1.15;margin:0}
-.topbar p{margin:6px 0 0;color:var(--muted);max-width:65ch}
+.topbar h1{font-family:var(--font-d);font-weight:600;font-size:clamp(24px,3vw,34px);letter-spacing:-.02em;line-height:1.1;margin:0}
+.topbar p{margin:6px 0 0;color:var(--muted);max-width:60ch}
+.topbar-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .sync{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:99px;border:1px solid var(--line);background:var(--panel);font-size:13px;font-weight:600;color:var(--muted)}
 .sync i{width:8px;height:8px;border-radius:50%;background:var(--faint);transition:background .3s}
 .sync.live i{background:var(--ok);box-shadow:0 0 0 4px var(--ok-soft)}
-
-/* Views */
 .view{display:none}
-.view.active{display:block;animation:viewIn .4s cubic-bezier(.2,.7,.2,1)}
+.view.active{display:block;animation:viewIn .45s cubic-bezier(.2,.7,.2,1)}
 @keyframes viewIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
-/* Panels */
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:24px;backdrop-filter:blur(20px);box-shadow:var(--shadow);min-width:0}
 .panel-pad{padding:22px}
-.panel h2{font-family:var(--font-d);font-weight:600;font-size:16px;letter-spacing:-.01em;margin:0}
+.panel h2{font-family:var(--font-d);font-weight:500;font-size:16px;letter-spacing:-.01em;margin:0}
 .panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
 .muted{color:var(--muted)}
 .small{font-size:13px}
 
-/* Buttons & Chips */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:14px;padding:11px 18px;font-weight:700;font-size:14px;transition:all .18s;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:14px;padding:11px 18px;font-weight:700;font-size:14px;transition:transform .15s,background .2s,opacity .2s;white-space:nowrap}
 .btn:active{transform:scale(.97)}
 .btn-primary{background:var(--lav);color:var(--lav-ink)}
-.btn-primary:hover{filter:brightness(1.08);box-shadow:0 6px 18px -4px var(--lav)}
+.btn-primary:hover{filter:brightness(1.07)}
 .btn-ghost{background:transparent;border-color:var(--line-strong)}
 .btn-ghost:hover{background:var(--lav-soft)}
 .btn-kraft{background:var(--kraft);color:#fff}
-.btn-kraft:hover{filter:brightness(1.08);box-shadow:0 6px 18px -4px var(--kraft)}
+.btn-kraft:hover{filter:brightness(1.07)}
 .btn[disabled]{opacity:.45;pointer-events:none}
-.btn-lg{padding:14px 22px;font-size:15px;border-radius:16px;width:100%}
+.btn-lg{padding:15px 22px;font-size:15px;border-radius:16px;width:100%}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;font-size:12px;font-weight:700;white-space:nowrap}
 .chip-ok{background:var(--ok-soft);color:var(--ok)}
 .chip-kraft{background:var(--kraft-soft);color:var(--kraft)}
@@ -113,51 +101,47 @@ main{padding:24px clamp(16px,3vw,36px) 60px;max-width:1440px;width:100%;margin:0
 .chip-lav{background:var(--lav-soft);color:var(--lav)}
 .dot{width:7px;height:7px;border-radius:50%;background:currentColor}
 
-/* Dashboard Grid */
+/* dashboard */
 .hero{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:18px}
 .wall{position:relative;overflow:hidden;min-height:460px;background:var(--stage)}
 .wall .stage3d{position:absolute;inset:0}
-.wall-caption{position:absolute;left:22px;top:20px;right:22px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;pointer-events:none;z-index:2}
+.wall-caption{position:absolute;left:22px;top:20px;right:22px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;pointer-events:none;z-index:3}
 .wall-caption h2{font-size:18px}
 .wall-caption p{margin:4px 0 0;font-size:13px;color:var(--muted)}
 .legend{display:flex;gap:12px;font-size:12px;font-weight:600;color:var(--muted);flex-wrap:wrap;justify-content:flex-end}
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .legend i{width:9px;height:9px;border-radius:50%}
-.tags{position:absolute;inset:0;pointer-events:none;z-index:1}
+.tags{position:absolute;inset:0;pointer-events:none;z-index:2}
 .tag{position:absolute;transform:translate(-50%,-100%);padding:5px 10px;border-radius:99px;font-size:11px;font-weight:800;background:var(--panel-strong);border:1px solid var(--line);white-space:nowrap;box-shadow:var(--shadow);transition:opacity .2s}
 .tag b{font-family:var(--font-d);font-weight:600;margin-right:6px}
 .wall-hint{position:absolute;left:22px;bottom:18px;font-size:12px;color:var(--muted);z-index:2;pointer-events:none}
-
 .detail{display:flex;flex-direction:column}
 .detail-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-.boxno{font-family:var(--font-d);font-weight:600;font-size:52px;line-height:1;letter-spacing:-.04em}
+.boxno{font-family:var(--font-d);font-weight:600;font-size:54px;line-height:1;letter-spacing:-.04em}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:10px 18px;margin:20px 0;font-size:14px}
 .kv dt{color:var(--muted)}
 .kv dd{margin:0;font-weight:700;text-align:right;min-width:0;overflow-wrap:anywhere}
 .detail .actions{margin-top:auto;display:grid;gap:10px}
-
 .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin:18px 0}
 .stat{padding:18px 20px}
 .stat .n{font-family:var(--font-d);font-weight:600;font-size:32px;letter-spacing:-.03em;line-height:1.1;font-variant-numeric:tabular-nums}
 .stat .l{font-size:13px;color:var(--muted);font-weight:600}
 .stat .s{font-size:12px;margin-top:6px;color:var(--faint)}
-
 .row2{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:18px;margin-bottom:18px}
 .chart svg{width:100%;height:auto;display:block}
-.console{font-size:12.5px;max-height:280px;overflow:auto;display:flex;flex-direction:column;gap:3px}
-.ev{display:grid;grid-template-columns:58px 22px 1fr;gap:6px;padding:7px 10px;border-radius:10px;align-items:center}
+.console{font-size:12.5px;max-height:278px;overflow:auto;display:flex;flex-direction:column;gap:2px}
+.ev{display:grid;grid-template-columns:58px 22px 1fr;gap:6px;padding:7px 8px;border-radius:10px;align-items:center}
 .ev:nth-child(odd){background:var(--lav-soft)}
-.ev time{color:var(--faint);font-variant-numeric:tabular-nums;font-size:11px}
-.ev .dir{font-weight:800;font-size:13px}
+.ev time{color:var(--faint);font-variant-numeric:tabular-nums}
+.ev .dir{font-weight:800}
 .ev .dir.out{color:var(--lav)}
 .ev .dir.in{color:var(--ok)}
 .ev code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.empty-mini{color:var(--muted);font-size:13px;padding:18px 8px;text-align:center}
-
+.empty-mini{color:var(--muted);font-size:13px;padding:18px 8px}
 .filters{display:flex;gap:6px;flex-wrap:wrap}
-.filters button{border:1px solid var(--line-strong);background:transparent;border-radius:99px;padding:6px 14px;font-size:13px;font-weight:700;color:var(--muted);transition:all .2s}
+.filters button{border:1px solid var(--line-strong);background:transparent;border-radius:99px;padding:6px 14px;font-size:13px;font-weight:700;color:var(--muted)}
 .filters button[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text)}
-.search{border:1.5px solid var(--line-strong);background:var(--panel-strong);border-radius:12px;padding:8px 14px;min-width:220px}
+.search{border:1px solid var(--line-strong);background:var(--panel-strong);border-radius:12px;padding:8px 12px;min-width:200px}
 .table-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:14px;min-width:720px}
 th{text-align:left;font-size:12px;color:var(--muted);font-weight:700;padding:10px 12px;border-bottom:1px solid var(--line)}
@@ -168,116 +152,98 @@ tr:last-child td{border-bottom:0}
 .oid{font-variant-numeric:tabular-nums;font-weight:700}
 .sample-note{font-size:11px;color:var(--faint);font-weight:600}
 
-/* Delivery & Collect Flows */
-.flow{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:20px;align-items:start}
-.stage-panel{position:sticky;top:20px;overflow:hidden;background:var(--stage);min-height:540px}
+/* flows */
+.flow{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:18px;align-items:start}
+.stage-panel{position:sticky;top:20px;overflow:hidden;background:var(--stage);min-height:520px}
 .stage-panel .stage3d{position:absolute;inset:0}
 .stage-foot{position:absolute;left:18px;right:18px;bottom:18px;display:flex;justify-content:space-between;gap:10px;align-items:flex-end;z-index:2;pointer-events:none}
-.stage-foot .card{pointer-events:auto;background:var(--panel-strong);border:1px solid var(--line);border-radius:16px;padding:10px 16px;font-size:13px;box-shadow:var(--shadow)}
+.stage-foot .card{pointer-events:auto;background:var(--panel-strong);border:1px solid var(--line);border-radius:16px;padding:10px 14px;font-size:13px;box-shadow:var(--shadow)}
 .stage-foot .card b{display:block;font-family:var(--font-d);font-weight:600;font-size:15px}
-
-.steps{display:flex;gap:8px;margin-bottom:24px;padding:0}
+.steps{display:flex;gap:6px;margin-bottom:22px;padding:0}
 .steps li{flex:1;list-style:none;display:flex;flex-direction:column;gap:8px;font-size:12px;font-weight:700;color:var(--faint)}
-.steps li::before{content:"";height:6px;border-radius:9px;background:var(--line-strong);transition:background .3s}
+.steps li::before{content:"";height:5px;border-radius:9px;background:var(--line-strong);transition:background .3s}
 .steps li.done{color:var(--muted)}
 .steps li.done::before{background:var(--lav)}
 .steps li.current{color:var(--text)}
 .steps li.current::before{background:linear-gradient(90deg,var(--lav),var(--kraft))}
-.step-title{font-family:var(--font-d);font-weight:600;font-size:22px;letter-spacing:-.02em;margin:0 0 6px;line-height:1.2}
+.steps ol{display:contents}
+.step-title{font-family:var(--font-d);font-weight:500;font-size:22px;letter-spacing:-.02em;margin:0 0 6px;line-height:1.2}
 .step-sub{color:var(--muted);margin:0 0 20px}
-
-/* Scanner */
-.scanner-container{position:relative;margin:0 auto 20px;max-width:320px}
-.scanner{position:relative;aspect-ratio:1;border-radius:24px;background:#fff;padding:24px;overflow:hidden;display:grid;place-items:center;box-shadow:var(--shadow)}
+.scanner{position:relative;aspect-ratio:1;max-width:260px;margin:0 auto 20px;border-radius:26px;background:#fff;padding:26px;overflow:hidden}
 .scanner canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
-.scanner video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
-.scanner.video-active video{display:block}
-.scanner::before{content:"";position:absolute;inset:12px;border:3px solid var(--lav);border-radius:18px;clip-path:polygon(0 0,28% 0,28% 6px,6px 6px,6px 28%,0 28%,0 72%,6px 72%,6px calc(100% - 6px),28% calc(100% - 6px),28% 100%,72% 100%,72% calc(100% - 6px),calc(100% - 6px) calc(100% - 6px),calc(100% - 6px) 72%,100% 72%,100% 28%,calc(100% - 6px) 28%,calc(100% - 6px) 6px,72% 6px,72% 0,100% 0,100% 100%,0 100%);pointer-events:none}
-.laser{position:absolute;left:14px;right:14px;height:3px;top:12%;border-radius:3px;background:var(--lav);box-shadow:0 0 20px 5px var(--lav);opacity:0;pointer-events:none}
-.scanning .laser{opacity:1;animation:laser 1.2s ease-in-out infinite alternate}
-@keyframes laser{from{top:12%}to{top:86%}}
-.scanned-ok{position:absolute;inset:0;display:grid;place-items:center;background:rgba(23,153,95,.92);color:#fff;font-family:var(--font-d);font-weight:600;font-size:16px;opacity:0;transition:opacity .3s;pointer-events:none}
+.scanner::before{content:"";position:absolute;inset:10px;border:3px solid var(--lav);border-radius:18px;clip-path:polygon(0 0,28% 0,28% 6px,6px 6px,6px 28%,0 28%,0 72%,6px 72%,6px calc(100% - 6px),28% calc(100% - 6px),28% 100%,72% 100%,72% calc(100% - 6px),calc(100% - 6px) calc(100% - 6px),calc(100% - 6px) 72%,100% 72%,100% 28%,calc(100% - 6px) 28%,calc(100% - 6px) 6px,72% 6px,72% 0,100% 0,100% 100%,0 100%);pointer-events:none}
+.laser{position:absolute;left:12px;right:12px;height:3px;top:12%;border-radius:3px;background:var(--lav);box-shadow:0 0 18px 4px var(--lav);opacity:0;pointer-events:none}
+.scanning .laser{opacity:1;animation:laser 1.1s ease-in-out infinite alternate}
+@keyframes laser{from{top:10%}to{top:88%}}
+.scanned-ok{position:absolute;inset:0;display:grid;place-items:center;background:rgba(23,153,95,.88);color:#fff;font-family:var(--font-d);font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none}
 .scanner.ok .scanned-ok{opacity:1}
-.cam-toggle-row{display:flex;justify-content:center;gap:10px;margin-bottom:18px}
-
-.box-pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px}
-.box-pick button{text-align:left;border:1.5px solid var(--line-strong);background:var(--panel-strong);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:3px;transition:all .2s}
+.box-pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:20px}
+.box-pick button{text-align:left;border:1.5px solid var(--line-strong);background:var(--panel-strong);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;transition:border-color .2s,background .2s}
 .box-pick button b{font-family:var(--font-d);font-weight:600;font-size:14px}
 .box-pick button span{font-size:12px;color:var(--muted)}
-.box-pick button[aria-pressed="true"]{border-color:var(--lav);background:var(--lav-soft);box-shadow:0 4px 12px -2px var(--lav-soft)}
+.box-pick button[aria-pressed="true"]{border-color:var(--lav);background:var(--lav-soft)}
 .box-pick button[disabled]{opacity:.5;cursor:not-allowed}
-
-/* Form Fields */
 .field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
 .field label{font-size:13px;font-weight:700}
 .field .hint{font-size:12px;color:var(--muted)}
 .field .err{font-size:12px;color:var(--bad);font-weight:600;min-height:0}
 .input{border:1.5px solid var(--line-strong);background:var(--panel-strong);border-radius:14px;padding:12px 14px;width:100%;min-width:0;transition:border-color .2s}
-.input:focus{border-color:var(--lav);outline:none;box-shadow:0 0 0 3px var(--lav-soft)}
+.input:focus{border-color:var(--lav);outline:none}
 .input.invalid{border-color:var(--bad)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
 .seg{display:flex;background:var(--lav-soft);border-radius:14px;padding:4px;gap:4px}
-.seg button{flex:1;border:0;background:transparent;border-radius:10px;padding:9px 6px;font-weight:700;font-size:13px;color:var(--muted);transition:all .2s}
+.seg button{flex:1;border:0;background:transparent;border-radius:10px;padding:9px 6px;font-weight:700;font-size:13px;color:var(--muted)}
 .seg button[aria-pressed="true"]{background:var(--panel-solid);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.08)}
-
-/* PIN Preview Card */
-.pinpreview{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 20px;border-radius:18px;background:var(--kraft-soft);margin:10px 0 22px;border:1px solid rgba(184,115,47,.2);flex-wrap:wrap}
-.pinpreview p{margin:0;font-size:13px;color:var(--muted);max-width:30ch}
+.pinpreview{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 18px;border-radius:18px;background:var(--kraft-soft);margin:6px 0 20px;flex-wrap:wrap}
+.pinpreview p{margin:0;font-size:13px;color:var(--muted);max-width:28ch}
 .pinpreview p b{color:var(--text)}
-.pin-digits{display:flex;gap:8px}
-.pin-digits span{width:46px;height:54px;border-radius:12px;background:var(--panel-solid);display:grid;place-items:center;font-family:var(--font-d);font-weight:700;font-size:24px;color:var(--kraft);border:1.5px solid var(--line-strong);box-shadow:0 4px 10px rgba(0,0,0,.04)}
-
-/* Checklist */
-.checklist{list-style:none;padding:0;margin:0 0 24px;display:grid;gap:10px}
-.checklist li{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:16px;border:1px solid var(--line);background:var(--panel-strong);font-weight:600;font-size:14px;color:var(--muted);transition:all .3s}
-.checklist li .ck{width:28px;height:28px;border-radius:50%;border:2px solid var(--line-strong);display:grid;place-items:center;flex:none;transition:all .3s}
-.checklist li.done{color:var(--text);border-color:rgba(23,153,95,.3)}
+.pin-digits{display:flex;gap:6px}
+.pin-digits span{width:42px;height:52px;border-radius:12px;background:var(--panel-solid);display:grid;place-items:center;font-family:var(--font-d);font-weight:600;font-size:24px;color:var(--kraft);border:1px solid var(--line)}
+.checklist{list-style:none;padding:0;margin:0 0 22px;display:grid;gap:10px}
+.checklist li{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--panel-strong);font-weight:600;font-size:14px;color:var(--muted);transition:all .3s}
+.checklist li .ck{width:26px;height:26px;border-radius:50%;border:2px solid var(--line-strong);display:grid;place-items:center;flex:none;transition:all .3s}
+.checklist li.done{color:var(--text)}
 .checklist li.done .ck{background:var(--ok);border-color:var(--ok);color:#fff}
-.checklist li.busy{border-color:var(--lav);color:var(--text)}
 .checklist li.busy .ck{border-color:var(--lav);border-top-color:transparent;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-.receipt{border-radius:20px;border:1.5px dashed var(--line-strong);padding:20px;margin-bottom:20px;background:var(--panel)}
-.bigok{width:68px;height:68px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;margin-bottom:16px;animation:pop .5s cubic-bezier(.2,1.6,.4,1);box-shadow:0 12px 28px -6px var(--ok)}
+.receipt{border-radius:20px;border:1px dashed var(--line-strong);padding:18px;margin-bottom:18px}
+.receipt .kv{margin:0}
+.bigok{width:64px;height:64px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;margin-bottom:16px;animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
 @keyframes pop{from{transform:scale(.3);opacity:0}}
 .btn-row{display:flex;gap:10px;flex-wrap:wrap}
 .btn-row .btn{flex:1}
 
-/* Student Collect Portal */
-.signin{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:20px;background:var(--lav-soft);margin-bottom:20px;flex-wrap:wrap}
-.signin select{border:0;background:transparent;font-weight:800;font-size:15px;padding:4px 0;min-width:0;flex:1;cursor:pointer}
-.inbox{display:grid;gap:12px;margin-bottom:12px}
-.parcel{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:16px;border-radius:20px;border:1.5px solid var(--line);background:var(--panel-strong);text-align:left;width:100%;transition:all .2s;cursor:pointer}
-.parcel:hover{border-color:var(--lav);transform:translateY(-2px);box-shadow:0 8px 24px -10px var(--lav)}
-.parcel .pic{width:52px;height:52px;border-radius:16px;background:var(--kraft-soft);display:grid;place-items:center;color:var(--kraft)}
-.parcel .pic svg{width:28px;height:28px}
-.parcel b{display:block;font-size:15px;margin-bottom:2px}
+/* collect */
+.signin{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;background:var(--lav-soft);margin-bottom:20px;flex-wrap:wrap}
+.signin select{border:0;background:transparent;font-weight:800;font-size:15px;padding:4px 0;min-width:0;flex:1}
+.inbox{display:grid;gap:10px;margin-bottom:8px}
+.parcel{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:14px;border-radius:18px;border:1.5px solid var(--line);background:var(--panel-strong);text-align:left;width:100%;transition:border-color .2s}
+.parcel:hover{border-color:var(--lav)}
+.parcel .pic{width:48px;height:48px;border-radius:14px;background:var(--kraft-soft);display:grid;place-items:center}
+.parcel .pic svg{width:26px;height:26px;color:var(--kraft)}
+.parcel b{display:block;font-size:15px}
 .parcel span{font-size:13px;color:var(--muted)}
-
-/* Interactive Keypad */
-.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:320px;margin:0 auto 20px}
-.keypad button{height:60px;border-radius:16px;border:1.5px solid var(--line);background:var(--panel-strong);font-family:var(--font-d);font-weight:600;font-size:22px;transition:all .15s}
-.keypad button:hover{background:var(--lav-soft);border-color:var(--lav)}
-.keypad button:active{transform:scale(.94)}
-.keypad button.fn{font-family:var(--font-b);font-size:13px;font-weight:800;color:var(--muted)}
-
-.pin-entry{display:flex;justify-content:center;gap:12px;margin:0 0 20px}
-.pin-entry span{width:58px;height:68px;border-radius:18px;border:2px solid var(--line-strong);display:grid;place-items:center;font-family:var(--font-d);font-size:30px;font-weight:700;background:var(--panel-strong);transition:border-color .2s}
-.pin-entry span.filled{border-color:var(--lav);box-shadow:0 0 0 3px var(--lav-soft)}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:320px;margin:0 auto 18px}
+.keypad button{height:58px;border-radius:16px;border:1px solid var(--line);background:var(--panel-strong);font-family:var(--font-d);font-weight:500;font-size:20px;transition:background .15s,transform .1s}
+.keypad button:hover{background:var(--lav-soft)}
+.keypad button:active{transform:scale(.95)}
+.keypad button.fn{font-family:var(--font-b);font-size:13px;font-weight:700;color:var(--muted)}
+.pin-entry{display:flex;justify-content:center;gap:10px;margin:0 0 18px}
+.pin-entry span{width:56px;height:66px;border-radius:16px;border:2px solid var(--line-strong);display:grid;place-items:center;font-family:var(--font-d);font-size:28px;font-weight:600;background:var(--panel-strong);transition:border-color .2s}
+.pin-entry span.filled{border-color:var(--lav)}
 .pin-entry.bad span{border-color:var(--bad);color:var(--bad)}
-.pin-entry.bad{animation:shake .45s}
+.pin-entry.bad{animation:shake .4s}
 .pin-entry.good span{border-color:var(--ok);color:var(--ok)}
-@keyframes shake{20%,60%{transform:translateX(-10px)}40%,80%{transform:translateX(10px)}}
-.msg{text-align:center;font-size:13px;font-weight:700;min-height:22px;margin-bottom:14px}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.msg{text-align:center;font-size:13px;font-weight:600;min-height:20px;margin-bottom:14px}
 .msg.bad{color:var(--bad)}
 .msg.ok{color:var(--ok)}
-.empty{padding:32px 20px;border-radius:24px;border:2px dashed var(--line-strong);text-align:center}
-.empty h3{font-family:var(--font-d);font-weight:600;font-size:18px;margin:0 0 6px}
-.empty p{color:var(--muted);margin:0 auto 18px;max-width:42ch;font-size:14px}
-.back{border:0;background:none;color:var(--muted);font-weight:700;font-size:13px;padding:0;margin-bottom:16px;display:inline-flex;gap:6px;align-items:center}
-.back:hover{color:var(--text)}
+.empty{padding:26px 20px;border-radius:20px;border:1.5px dashed var(--line-strong);text-align:center}
+.empty h3{font-family:var(--font-d);font-weight:500;font-size:17px;margin:0 0 6px}
+.empty p{color:var(--muted);margin:0 auto 16px;max-width:40ch;font-size:14px}
+.back{border:0;background:none;color:var(--muted);font-weight:700;font-size:13px;padding:0;margin-bottom:14px;display:inline-flex;gap:6px;align-items:center}
 
-/* Mobile Notification Simulator Banner */
+/* lockscreen push banner */
 .phone-lockscreen-banner{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:90;width:min(420px,calc(100vw - 32px));background:rgba(25,22,50,.88);color:#fff;border-radius:22px;padding:14px 18px;border:1px solid rgba(255,255,255,.2);box-shadow:0 24px 60px rgba(0,0,0,.6);backdrop-filter:blur(24px);animation:notifSlideIn .5s cubic-bezier(.2,1.2,.4,1);cursor:pointer;display:none}
 @keyframes notifSlideIn{from{opacity:0;transform:translate(-50%,-30px) scale(.92)}}
 .pl-header{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:rgba(255,255,255,.65);margin-bottom:6px;font-weight:700}
@@ -287,8 +253,8 @@ tr:last-child td{border-bottom:0}
 .pl-content p{margin:0;font-size:13px;color:rgba(255,255,255,.85);line-height:1.35}
 .pl-pin-badge{display:inline-block;margin-top:6px;padding:3px 8px;border-radius:6px;background:var(--kraft);color:#fff;font-family:var(--font-d);font-weight:700;font-size:11px}
 
-/* Toasts */
-.toasts{position:fixed;top:18px;right:18px;z-index:80;display:grid;gap:10px;width:min(360px,calc(100vw - 36px))}
+/* toasts */
+.toasts{position:fixed;top:18px;right:18px;z-index:50;display:grid;gap:10px;width:min(360px,calc(100vw - 36px))}
 .toast{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;padding:14px 16px;border-radius:18px;background:var(--panel-strong);border:1px solid var(--line);box-shadow:0 20px 50px -20px rgba(0,0,0,.45);backdrop-filter:blur(20px);animation:toastIn .45s cubic-bezier(.2,1.2,.4,1);cursor:pointer;text-align:left}
 .toast .ti{width:38px;height:38px;border-radius:12px;background:var(--kraft-soft);color:var(--kraft);display:grid;place-items:center}
 .toast b{display:block;font-size:14px}
@@ -296,35 +262,20 @@ tr:last-child td{border-bottom:0}
 .toast.out{animation:toastOut .3s forwards}
 @keyframes toastIn{from{opacity:0;transform:translateY(-14px) scale(.96)}}
 @keyframes toastOut{to{opacity:0;transform:translateX(30px)}}
-
-/* Hardware Bench View */
-.hw-bench{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px}
-.hw-box-mock{background:#171933;color:#fff;border-radius:28px;padding:26px;box-shadow:0 24px 60px rgba(0,0,0,.5);border:2px solid #2B2F57;position:relative}
-.hw-header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #2B2F57;padding-bottom:14px;margin-bottom:20px}
-.hw-header b{font-family:var(--font-d);font-size:18px;color:#ECEAFB}
-.oled-screen{background:#040608;border:2px solid #212542;border-radius:12px;padding:14px 18px;font-family:ui-monospace,Menlo,monospace;color:#5DF0A6;box-shadow:inset 0 0 16px rgba(93,240,166,.15);margin-bottom:20px}
-.oled-screen .title{color:#B3A1FF;font-size:12px;border-bottom:1px dashed #212542;padding-bottom:4px;margin-bottom:6px}
-.oled-screen .main-line{font-size:18px;font-weight:700;letter-spacing:1px}
-.oled-screen .sub-line{font-size:12px;color:#A29FC2;margin-top:4px}
-.hw-controls-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
-.hw-ctrl-card{background:#202448;border-radius:16px;padding:14px;border:1px solid #333866}
-.hw-ctrl-card label{display:block;font-size:12px;font-weight:700;color:#9C99C4;margin-bottom:8px}
-.servo-gauge{display:flex;align-items:center;gap:12px}
-.gauge-dial{width:54px;height:54px;border-radius:50%;background:#12142B;border:3px solid #6E55F5;display:grid;place-items:center;font-family:var(--font-d);font-size:14px;font-weight:700;color:#B3A1FF;transition:transform .4s}
-.code-preview{background:#0C0F28;border-radius:14px;padding:14px;font-family:ui-monospace,monospace;font-size:12px;color:#A29FC2;max-height:220px;overflow:auto;line-height:1.45;border:1px solid #232752}
+.no3d{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:14px;padding:20px;text-align:center}
 
 @media (max-width:1080px){
-  .hero,.row2,.flow,.hw-bench{grid-template-columns:1fr}
+  .hero,.row2,.flow{grid-template-columns:1fr}
   .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .stage-panel{position:relative;top:0;min-height:400px}
+  .stage-panel{position:relative;top:0;min-height:380px}
 }
 @media (max-width:760px){
   .app{grid-template-columns:1fr}
-  .rail{position:fixed;top:auto;bottom:0;left:0;right:0;height:auto;flex-direction:row;padding:8px 10px calc(8px + env(safe-area-inset-bottom));border-right:0;border-top:1px solid var(--line);z-index:40;justify-content:center}
+  .rail{position:fixed;top:auto;bottom:0;left:0;right:0;height:auto;flex-direction:row;padding:8px 12px calc(8px + env(safe-area-inset-bottom));border-right:0;border-top:1px solid var(--line);z-index:40;justify-content:center}
   .logo,.rail-footer{display:none}
-  .nav{flex-direction:row;gap:4px;width:100%;justify-content:space-around}
-  .nav a{width:auto;flex:1;padding:8px 2px}
-  main{padding:16px 14px 110px}
+  .nav{flex-direction:row;gap:6px;width:100%;justify-content:space-around}
+  .nav a{width:auto;flex:1}
+  main{padding:18px 14px 110px}
   .wall{min-height:360px}
   .stats{gap:10px}
   .stat{padding:14px}
@@ -332,10 +283,8 @@ tr:last-child td{border-bottom:0}
   .grid2{grid-template-columns:1fr}
   .boxno{font-size:42px}
   .legend{display:none}
-  .stage-panel{min-height:340px}
+  .stage-panel{min-height:320px}
   .panel-pad{padding:18px}
-  .role-banner{flex-direction:column;align-items:stretch}
-  .role-tabs{overflow-x:auto}
 }
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
@@ -344,105 +293,60 @@ tr:last-child td{border-bottom:0}
 </head>
 <body>
 <div class="app">
-  <!-- Navigation Rail -->
   <nav class="rail" aria-label="Main Navigation">
-    <div class="logo" id="logoBtn" title="CampusDrop Home">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></svg>
+    <div class="logo" id="logoBtn" aria-hidden="true" title="CampusDrop">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></svg>
     </div>
     <div class="nav">
       <a href="#/dashboard" data-route="dashboard">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7.5" height="9" rx="2"/><rect x="13.5" y="3" width="7.5" height="5.5" rx="2"/><rect x="3" y="15" width="7.5" height="6" rx="2"/><rect x="13.5" y="11.5" width="7.5" height="9.5" rx="2"/></svg>
-        Admin
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7.5" height="9" rx="2"/><rect x="13.5" y="3" width="7.5" height="5.5" rx="2"/><rect x="3" y="15" width="7.5" height="6" rx="2"/><rect x="13.5" y="11.5" width="7.5" height="9.5" rx="2"/></svg>
+        Dashboard
       </a>
       <a href="#/deliver" data-route="deliver">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h11v10H2zM13 9h4.5L21 12.5V16h-8"/><circle cx="6" cy="17.5" r="2"/><circle cx="17" cy="17.5" r="2"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h11v10H2zM13 9h4.5L21 12.5V16h-8"/><circle cx="6" cy="17.5" r="2"/><circle cx="17" cy="17.5" r="2"/></svg>
         Deliver
       </a>
       <a href="#/collect" data-route="collect">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4 4-6 8-6s7.2 2 8 6"/></svg>
-        Student
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4 4-6 8-6s7.2 2 8 6"/></svg>
+        Collect
         <span class="badge" id="collectBadge" hidden>0</span>
-      </a>
-      <a href="#/hardware" data-route="hardware">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg>
-        IoT Bench
       </a>
     </div>
     <div class="rail-footer">
-      <button class="theme-btn" id="themeToggle" title="Toggle Theme" aria-label="Toggle dark/light mode">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-      </button>
+      <button class="theme-btn" id="railThemeBtn" title="Toggle Theme" aria-label="Toggle Theme">☀️</button>
     </div>
   </nav>
 
   <main>
-    <!-- Role Switcher Banner -->
-    <header class="role-banner">
-      <div class="role-tabs" role="tablist" aria-label="Portals">
-        <button class="role-tab" data-target="dashboard" aria-selected="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/></svg>
-          Admin Dashboard
-        </button>
-        <button class="role-tab" data-target="deliver" aria-selected="false">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6h11v10H2zM13 9h4.5L21 12.5V16h-8"/><circle cx="6" cy="17.5" r="2"/><circle cx="17" cy="17.5" r="2"/></svg>
-          Delivery Boy App
-        </button>
-        <button class="role-tab" data-target="collect" aria-selected="false">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4 4-6 8-6s7.2 2 8 6"/></svg>
-          Student Portal
-        </button>
-        <button class="role-tab" data-target="hardware" aria-selected="false">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="12" cy="12" r="3"/></svg>
-          ESP32 IoT Bench
-        </button>
-      </div>
-
-      <div class="role-extras">
-        <span class="sync" data-sync title="Real-time Server & WebSocket Status">
-          <i></i><span id="syncText">Connecting to server...</span>
-        </span>
-        <button class="btn btn-ghost" id="topThemeToggle" style="padding:6px 14px;font-size:12px;gap:6px" title="Toggle Light / Dark Mode">
-          <span id="topThemeIcon">☀️</span>
-          <span id="topThemeLabel">Light Mode</span>
-        </button>
-        <button class="btn btn-ghost" id="quickSeed" style="padding:6px 12px;font-size:12px" title="Seed Demo Parcels">
-          + Add Demo Parcels
-        </button>
-      </div>
-    </header>
-
-    <!-- 1. DASHBOARD VIEW (ADMIN) -->
+    <!-- DASHBOARD -->
     <section class="view" id="view-dashboard" aria-labelledby="t-dash">
-      <div class="topbar">
+      <header class="topbar">
         <div>
-          <h1 id="t-dash">Campus Overview</h1>
-          <p>Real-time telemetry from every smart box on campus, parcel occupancy, and servo lock states.</p>
+          <h1 id="t-dash">Campus overview</h1>
+          <p>Every smart box on campus, what's inside, and what the hardware is doing right now.</p>
         </div>
-        <div style="display:flex;gap:10px">
-          <button class="btn btn-ghost" id="refreshBtn" title="Refresh State">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-            Refresh
-          </button>
+        <div class="topbar-actions">
+          <span class="sync" data-sync><i></i><span id="syncText">Connecting...</span></span>
+          <button class="btn btn-ghost" id="topThemeBtn" style="padding:7px 14px;font-size:13px">☀️ Light Mode</button>
         </div>
-      </div>
+      </header>
 
       <div class="hero">
         <div class="panel wall" id="wallPanel">
           <div class="wall-caption">
             <div>
-              <h2>Box Network 3D</h2>
-              <p id="wallSummary">Loading box telemetry...</p>
+              <h2>Box network</h2>
+              <p id="wallSummary">Loading boxes</p>
             </div>
             <div class="legend">
               <span><i style="background:#4FDC98"></i>Free</span>
-              <span><i style="background:#E8A05C"></i>Parcel Inside</span>
-              <span><i style="background:#B3A1FF"></i>Door Open</span>
+              <span><i style="background:#E8A05C"></i>Parcel inside</span>
               <span><i style="background:#FF6F7F"></i>Offline</span>
             </div>
           </div>
           <div class="stage3d" id="wallStage"></div>
           <div class="tags" id="wallTags"></div>
-          <div class="wall-hint">Drag to rotate 3D campus locker grid. Tap any box to inspect.</div>
+          <div class="wall-hint">Drag to look around. Tap a box for details.</div>
         </div>
 
         <aside class="panel panel-pad detail" id="boxDetail" aria-live="polite"></aside>
@@ -453,7 +357,7 @@ tr:last-child td{border-bottom:0}
       <div class="row2">
         <div class="panel panel-pad chart">
           <div class="panel-head">
-            <h2>Weekly Volume Activity</h2>
+            <h2>Parcels this week</h2>
             <div class="legend" style="display:flex">
               <span><i style="background:var(--lav)"></i>Delivered</span>
               <span><i style="background:var(--kraft)"></i>Collected</span>
@@ -461,11 +365,10 @@ tr:last-child td{border-bottom:0}
           </div>
           <div id="chart"></div>
         </div>
-
         <div class="panel panel-pad">
           <div class="panel-head">
-            <h2>Live IoT Hardware Console</h2>
-            <span class="chip chip-lav" id="hwMode"><span class="dot"></span>ESP32 Telemetry</span>
+            <h2>Device events</h2>
+            <span class="chip chip-lav" id="hwMode"><span class="dot"></span>Simulated hardware</span>
           </div>
           <div class="console" id="console"></div>
         </div>
@@ -473,15 +376,14 @@ tr:last-child td{border-bottom:0}
 
       <div class="panel panel-pad">
         <div class="panel-head">
-          <h2>All Registered Orders</h2>
+          <h2>Orders</h2>
           <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
             <div class="filters" id="orderFilters" role="group" aria-label="Filter orders">
               <button aria-pressed="true" data-f="all">All</button>
               <button aria-pressed="false" data-f="awaiting">Waiting</button>
               <button aria-pressed="false" data-f="collected">Collected</button>
             </div>
-            <input class="search" id="orderSearch" type="search" placeholder="Search order ID or student..." aria-label="Search orders">
-            <button class="btn btn-ghost" id="exportCsv" style="padding:6px 12px;font-size:12px">Export CSV</button>
+            <input class="search" id="orderSearch" type="search" placeholder="Search order ID or student" aria-label="Search orders">
           </div>
         </div>
         <div class="table-wrap"><table>
@@ -491,47 +393,49 @@ tr:last-child td{border-bottom:0}
       </div>
     </section>
 
-    <!-- 2. DELIVER VIEW (DELIVERY BOY) -->
+    <!-- DELIVER -->
     <section class="view" id="view-deliver" aria-labelledby="t-del">
-      <div class="topbar">
+      <header class="topbar">
         <div>
-          <h1 id="t-del">Delivery Partner Portal</h1>
-          <p>Scan box QR, register order ID, place parcel inside, and let the sensor notify the student.</p>
+          <h1 id="t-del">Drop a parcel</h1>
+          <p>Scan the box, add the order, place the parcel. The student is notified the moment the door closes.</p>
         </div>
-      </div>
+        <span class="sync" data-sync><i></i><span>Live sync across devices</span></span>
+      </header>
       <div class="flow">
         <div class="panel stage-panel">
           <div class="stage3d" id="deliverStage"></div>
           <div class="stage-foot">
-            <div class="card" id="deliverBoxCard"><b>Box #01</b><span class="muted">Scan QR to connect</span></div>
+            <div class="card" id="deliverBoxCard"><b>No box yet</b><span class="muted">Scan a QR to begin</span></div>
             <span class="chip chip-lav" id="deliverLed"><span class="dot"></span>Waiting</span>
           </div>
         </div>
         <div class="panel panel-pad">
-          <ol class="steps" id="deliverSteps" aria-label="Delivery Steps">
-            <li>1. Scan Box</li><li>2. Order Details</li><li>3. Drop Parcel</li><li>4. Done</li>
+          <ol class="steps" id="deliverSteps" aria-label="Progress">
+            <li>Scan box</li><li>Order details</li><li>Drop parcel</li><li>Done</li>
           </ol>
           <div id="deliverBody"></div>
         </div>
       </div>
     </section>
 
-    <!-- 3. COLLECT VIEW (STUDENT PORTAL) -->
+    <!-- COLLECT -->
     <section class="view" id="view-collect" aria-labelledby="t-col">
-      <div class="topbar">
+      <header class="topbar">
         <div>
-          <h1 id="t-col">Student Pickup Portal</h1>
-          <p>View pending parcels, verify presence at the box, and enter your 4-digit PIN to unlock.</p>
+          <h1 id="t-col">Pick up a parcel</h1>
+          <p>Your parcels appear here as soon as they're dropped. Scan the box and enter your PIN to open it.</p>
         </div>
-        <button class="btn btn-ghost" id="testNotifBtn" style="font-size:13px">
-          🔔 Test Push Notification
-        </button>
-      </div>
+        <div class="topbar-actions">
+          <button class="btn btn-ghost" id="testNotifBtn" style="padding:6px 14px;font-size:13px">🔔 Test Push Notification</button>
+          <span class="sync" data-sync><i></i><span>Live sync across devices</span></span>
+        </div>
+      </header>
       <div class="flow">
         <div class="panel stage-panel">
           <div class="stage3d" id="collectStage"></div>
           <div class="stage-foot">
-            <div class="card" id="collectBoxCard"><b>Your Box</b><span class="muted">Select parcel to inspect</span></div>
+            <div class="card" id="collectBoxCard"><b>Your box</b><span class="muted">Pick a parcel to see its box</span></div>
             <span class="chip chip-lav" id="collectLed"><span class="dot"></span>Locked</span>
           </div>
         </div>
@@ -539,139 +443,18 @@ tr:last-child td{border-bottom:0}
           <div class="signin">
             <div class="avatar" id="meAvatar">AR</div>
             <div style="display:flex;flex-direction:column;flex:1;min-width:0">
-              <label for="studentSelect" class="small muted" style="font-weight:700">Signed In As</label>
-              <select id="studentSelect" aria-label="Select student"></select>
+              <label for="studentSelect" class="small muted" style="font-weight:600">Signed in as</label>
+              <select id="studentSelect"></select>
             </div>
           </div>
           <div id="collectBody"></div>
         </div>
       </div>
     </section>
-
-    <!-- 4. IOT BENCH VIEW (HARDWARE SIMULATOR & FIRMWARE) -->
-    <section class="view" id="view-hardware" aria-labelledby="t-hw">
-      <div class="topbar">
-        <div>
-          <h1 id="t-hw">ESP32 IoT Hardware Bench</h1>
-          <p>Real-time physical simulation of the Smart Delivery Box: Servo actuator, IR/Ultrasonic sensor, Keypad, and OLED.</p>
-        </div>
-      </div>
-
-      <div class="hw-bench">
-        <!-- Virtual Hardware Mockup -->
-        <div class="hw-box-mock">
-          <div class="hw-header">
-            <div>
-              <b>CampusDrop Smart Box #01</b>
-              <div class="small muted" style="margin-top:2px">ESP32-WROOM-32 Firmware v1.2</div>
-            </div>
-            <span class="chip chip-ok" id="hwBenchStatus"><span class="dot"></span>Hardware Ready</span>
-          </div>
-
-          <!-- Virtual OLED Display -->
-          <div class="oled-screen" id="oledScreen">
-            <div class="title">I2C OLED 128x64 SSD1306</div>
-            <div class="main-line" id="oledLine1">CampusDrop Box #01</div>
-            <div class="sub-line" id="oledLine2">STATUS: READY</div>
-            <div class="sub-line" id="oledLine3">Scan QR or Enter PIN</div>
-          </div>
-
-          <!-- Controls & Sensors -->
-          <div class="hw-controls-grid">
-            <div class="hw-ctrl-card">
-              <label>SERVO LOCK ACTUATOR (GPIO 13)</label>
-              <div class="servo-gauge">
-                <div class="gauge-dial" id="gaugeDial">0°</div>
-                <div>
-                  <b id="servoStateText" style="display:block;font-size:14px;color:#ECEAFB">LOCKED (0°)</b>
-                  <span class="small muted">SG90 / MG996R</span>
-                </div>
-              </div>
-              <div style="display:flex;gap:6px;margin-top:10px">
-                <button class="btn btn-ghost" id="hwManualUnlock" style="padding:6px 10px;font-size:12px">Unlock (90°)</button>
-                <button class="btn btn-ghost" id="hwManualLock" style="padding:6px 10px;font-size:12px">Lock (0°)</button>
-              </div>
-            </div>
-
-            <div class="hw-ctrl-card">
-              <label>PARCEL SENSOR (IR / ULTRASONIC)</label>
-              <b id="sensorStateText" style="display:block;font-size:14px;color:#4FDC98;margin-bottom:4px">EMPTY (No parcel)</b>
-              <span class="small muted" id="sensorDistText">Distance: &gt; 25 cm</span>
-              <div style="display:flex;gap:6px;margin-top:10px">
-                <button class="btn btn-ghost" id="hwTriggerSensor" style="padding:6px 10px;font-size:12px">Simulate Parcel In</button>
-                <button class="btn btn-ghost" id="hwClearSensor" style="padding:6px 10px;font-size:12px">Simulate Empty</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Physical Keypad Simulator -->
-          <div style="margin-top:16px">
-            <div class="small muted" style="font-weight:700;margin-bottom:8px">PHYSICAL KEYPAD ON BOX (4x4 MATRIX)</div>
-            <div class="keypad" style="max-width:280px;margin:0 0 10px">
-              <button class="hw-k" data-k="1">1</button>
-              <button class="hw-k" data-k="2">2</button>
-              <button class="hw-k" data-k="3">3</button>
-              <button class="hw-k" data-k="4">4</button>
-              <button class="hw-k" data-k="5">5</button>
-              <button class="hw-k" data-k="6">6</button>
-              <button class="hw-k" data-k="7">7</button>
-              <button class="hw-k" data-k="8">8</button>
-              <button class="hw-k" data-k="9">9</button>
-              <button class="hw-k fn" data-k="*">*</button>
-              <button class="hw-k" data-k="0">0</button>
-              <button class="hw-k fn" data-k="#">#</button>
-            </div>
-            <span class="small muted">Press numbers followed by <b>#</b> to verify PIN on the physical box. Press <b>*</b> to clear.</span>
-          </div>
-        </div>
-
-        <!-- Documentation & Hardware Integration API -->
-        <div style="display:flex;flex-direction:column;gap:18px">
-          <div class="panel panel-pad">
-            <h2>Hardware Integration Guide</h2>
-            <p class="muted small" style="margin:6px 0 14px">
-              Connect real ESP32 microcontrollers over WiFi to this backend server via REST and WebSockets.
-            </p>
-            <div class="code-preview">
-// Example: ESP32 HTTP POST to report parcel sensor detection
-HTTPClient http;
-http.begin("http://localhost:3000/api/boxes/B01/sensor");
-http.addHeader("Content-Type", "application/json");
-http.POST("{\"parcelPresent\":true,\"distanceCm\":10.2}");
-http.end();
-            </div>
-            <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
-              <a class="btn btn-primary" href="firmware/esp32_campusdrop.ino" target="_blank" download style="font-size:13px">
-                Download ESP32 Code (.ino)
-              </a>
-              <a class="btn btn-ghost" href="firmware/HARDWARE_GUIDE.md" target="_blank" style="font-size:13px">
-                View Wiring Schematics
-              </a>
-            </div>
-          </div>
-
-          <div class="panel panel-pad">
-            <h2>REST API Endpoints</h2>
-            <div class="table-wrap">
-              <table style="font-size:13px;min-width:480px">
-                <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead>
-                <tbody>
-                  <tr><td><code>GET</code></td><td>/api/boxes</td><td>Fetch all boxes & lock states</td></tr>
-                  <tr><td><code>POST</code></td><td>/api/boxes/:id/unlock</td><td>Trigger servo unlock (90°)</td></tr>
-                  <tr><td><code>POST</code></td><td>/api/boxes/:id/lock</td><td>Trigger servo lock (0°)</td></tr>
-                  <tr><td><code>POST</code></td><td>/api/boxes/:id/sensor</td><td>Report IR/Ultrasonic parcel state</td></tr>
-                  <tr><td><code>POST</code></td><td>/api/orders/verify-pin</td><td>Verify 4-digit PIN & unlock</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
   </main>
 </div>
 
-<!-- Interactive Mobile Push Notification Simulator Banner -->
+<!-- Mobile Push Notification Banner -->
 <div class="phone-lockscreen-banner" id="mobileNotifBanner" role="alert">
   <div class="pl-header">
     <div class="pl-app">
@@ -689,18 +472,15 @@ http.end();
 
 <div class="toasts" id="toasts" aria-live="polite"></div>
 
+<script src="firebase-config.js"></script>
 <script>
-/* ==========================================================================
-   CampusDrop - Complete Web App & Hardware Engine
-   ========================================================================== */
-
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* ---------- Audio FX Engine (Web Audio API) ---------- */
+/* ---------- Audio FX Engine ---------- */
 const Sound = {
   ctx: null,
   init() {
@@ -771,29 +551,18 @@ const Sound = {
         osc.stop(ctx.currentTime + i * 0.12 + 0.25);
       });
     });
-  },
-  errorBuzz() {
-    this.play(ctx => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(150, ctx.currentTime);
-      gain.gain.setValueAtTime(0.14, ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.25);
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.start(); osc.stop(ctx.currentTime + 0.25);
-    });
   }
 };
 
-/* ---------- Data Store & Dual-Mode Backend Service ---------- */
+/* ---------- Directory ---------- */
+// B01 is the physical box (ESP8266 + UNO) when Firebase is connected; the rest are simulated.
 const BOXES = [
-  { id:'B01', no:'01', name:'Smart Box 01', place:'Hostel A, main gate',     online:true, servoAngle:0, locked:true, parcelPresent:false },
-  { id:'B02', no:'02', name:'Smart Box 02', place:'Central library entrance', online:true, servoAngle:0, locked:true, parcelPresent:false },
-  { id:'B03', no:'03', name:'Smart Box 03', place:'Hostel B lobby',           online:true, servoAngle:0, locked:true, parcelPresent:false },
-  { id:'B04', no:'04', name:'Smart Box 04', place:'Admin block',              online:true, servoAngle:0, locked:true, parcelPresent:false },
-  { id:'B05', no:'05', name:'Smart Box 05', place:'Food court',               online:true, servoAngle:0, locked:true, parcelPresent:false },
-  { id:'B06', no:'06', name:'Smart Box 06', place:'Sports complex',           online:false, servoAngle:0, locked:true, parcelPresent:false },
+  { id:'B01', no:'01', name:'Smart Box 01', place:'Hostel A, main gate',     online:true, real:true },
+  { id:'B02', no:'02', name:'Smart Box 02', place:'Central library entrance', online:true  },
+  { id:'B03', no:'03', name:'Smart Box 03', place:'Hostel B lobby',           online:true  },
+  { id:'B04', no:'04', name:'Smart Box 04', place:'Admin block',              online:true  },
+  { id:'B05', no:'05', name:'Smart Box 05', place:'Food court',               online:true  },
+  { id:'B06', no:'06', name:'Smart Box 06', place:'Sports complex',           online:false },
 ];
 const STUDENTS = [
   { id:'22BCE1043', name:'Aarav Reddy',  phone:'+91 98480 14310', hostel:'Hostel A, room 214', color:'#7B61FF' },
@@ -803,24 +572,23 @@ const STUDENTS = [
   { id:'23BCS0620', name:'Rohan Das',    phone:'+91 88850 70620', hostel:'Hostel A, room 402', color:'#4A86E8' },
   { id:'22BDS0115', name:'Ananya Patel', phone:'+91 98123 45678', hostel:'Hostel B, room 105', color:'#F59E0B' },
 ];
-const COURIERS = ['Amazon','Flipkart','Delhivery','Blue Dart','DTDC','Meesho','Other'];
-
-const boxById = id => Store.boxes.find(b => b.id === id) || BOXES.find(b => b.id === id);
-const studentById = id => Store.students.find(s => s.id === id) || STUDENTS.find(s => s.id === id);
+const COURIERS = ['Amazon','Flipkart','Delhivery','Blue Dart','Meesho','Other'];
+const boxById = id => BOXES.find(b => b.id === id);
+const studentById = id => STUDENTS.find(s => s.id === id);
 const initials = n => n.split(' ').map(p => p[0]).join('').slice(0,2).toUpperCase();
 const pinFor = orderId => String(orderId).slice(-4);
 
-/* Sample historical data for charts */
-const SAMPLE_HISTORY = (() => {
-  let seed = 17; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+/* Sample history */
+const HISTORY = (() => {
+  let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
   const out = [], now = Date.now(), day0 = new Date(); day0.setHours(0,0,0,0);
   for (let d = 6; d >= 0; d--) {
-    const n = 6 + Math.floor(rnd() * 8);
+    const n = 7 + Math.floor(rnd() * 9);
     for (let i = 0; i < n; i++) {
       const st = STUDENTS[Math.floor(rnd() * STUDENTS.length)];
       const created = day0.getTime() - d * 864e5 + (8 + rnd() * 12) * 36e5;
       if (created > now - 30 * 6e4) continue;
-      const collectedAt = created + (15 + rnd() * 180) * 6e4;
+      const collectedAt = created + (10 + rnd() * 220) * 6e4;
       if (collectedAt > now) continue;
       const id = String(402000000000 + Math.floor(rnd() * 99999999));
       out.push({ id, sample:true, boxId:BOXES[Math.floor(rnd()*5)].id, studentId:st.id, studentName:st.name,
@@ -831,278 +599,153 @@ const SAMPLE_HISTORY = (() => {
   return out;
 })();
 
+/* ---------- Store: Firebase Realtime Database, with browser-only fallback ----------
+   Database layout (shared with the ESP8266 firmware):
+     orders/{orderId}   { id, boxId, studentId, studentName, phone, courier, size, pin, status, attempts, lockedUntil?, createdAt, collectedAt? }
+     boxes/B01          { online, lastSeen, locked, servoAngle, parcelPresent, distanceCm, keypad, currentOrder, command:{action,id,t}, commandAck }
+     events/{pushId}    { t, dir, boxId, action, payload }
+*/
+const FIREBASE_SDK = 'https://www.gstatic.com/firebasejs/10.12.2';
 const Store = {
-  mode: 'local', // 'live' or 'local'
-  boxes: [...BOXES],
-  students: [...STUDENTS],
-  orders: [],
-  events: [],
-  subs: new Set(),
-  ws: null,
-  KEY: 'campusdrop.store.v2',
-
-  on(fn) { this.subs.add(fn); },
-  emit() { this.subs.forEach(fn => { try { fn(); } catch(e){ console.error(e); } }); },
-
-  loadLocal() {
-    try {
-      const saved = JSON.parse(localStorage.getItem(this.KEY));
-      if (saved) {
-        if (Array.isArray(saved.orders)) this.orders = saved.orders;
-        if (Array.isArray(saved.events)) this.events = saved.events;
-      }
-    } catch(e) {}
-  },
-  saveLocal() {
-    try {
-      localStorage.setItem(this.KEY, JSON.stringify({ orders: this.orders, events: this.events.slice(0, 40) }));
-    } catch(e) {}
-  },
-
-  async init() {
+  mode:'local', connected:false, orders:[], boxLive:{}, subs:new Set(), seen:new Set(), mine:new Set(),
+  fb:null, db:null, offset:0, loaded:false,
+  KEY:'campusdrop.orders.v1',
+  on(fn){ this.subs.add(fn); },
+  emit(){ this.subs.forEach(fn => { try { fn(); } catch(e){ console.error(e); } }); },
+  now(){ return Date.now() + this.offset; },
+  loadLocal(){ try { const v = JSON.parse(localStorage.getItem(this.KEY) || '[]'); this.orders = Array.isArray(v) ? v : []; } catch(e){ this.orders = []; } },
+  saveLocal(){ if (this.mode === 'live') return; try { localStorage.setItem(this.KEY, JSON.stringify(this.orders)); } catch(e){} },
+  async init(){
     this.loadLocal();
+    this.orders.forEach(o => this.seen.add(o.id));
     this.emit();
 
-    // Check if running on localhost Node server
-    try {
-      const res = await fetch('/api/health');
-      if (res.ok) {
-        this.mode = 'live';
-        console.log('[Store] Connected to Node.js Backend Server!');
-        await this.syncFromServer();
-        this.connectWebSocket();
-      }
-    } catch(err) {
-      console.log('[Store] Operating in browser standalone mode (localStorage)');
-      this.mode = 'local';
+    const cfg = window.CAMPUSDROP_FIREBASE;
+    if (!cfg || !cfg.databaseURL || /YOUR_/.test(cfg.databaseURL)) {
+      console.info('[CampusDrop] Firebase not configured (firebase-config.js). Running on this device only.');
+      return;
     }
-    this.emit();
-  },
-
-  async syncFromServer() {
     try {
-      const [rBoxes, rOrders, rStudents, rEvents] = await Promise.all([
-        fetch('/api/boxes').then(r => r.json()),
-        fetch('/api/orders').then(r => r.json()),
-        fetch('/api/students').then(r => r.json()),
-        fetch('/api/events').then(r => r.json())
-      ]);
-      if (Array.isArray(rBoxes)) this.boxes = rBoxes;
-      if (Array.isArray(rOrders)) this.orders = rOrders;
-      if (Array.isArray(rStudents)) this.students = rStudents;
-      if (Array.isArray(rEvents)) this.events = rEvents;
-      this.emit();
+      const [app, fb] = await Promise.all([import(`${FIREBASE_SDK}/firebase-app.js`), import(`${FIREBASE_SDK}/firebase-database.js`)]);
+      this.attach(fb, fb.getDatabase(app.initializeApp(cfg)));
     } catch(e) {
-      console.warn('[Sync] Server sync failed:', e);
+      console.warn('[CampusDrop] Could not load Firebase, staying on this device only:', e);
     }
   },
-
-  connectWebSocket() {
-    const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${wsProtocol}//${location.host}/ws`;
-    try {
-      this.ws = new WebSocket(wsUrl);
-      this.ws.onopen = () => {
-        console.log('[WS] Connected to hardware telemetry bridge');
-        this.updateSyncBadge(true);
-      };
-      this.ws.onmessage = (e) => {
-        try {
-          const msg = JSON.parse(e.data);
-          this.handleWsMessage(msg);
-        } catch(err) {}
-      };
-      this.ws.onclose = () => {
-        console.log('[WS] Disconnected, retry in 3s');
-        this.updateSyncBadge(false);
-        setTimeout(() => this.connectWebSocket(), 3000);
-      };
-    } catch(e) {
-      this.updateSyncBadge(false);
-    }
-  },
-
-  updateSyncBadge(isLive) {
-    const el = $('[data-sync]');
-    if (el) {
-      el.classList.toggle('live', isLive);
-      $('#syncText').textContent = isLive ? 'Live Sync & Hardware Online' : 'Local Storage Mode';
-    }
-  },
-
-  handleWsMessage(msg) {
-    console.log('[WS Event]', msg.type, msg.payload);
-    if (msg.type === 'BOX_UPDATED') {
-      const idx = this.boxes.findIndex(b => b.id === msg.payload.id);
-      if (idx !== -1) this.boxes[idx] = msg.payload;
+  attach(fb, db){
+    this.fb = fb; this.db = db;
+    this.mode = 'live'; this.orders = []; this.seen.clear();
+    const { ref, onValue, query, limitToLast } = this.fb;
+    onValue(ref(this.db, '.info/connected'), s => { this.connected = !!s.val(); this.emit(); });
+    onValue(ref(this.db, '.info/serverTimeOffset'), s => { this.offset = s.val() || 0; });
+    onValue(ref(this.db, 'orders'), s => {
+      this.orders = Object.values(s.val() || {});
+      if (!this.loaded) { this.orders.forEach(o => this.seen.add(o.id)); this.loaded = true; }
+      else this.detectNew();
       this.emit();
-    } else if (msg.type === 'NEW_ORDER') {
-      if (!this.orders.some(o => o.id === msg.payload.id)) {
-        this.orders.unshift(msg.payload);
-      }
-      this.emit();
-    } else if (msg.type === 'NOTIFICATION') {
-      showMobilePushBanner(msg.payload.title, msg.payload.body, msg.payload.order);
-      Sound.alert();
-    } else if (msg.type === 'ORDER_COLLECTED') {
-      const o = this.orders.find(x => x.id === msg.payload.id);
-      if (o) Object.assign(o, msg.payload);
-      this.emit();
-    } else if (msg.type === 'EVENT_LOGGED') {
-      this.events.unshift(msg.payload);
-      if (this.events.length > 60) this.events.pop();
+    });
+    BOXES.filter(b => b.real).forEach(b => onValue(ref(this.db, `boxes/${b.id}`), s => { this.boxLive[b.id] = s.val() || {}; this.emit(); }));
+    onValue(query(ref(this.db, 'events'), limitToLast(40)), s => {
+      Hardware.events = Object.values(s.val() || {}).sort((a, b) => b.t - a.t);
       Dashboard.renderConsole();
-    } else if (msg.type === 'HARDWARE_COMMAND') {
-      // Synchronize Hardware Bench Gauge & Status
-      HwBench.syncFromCommand(msg.payload);
+    });
+  },
+  // Resolves true as soon as pred() holds after a data change, or false after ms.
+  waitFor(pred, ms){
+    if (pred()) return Promise.resolve(true);
+    return new Promise(res => {
+      const check = () => { if (pred()) done(true); };
+      const done = v => { clearTimeout(timer); this.subs.delete(check); res(v); };
+      const timer = setTimeout(() => done(false), ms);
+      this.subs.add(check);
+    });
+  },
+  detectNew(){
+    for (const o of this.orders) {
+      if (this.seen.has(o.id)) continue;
+      this.seen.add(o.id);
+      if (o.status === 'awaiting' && !this.mine.has(o.id)) Notify.arrival(o);
     }
   },
-
-  async addOrder(orderData) {
+  async add(order){
+    this.seen.add(order.id); this.mine.add(order.id);
     if (this.mode === 'live') {
-      const res = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData)
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to register order');
-      await this.syncFromServer();
-      return data.order;
+      const patch = { [`orders/${order.id}`]: order };
+      if (boxById(order.boxId)?.real) patch[`boxes/${order.boxId}/currentOrder`] = order.id;
+      await this.fb.update(this.fb.ref(this.db), patch);
     } else {
-      // Local fallback
-      const pin = pinFor(orderData.orderId);
-      const st = studentById(orderData.studentId);
-      const newOrder = {
-        id: orderData.orderId,
-        boxId: orderData.boxId,
-        studentId: st ? st.id : orderData.studentId,
-        studentName: st ? st.name : 'Student',
-        phone: st ? st.phone : '',
-        hostel: st ? st.hostel : '',
-        courier: orderData.courier,
-        size: orderData.size,
-        pin,
-        status: 'awaiting',
-        attempts: 0,
-        createdAt: Date.now()
-      };
-      this.orders.unshift(newOrder);
-      const b = this.boxes.find(x => x.id === orderData.boxId);
-      if (b) { b.parcelPresent = true; b.locked = true; b.servoAngle = 0; }
-      Hardware.push({ t:Date.now(), dir:'in', boxId:b.id, action:'order.registered', payload:{ orderId:newOrder.id } });
-      Hardware.push({ t:Date.now(), dir:'out', boxId:b.id, action:'notify.student', payload:{ pin } });
-      this.saveLocal();
-      this.emit();
-      showMobilePushBanner('Parcel Arrived! 📦', `Your ${newOrder.courier} parcel is in Box ${b.no}. PIN: ${newOrder.pin}`, newOrder);
-      Sound.alert();
-      return newOrder;
+      this.orders.unshift(order); this.saveLocal(); this.emit();
     }
   },
-
-  async verifyPin(orderId, pin) {
+  async update(id, patch){
+    const o = this.orders.find(x => x.id === id);
     if (this.mode === 'live') {
-      const res = await fetch('/api/orders/verify-pin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId, pin })
-      });
-      const data = await res.json();
-      await this.syncFromServer();
-      return data;
-    } else {
-      // Local fallback
-      const order = this.orders.find(o => o.id === orderId && o.status === 'awaiting');
-      if (!order) return { success: false, error: 'Order not found' };
-      if (String(pin) === String(order.pin)) {
-        order.attempts = 0;
-        const b = this.boxes.find(x => x.id === order.boxId);
-        if (b) { b.locked = false; b.servoAngle = 90; }
-        Hardware.push({ t:Date.now(), dir:'in', boxId:order.boxId, action:'pin.verified', payload:{ orderId } });
-        Hardware.push({ t:Date.now(), dir:'out', boxId:order.boxId, action:'servo.unlock', payload:{ angle:90 } });
-        this.saveLocal();
-        this.emit();
-        return { success: true, message: 'PIN verified. Door unlocked!' };
-      } else {
-        order.attempts = (order.attempts || 0) + 1;
-        let locked = false, waitSec = 0;
-        if (order.attempts % 5 === 0) {
-          order.lockedUntil = Date.now() + 30000;
-          locked = true; waitSec = 30;
-        }
-        Hardware.push({ t:Date.now(), dir:'in', boxId:order.boxId, action:'pin.rejected', payload:{ attempts:order.attempts } });
-        this.saveLocal();
-        this.emit();
-        return { success: false, message: 'Incorrect PIN', attempts: order.attempts, locked, waitSec };
-      }
+      const up = {};
+      Object.entries(patch).forEach(([k, v]) => up[`orders/${id}/${k}`] = v);
+      if (patch.status === 'collected' && o && boxById(o.boxId)?.real) up[`boxes/${o.boxId}/currentOrder`] = null;
+      await this.fb.update(this.fb.ref(this.db), up);
+      return;
     }
+    if (o) Object.assign(o, patch);
+    this.saveLocal(); this.emit();
   },
-
-  async collectOrder(orderId) {
-    if (this.mode === 'live') {
-      const res = await fetch(`/api/orders/${orderId}/collect`, { method: 'POST' });
-      const data = await res.json();
-      await this.syncFromServer();
-      return data;
-    } else {
-      const order = this.orders.find(o => o.id === orderId);
-      if (order) {
-        order.status = 'collected';
-        order.collectedAt = Date.now();
-        const b = this.boxes.find(x => x.id === order.boxId);
-        if (b) { b.parcelPresent = false; b.locked = true; b.servoAngle = 0; }
-        Hardware.push({ t:Date.now(), dir:'in', boxId:order.boxId, action:'parcel.collected', payload:{ orderId } });
-        Hardware.push({ t:Date.now(), dir:'out', boxId:order.boxId, action:'servo.lock', payload:{ angle:0 } });
-        this.saveLocal();
-        this.emit();
-      }
-      return { success: true };
-    }
-  },
-
-  awaitingIn(boxId) { return this.orders.find(o => o.boxId === boxId && o.status === 'awaiting'); },
-  all() { return [...this.orders, ...SAMPLE_HISTORY].sort((a,b) => b.createdAt - a.createdAt); }
+  awaitingIn(boxId){ return this.orders.find(o => o.boxId === boxId && o.status === 'awaiting'); },
+  all(){ return [...this.orders, ...HISTORY].sort((a,b) => b.createdAt - a.createdAt); }
 };
 
-/* ---------- Hardware Bridge & Telemetry Logger ---------- */
+/* ---------- Hardware ----------
+   Box 01 in live mode: the website writes boxes/B01/command, the ESP8266 polls it, drives the UNO
+   and writes commandAck. Every other box (and Box 01 without Firebase) is simulated here. */
+const HEARTBEAT_STALE_MS = 30000;
+const isReal = boxId => Store.mode === 'live' && !!boxById(boxId)?.real;
+const liveBox = boxId => Store.boxLive[boxId] || {};
+function boxOnline(b){
+  if (!isReal(b.id)) return b.online;
+  const seen = liveBox(b.id).lastSeen;
+  return !!seen && Store.now() - seen < HEARTBEAT_STALE_MS;
+}
 const Hardware = {
-  push(ev) {
-    Store.events.unshift(ev);
-    if (Store.events.length > 60) Store.events.pop();
-    Dashboard.renderConsole();
-  },
-  async send(boxId, action, payload = {}) {
-    this.push({ t:Date.now(), dir:'out', boxId, action, payload });
+  events:[], subs:new Set(),
+  async transport(boxId, action, payload){
     Sound.servoHum();
-    if (Store.mode === 'live') {
-      try {
-        if (action === 'servo.unlock') {
-          await fetch(`/api/boxes/${boxId}/unlock`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
-        } else if (action === 'servo.lock') {
-          await fetch(`/api/boxes/${boxId}/lock`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
-        }
-      } catch(e) {}
-    } else {
-      await sleep(500);
-    }
-    this.push({ t:Date.now(), dir:'in', boxId, action: action + '.ack', payload: { ok:true } });
-    HwBench.syncFromCommand({ boxId, action, angle: action === 'servo.unlock' ? 90 : 0 });
-    return { ok:true };
+    if (!isReal(boxId)) { await sleep(600); return { ok:true, simulated:true }; }
+    const { ref, set, serverTimestamp } = Store.fb;
+    const id = Math.random().toString(36).slice(2, 10);
+    await set(ref(Store.db, `boxes/${boxId}/command`), { action: action === 'servo.unlock' ? 'unlock' : 'lock', id, t: serverTimestamp(), reason: payload.reason || '' });
+    const ok = await Store.waitFor(() => liveBox(boxId).commandAck === id, 10000);
+    return ok ? { ok:true } : { ok:false, error:'Box did not respond in 10 s' };
   },
-  sensor(boxId, parcelPresent) {
-    this.push({ t:Date.now(), dir:'in', boxId, action:'ir.sensor', payload:{ parcel: parcelPresent } });
-    if (Store.mode === 'live') {
-      fetch(`/api/boxes/${boxId}/sensor`, {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ parcelPresent, distanceCm: parcelPresent ? 10.5 : 35.0 })
-      }).catch(e => {});
-    }
+  on(fn){ this.subs.add(fn); },
+  push(ev){
+    if (Store.mode === 'live') { Store.fb.push(Store.fb.ref(Store.db, 'events'), ev).catch(() => {}); return; }
+    this.events.unshift(ev); this.events = this.events.slice(0, 40); this.subs.forEach(f => f(ev));
+  },
+  async send(boxId, action, payload = {}){
+    this.push({ t:Store.now(), dir:'out', boxId, action, payload });
+    const res = await this.transport(boxId, action, payload);
+    this.push({ t:Store.now(), dir:'in', boxId, action: action + (res.ok ? '.ack' : '.timeout'), payload: res });
+    return res;
+  },
+  // Real boxes report their own ultrasonic readings; this only simulates the others.
+  sensor(boxId, parcelPresent){
+    if (isReal(boxId)) return;
+    this.push({ t:Store.now(), dir:'in', boxId, action:'ultrasonic.sensor', payload:{ parcel: parcelPresent, distanceCm: parcelPresent ? 6.5 : 24.0 } });
   }
 };
 
-/* ---------- Notifications & Toasts ---------- */
-function toast(title, body, kind = 'parcel', onClick) {
+/* ---------- Notifications ---------- */
+const Notify = {
+  arrival(o){
+    const b = boxById(o.boxId);
+    showMobilePushBanner('Parcel Arrived! 📦', `Your ${o.courier} order #${o.id} is in ${b ? b.name : o.boxId}. PIN: ${o.pin}`, o);
+    Sound.alert();
+    toast(`Parcel arrived for ${o.studentName}`, `${o.courier} parcel at ${b ? b.name : o.boxId}. PIN is the last 4 digits (${o.pin}).`, 'parcel', () => {
+      Collect.setStudent(o.studentId); location.hash = '#/collect';
+    });
+  }
+};
+
+function toast(title, body, kind = 'parcel', onClick){
   const el = document.createElement('button');
   el.className = 'toast'; el.type = 'button';
   const icon = kind === 'ok'
@@ -1133,20 +776,17 @@ function showMobilePushBanner(title, body, order) {
   b._timer = setTimeout(() => { b.style.display = 'none'; }, 8000);
 }
 
-/* ---------- Time Helpers ---------- */
-function ago(t) {
+function ago(t){
   const s = Math.round((Date.now() - t) / 1000);
   if (s < 45) return 'just now';
-  const m = Math.round(s / 60); if (m < 60) return `${m}m ago`;
-  const h = Math.round(m / 60); if (h < 24) return `${h}h ago`;
-  const d = Math.round(h / 24); return d === 1 ? 'yesterday' : `${d}d ago`;
+  const m = Math.round(s / 60); if (m < 60) return `${m} min ago`;
+  const h = Math.round(m / 60); if (h < 24) return `${h} h ago`;
+  const d = Math.round(h / 24); return d === 1 ? 'yesterday' : `${d} days ago`;
 }
 const clock = t => new Date(t).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false });
 
-/* ==========================================================================
-   Three.js 3D Visualizer & Textures
-   ========================================================================== */
-function qrMatrix(seedStr, n = 25) {
+/* ---------- 3D Textures & Units ---------- */
+function qrMatrix(seedStr, n = 25){
   let seed = 0; for (const c of seedStr) seed = (seed * 31 + c.charCodeAt(0)) >>> 0;
   const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
   const m = Array.from({ length:n }, () => Array.from({ length:n }, () => rnd() > .52));
@@ -1158,7 +798,8 @@ function qrMatrix(seedStr, n = 25) {
   finder(0,0); finder(n-7,0); finder(0,n-7);
   return m;
 }
-function drawQR(canvas, seedStr) {
+function drawQR(canvas, seedStr){
+  if (!canvas) return;
   const m = qrMatrix(seedStr), n = m.length, s = 10, pad = 2;
   canvas.width = canvas.height = (n + pad * 2) * s;
   const c = canvas.getContext('2d');
@@ -1167,8 +808,8 @@ function drawQR(canvas, seedStr) {
   m.forEach((row, y) => row.forEach((v, x) => { if (v) c.fillRect((x + pad) * s, (y + pad) * s, s, s); }));
   return canvas;
 }
-function canvasTex(canvas) { const t = new THREE.CanvasTexture(canvas); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; return t; }
-function labelCanvas(no) {
+function canvasTex(canvas){ const t = new THREE.CanvasTexture(canvas); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; return t; }
+function labelCanvas(no){
   const cv = document.createElement('canvas'); cv.width = 640; cv.height = 160;
   const c = cv.getContext('2d');
   c.fillStyle = '#EDEAFF';
@@ -1179,7 +820,7 @@ function labelCanvas(no) {
   c.fillText('Smart Box ' + no, 22, 126);
   return cv;
 }
-function keypadCanvas() {
+function keypadCanvas(){
   const cv = document.createElement('canvas'); cv.width = 256; cv.height = 340;
   const c = cv.getContext('2d');
   const rr = (x,y,w,h,r) => { c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r); c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.fill(); };
@@ -1194,13 +835,13 @@ function keypadCanvas() {
   });
   return cv;
 }
-function glowCanvas() {
+function glowCanvas(){
   const cv = document.createElement('canvas'); cv.width = cv.height = 128;
   const c = cv.getContext('2d'); const g = c.createRadialGradient(64,64,0,64,64,64);
   g.addColorStop(0,'rgba(255,255,255,1)'); g.addColorStop(.25,'rgba(255,255,255,.5)'); g.addColorStop(1,'rgba(255,255,255,0)');
   c.fillStyle = g; c.fillRect(0,0,128,128); return cv;
 }
-function shadowCanvas() {
+function shadowCanvas(){
   const cv = document.createElement('canvas'); cv.width = cv.height = 256;
   const c = cv.getContext('2d'); const g = c.createRadialGradient(128,128,10,128,128,128);
   g.addColorStop(0,'rgba(20,14,60,.55)'); g.addColorStop(1,'rgba(20,14,60,0)');
@@ -1208,7 +849,7 @@ function shadowCanvas() {
 }
 
 const LED = { free:0x4FDC98, occupied:0xE8A05C, offline:0xFF6F7F, open:0xB3A1FF };
-function roundedRect(w, h, r) {
+function roundedRect(w, h, r){
   const s = new THREE.Shape(), x = -w/2, y = -h/2;
   s.moveTo(x+r, y); s.lineTo(x+w-r, y); s.quadraticCurveTo(x+w, y, x+w, y+r);
   s.lineTo(x+w, y+h-r); s.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
@@ -1216,14 +857,12 @@ function roundedRect(w, h, r) {
   s.lineTo(x, y+r); s.quadraticCurveTo(x, y, x+r, y);
   return s;
 }
-
 const SHARED = {};
-function sharedTex() {
+function sharedTex(){
   if (!SHARED.glow) { SHARED.glow = canvasTex(glowCanvas()); SHARED.shadow = canvasTex(shadowCanvas()); SHARED.keypad = canvasTex(keypadCanvas()); }
   return SHARED;
 }
-
-function buildUnit(box) {
+function buildUnit(box){
   const T = sharedTex();
   const W = 1.8, H = 1.6, D = 1.4, hx0 = -0.8, hx1 = 0.26, hy0 = -0.66, hy1 = 0.40;
   const g = new THREE.Group();
@@ -1246,7 +885,6 @@ function buildUnit(box) {
   const cavityLight = new THREE.Mesh(new THREE.PlaneGeometry(hx1 - hx0 - .1, .03), new THREE.MeshBasicMaterial({ color:0xB3A1FF }));
   cavityLight.rotation.x = Math.PI / 2; cavityLight.position.set((hx0+hx1)/2, hy1 - .012, 0); g.add(cavityLight);
 
-  // Label, QR, LED, Keypad
   const labelTex = canvasTex(labelCanvas(box.no));
   const label = new THREE.Mesh(new THREE.PlaneGeometry(1.0, .25), new THREE.MeshBasicMaterial({ map:labelTex, transparent:true }));
   label.position.set(-.3, .6, D/2 + .041); g.add(label);
@@ -1265,7 +903,6 @@ function buildUnit(box) {
   const keypad = new THREE.Mesh(new THREE.BoxGeometry(.42, .56, .03), [innerMat, innerMat, innerMat, innerMat, new THREE.MeshBasicMaterial({ map:T.keypad }), innerMat]);
   keypad.position.set(.56, -.3, D/2 + .05); g.add(keypad);
 
-  // Door on servo hinge
   const dw = hx1 - hx0 + .07, dh = hy1 - hy0 + .07;
   const doorGeo = new THREE.ExtrudeGeometry(roundedRect(dw, dh, .05), { depth:.06, bevelEnabled:true, bevelThickness:.015, bevelSize:.015, bevelSegments:2, curveSegments:4 });
   const pivot = new THREE.Group(); pivot.position.set(hx0 - .035, (hy0 + hy1) / 2, D/2 + .045); g.add(pivot);
@@ -1278,7 +915,6 @@ function buildUnit(box) {
   const strip = new THREE.Mesh(new THREE.BoxGeometry(dw * .42, .022, .01), stripMat);
   strip.position.set(dw / 2 - .02, dh / 2 - .08, .08); pivot.add(strip);
 
-  // Parcel Box
   const kraft = new THREE.MeshStandardMaterial({ color:0xC98F54, roughness:.85, metalness:0 });
   const tape = new THREE.MeshStandardMaterial({ color:0xE9D3B0, roughness:.5 });
   const parcel = new THREE.Group();
@@ -1289,7 +925,6 @@ function buildUnit(box) {
   const parcelHome = new THREE.Vector3((hx0 + hx1) / 2, hy0 + .27, -.05);
   parcel.position.copy(parcelHome); parcel.visible = false; g.add(parcel);
 
-  // Shadow
   const shadow = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 2.4), new THREE.MeshBasicMaterial({ map:T.shadow, transparent:true, depthWrite:false }));
   shadow.rotation.x = -Math.PI / 2; shadow.position.y = -H/2 - .06; g.add(shadow);
 
@@ -1297,22 +932,18 @@ function buildUnit(box) {
   return {
     box, group:g, body, bodyMat, pivot, parcel, parcelHome, ledMat, haloMat, stripMat, labelMesh:label, qrMesh:qr,
     open:0, openT:0, pIn:0, pInT:0, size:1, hover:0, selected:false, state:'free',
-    setBox(b) {
+    setBox(b){
       this.box = b;
       label.material.map.dispose(); label.material.map = canvasTex(labelCanvas(b.no)); label.material.needsUpdate = true;
       qr.material.map.dispose(); qr.material.map = canvasTex(drawQR(document.createElement('canvas'), 'campusdrop:' + b.id)); qr.material.needsUpdate = true;
     },
-    setState(s) {
-      this.state = s;
-      const c = LED[s] ?? LED.free;
-      ledMat.color.setHex(c); haloMat.color.setHex(c); stripMat.color.setHex(c);
-    }
+    setState(s){ this.state = s; const c = LED[s] ?? LED.free; ledMat.color.setHex(c); haloMat.color.setHex(c); stripMat.color.setHex(c); }
   };
 }
 
 const Scenes = [];
 class LockerScene {
-  constructor(host, { boxes, onPick, tagsEl } = {}) {
+  constructor(host, { boxes, onPick, tagsEl } = {}){
     this.host = host; this.onPick = onPick; this.tagsEl = tagsEl;
     this.renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -1347,7 +978,7 @@ class LockerScene {
     this.ro = new ResizeObserver(() => this.resize()); this.ro.observe(host); this.resize();
     Scenes.push(this);
   }
-  bindInput() {
+  bindInput(){
     const el = this.renderer.domElement;
     let down = null, moved = false;
     const setNdc = e => { const r = el.getBoundingClientRect(); this.ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1); };
@@ -1371,26 +1002,27 @@ class LockerScene {
       setNdc(e); const u = this.pick(); if (u) this.onPick(this.units.indexOf(u));
     });
   }
-  pick() {
+  pick(){
     this.raycaster.setFromCamera(this.ndc, this.camera);
     const hit = this.raycaster.intersectObjects(this.root.children, true)[0];
     if (!hit) return null;
     let o = hit.object; while (o && o.userData.index === undefined) o = o.parent;
     return o ? this.units[o.userData.index] : null;
   }
-  resize() {
+  resize(){
     const w = this.host.clientWidth, h = this.host.clientHeight; if (!w || !h) return;
     this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h;
     const t = Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2));
     const m = this.multi ? 1.12 : 1.35;
     const dist = Math.max((this.bounds.h * m) / (2 * t), (this.bounds.w * m) / (2 * t * this.camera.aspect)) + 1.2;
+    this.dist = dist;
     this.camera.position.set(0, this.multi ? .2 : .35, dist);
     this.camera.lookAt(0, this.multi ? -.1 : -.15, 0);
     this.camera.updateProjectionMatrix();
     this.w = w; this.h = h;
   }
-  tick(dt, t) {
+  tick(dt, t){
     const k = 1 - Math.pow(.001, dt);
     const ty = this.baseRotY + this.dragY + this.pointer.x * .12;
     const tx = this.baseRotX + this.dragX + this.pointer.y * .05;
@@ -1416,140 +1048,142 @@ class LockerScene {
     this.renderer.render(this.scene, this.camera);
     if (this.tagsEl) this.placeTags();
   }
-  placeTags() {
+  placeTags(){
     const v = new THREE.Vector3();
     for (const u of this.units) {
       if (!u.tag) continue;
-      v.set(0, .95, .3); u.group.localToWorld(v); v.project(this.camera);
+      v.set(0, .80, .28); u.group.localToWorld(v); v.project(this.camera);
       u.tag.style.left = ((v.x + 1) / 2 * this.w) + 'px';
-      u.tag.style.top = ((1 - v.y) / 2 * this.h) + 'px';
+      u.tag.style.top = Math.max(68, ((1 - v.y) / 2 * this.h)) + 'px';
     }
   }
 }
-
 let lastT = performance.now();
-function loop(now) {
+function loop(now){
   const dt = Math.min(.05, (now - lastT) / 1000); lastT = now;
   for (const s of Scenes) if (s.host.offsetParent !== null) s.tick(dt, now / 1000);
   requestAnimationFrame(loop);
 }
 const HAS3D = (() => { try { if (typeof THREE === 'undefined') return false; const c = document.createElement('canvas'); return !!(c.getContext('webgl') || c.getContext('experimental-webgl')); } catch(e){ return false; } })();
-function no3d(host) { host.innerHTML = '<div class="no3d">3D preview requires WebGL. All features work normally.</div>'; }
+function no3d(host){ host.innerHTML = '<div class="no3d">3D preview needs WebGL. Everything else works normally.</div>'; }
 const sizeScale = s => s === 'Small' ? .72 : s === 'Large' ? 1.08 : .9;
 
 /* ==========================================================================
-   1. Dashboard (Admin Management)
+   Dashboard
    ========================================================================== */
 const Dashboard = {
-  selected: 0, filter: 'all', query: '', wall: null, opening: null,
-  init() {
-    if (HAS3D) this.wall = new LockerScene($('#wallStage'), { boxes:Store.boxes, tagsEl:$('#wallTags'), onPick: i => { this.selected = i; this.render(); } });
+  selected:0, filter:'all', query:'', wall:null, opening:null,
+  init(){
+    if (HAS3D) this.wall = new LockerScene($('#wallStage'), { boxes:BOXES, tagsEl:$('#wallTags'), onPick:i => { this.selected = i; this.render(); } });
     else no3d($('#wallStage'));
-
-    $('#orderFilters').onclick = e => {
+    $('#orderFilters').addEventListener('click', e => {
       const b = e.target.closest('button'); if (!b) return;
       this.filter = b.dataset.f; $$('#orderFilters button').forEach(x => x.setAttribute('aria-pressed', x === b));
       this.renderOrders();
-    };
-    $('#orderSearch').oninput = e => { this.query = e.target.value.trim().toLowerCase(); this.renderOrders(); };
-    $('#exportCsv').onclick = () => this.exportCsv();
-    $('#refreshBtn').onclick = async () => { await Store.syncFromServer(); toast('Synced', 'Fetched latest campus telemetry', 'ok'); };
+    });
+    $('#orderSearch').addEventListener('input', e => { this.query = e.target.value.trim().toLowerCase(); this.renderOrders(); });
+    Hardware.on(() => this.renderConsole());
+    this.renderConsole();
   },
-  boxState(b) {
-    if (!b.online) return 'offline';
-    if (this.opening === b.id || (!b.locked && b.servoAngle > 0)) return 'open';
+  boxState(b){
+    if (!boxOnline(b)) return 'offline';
+    if (this.opening === b.id || (isReal(b.id) && liveBox(b.id).locked === false)) return 'open';
     return Store.awaitingIn(b.id) ? 'occupied' : 'free';
   },
-  render() {
-    const states = Store.boxes.map(b => this.boxState(b));
+  render(){
+    const states = BOXES.map(b => this.boxState(b));
     const free = states.filter(s => s === 'free').length, occ = states.filter(s => s === 'occupied').length, off = states.filter(s => s === 'offline').length;
-    $('#wallSummary').textContent = `${free} free boxes, ${occ} holding parcels, ${off} offline`;
+    $('#wallSummary').textContent = `${free} free, ${occ} holding parcels, ${off} offline`;
     if (this.wall) this.wall.units.forEach((u, i) => {
       const s = states[i]; u.setState(s);
-      const o = Store.awaitingIn(Store.boxes[i].id);
+      const o = Store.awaitingIn(BOXES[i].id);
       u.pInT = o ? 1 : 0; u.size = o ? sizeScale(o.size) : u.size;
-      u.openT = (this.opening === Store.boxes[i].id || (!Store.boxes[i].locked && Store.boxes[i].servoAngle > 0)) ? 1 : 0;
+      u.openT = this.opening === BOXES[i].id ? 1 : 0;
       u.selected = i === this.selected;
-      const txt = { free:'Free', occupied:'Parcel Inside', offline:'Offline', open:'Door Open' }[s];
+      const txt = { free:'Free', occupied:'Parcel inside', offline:'Offline', open:'Door open' }[s];
       const col = { free:'var(--ok)', occupied:'var(--kraft)', offline:'var(--bad)', open:'var(--lav)' }[s];
-      u.tag.innerHTML = `<b>${Store.boxes[i].no}</b><span style="color:${col}">${txt}</span>`;
+      u.tag.innerHTML = `<b>${BOXES[i].no}</b><span style="color:${col}">${txt}</span>`;
     });
-    this.renderDetail(); this.renderStats(); this.renderChart(); this.renderOrders(); this.renderConsole();
+    this.renderDetail(); this.renderStats(); this.renderChart(); this.renderOrders();
   },
-  renderDetail() {
-    const b = Store.boxes[this.selected] || Store.boxes[0];
-    const s = this.boxState(b), o = Store.awaitingIn(b.id);
+  renderDetail(){
+    const b = BOXES[this.selected] || BOXES[0], s = this.boxState(b), o = Store.awaitingIn(b.id), online = boxOnline(b);
     const chip = { free:'<span class="chip chip-ok"><span class="dot"></span>Free</span>', occupied:'<span class="chip chip-kraft"><span class="dot"></span>Parcel inside</span>', offline:'<span class="chip chip-bad"><span class="dot"></span>Offline</span>', open:'<span class="chip chip-lav"><span class="dot"></span>Door open</span>' }[s];
-    const rows = o ? `
+    const live = isReal(b.id) ? liveBox(b.id) : null;
+    const device = live ? `
+      <dt>Device</dt><dd>ESP8266 + Arduino UNO</dd>
+      <dt>Lock</dt><dd>${!online ? 'No heartbeat' : live.locked === false ? 'Unlocked (servo 90°)' : 'Locked (servo 0°)'}</dd>
+      <dt>Ultrasonic</dt><dd>${live.distanceCm >= 0 ? `${Number(live.distanceCm).toFixed(1)} cm, ${live.parcelPresent ? 'parcel seen' : 'empty'}` : 'No reading yet'}</dd>
+      <dt>Last seen</dt><dd>${live.lastSeen ? ago(live.lastSeen) : 'never'}</dd>` : `
+      <dt>Device</dt><dd>Simulated</dd>`;
+    const rows = (o ? `
       <dt>Student</dt><dd>${esc(o.studentName)}</dd>
       <dt>Order ID</dt><dd class="oid">${esc(o.id)}</dd>
       <dt>Courier</dt><dd>${esc(o.courier)}, ${esc(o.size.toLowerCase())}</dd>
       <dt>Dropped</dt><dd>${ago(o.createdAt)}</dd>
-      <dt>PIN Status</dt><dd>•••• ${esc(o.pin.slice(-2))}</dd>` : `
-      <dt>Location</dt><dd>${esc(b.place)}</dd>
-      <dt>Hardware Lock</dt><dd>${b.locked ? 'Servo 0° (Locked)' : 'Servo 90° (Unlocked)'}</dd>
-      <dt>ESP32 IP</dt><dd>${b.ip || '192.168.1.10' + b.no}</dd>
-      <dt>Status</dt><dd>${b.online ? 'Online (Heartbeat OK)' : 'Offline'}</dd>`;
+      <dt>PIN attempts</dt><dd>${o.attempts || 0} of 5</dd>` : live ? '' : `
+      <dt>Lock</dt><dd>${online ? 'Servo locked' : 'No heartbeat'}</dd>
+      <dt>Last seen</dt><dd>${online ? 'just now' : '3 h ago'}</dd>`) + device;
     $('#boxDetail').innerHTML = `
       <div class="detail-top">
-        <div><div class="small muted" style="font-weight:700">Selected Box</div><div class="boxno">${b.no}</div></div>
+        <div><div class="small muted" style="font-weight:600">Selected box</div><div class="boxno">${b.no}</div></div>
         ${chip}
       </div>
       <div class="small muted" style="margin-top:6px">${esc(b.place)}</div>
       <dl class="kv">${rows}</dl>
       <div class="actions">
-        ${b.online ? `<button class="btn btn-ghost" id="remoteUnlock">${b.locked ? 'Emergency Remote Unlock' : 'Emergency Remote Lock'}</button>` : ''}
-        ${!o && s === 'free' ? `<button class="btn btn-primary" id="dropHere">Drop a Parcel Here</button>` : ''}
-        <button class="btn btn-ghost" id="pingBox">Ping ESP32 Device</button>
+        ${o ? `<button class="btn btn-ghost" id="remoteUnlock">Unlock remotely</button>` : ''}
+        ${!o && s === 'free' ? `<button class="btn btn-primary" id="dropHere">Drop a parcel here</button>` : ''}
+        ${s === 'offline' ? `<button class="btn btn-ghost" id="pingBox">Ping device</button>` : ''}
+        <button class="btn btn-ghost" id="seedDemo">Add demo parcels</button>
       </div>`;
-
-    const ru = $('#remoteUnlock');
-    if (ru) ru.onclick = async () => {
-      ru.disabled = true;
-      if (b.locked) {
-        await Hardware.send(b.id, 'servo.unlock', { reason:'admin_override' });
-        b.locked = false; b.servoAngle = 90;
-      } else {
-        await Hardware.send(b.id, 'servo.lock', { reason:'admin_override' });
-        b.locked = true; b.servoAngle = 0;
-      }
-      this.render();
-      toast('Hardware Command Sent', `Box ${b.no} servo updated.`, 'ok');
+    const ru = $('#remoteUnlock'); if (ru) ru.onclick = async () => {
+      ru.disabled = true; ru.textContent = 'Unlocking';
+      const res = await Hardware.send(b.id, 'servo.unlock', { reason:'admin_override' });
+      if (!res.ok) { toast(`Box ${b.no} didn't respond`, 'Check the ESP8266 has power and WiFi, then try again.', 'warn'); this.render(); return; }
+      this.opening = b.id; this.render();
+      await sleep(3200);
+      await Hardware.send(b.id, 'servo.lock', {});
+      this.opening = null; this.render();
     };
     const dh = $('#dropHere'); if (dh) dh.onclick = () => { Deliver.reset(b.id); location.hash = '#/deliver'; };
     const pb = $('#pingBox'); if (pb) pb.onclick = async () => {
+      if (isReal(b.id)) {
+        const seen = liveBox(b.id).lastSeen;
+        toast(`Box ${b.no} is not reporting`, `${seen ? `Last heartbeat ${ago(seen)}.` : 'No heartbeat yet.'} Check the ESP8266 has power and WiFi.`, 'warn');
+        return;
+      }
       pb.disabled = true; pb.textContent = 'Pinging...';
       Hardware.push({ t:Date.now(), dir:'out', boxId:b.id, action:'ping', payload:{} });
-      await sleep(600);
-      Hardware.push({ t:Date.now(), dir:'in', boxId:b.id, action:'ping.ack', payload:{ latency:'14ms', rssi:'-54dBm' } });
-      pb.disabled = false; pb.textContent = 'Ping ESP32 Device';
-      toast('Device Responded', `Box ${b.no} latency: 14ms (RSSI -54dBm)`, 'ok');
+      await sleep(1500);
+      Hardware.push({ t:Date.now(), dir:'in', boxId:b.id, action:'ping.ack', payload:{ latency:'12ms' } });
+      pb.disabled = false; pb.textContent = 'Ping device';
+      toast('Device Responded', `Box ${b.no} heartbeat latency: 12ms`, 'ok');
     };
+    const sd = $('#seedDemo'); if (sd) sd.onclick = () => seedDemo();
   },
-  renderStats() {
+  renderStats(){
     const all = Store.all(), day0 = new Date(); day0.setHours(0,0,0,0);
     const waiting = Store.orders.filter(o => o.status === 'awaiting').length;
     const today = all.filter(o => o.createdAt >= day0.getTime()).length;
     const col = all.filter(o => o.status === 'collected' && o.collectedAt);
     const avg = col.length ? Math.round(col.reduce((a, o) => a + (o.collectedAt - o.createdAt), 0) / col.length / 6e4) : 0;
-    const online = Store.boxes.filter(b => b.online).length;
+    const offline = BOXES.filter(b => !boxOnline(b)), online = BOXES.length - offline.length;
     const stat = (n, l, s) => `<div class="panel stat"><div class="l">${l}</div><div class="n">${n}</div><div class="s">${s}</div></div>`;
     $('#stats').innerHTML =
-      stat(waiting, 'Awaiting Student Pickup', waiting ? 'PINs dispatched to students' : 'All boxes clear') +
-      stat(today, 'Deliveries Today', 'Dropped into smart boxes') +
-      stat(avg >= 60 ? `${Math.floor(avg/60)}h ${avg%60}m` : `${avg}m`, 'Average Pickup Speed', 'From drop to unlock') +
-      stat(`${online}/${Store.boxes.length}`, 'Smart Boxes Online', online === Store.boxes.length ? 'All devices reporting' : 'Box 06 offline');
+      stat(waiting, 'Waiting for pickup', waiting ? 'Students have been notified' : 'Every box is clear') +
+      stat(today, 'Parcels today', 'Dropped since midnight') +
+      stat(avg >= 60 ? `${Math.floor(avg/60)}h ${avg%60}m` : `${avg}m`, 'Average pickup time', 'From drop to door open') +
+      stat(`${online}/${BOXES.length}`, 'Boxes online', offline.length ? `Box ${offline.map(b => b.no).join(', ')} ${offline.length > 1 ? 'need' : 'needs'} attention` : 'All devices reporting');
   },
-  renderChart() {
+  renderChart(){
     const all = Store.all(), days = [];
     for (let d = 6; d >= 0; d--) {
       const s = new Date(); s.setHours(0,0,0,0); s.setDate(s.getDate() - d);
       const e = s.getTime() + 864e5;
-      days.push({
-        label: d === 0 ? 'Today' : s.toLocaleDateString([], { weekday:'short' }),
+      days.push({ label: d === 0 ? 'Today' : s.toLocaleDateString([], { weekday:'short' }),
         del: all.filter(o => o.createdAt >= s.getTime() && o.createdAt < e).length,
-        col: all.filter(o => o.collectedAt && o.collectedAt >= s.getTime() && o.collectedAt < e).length
-      });
+        col: all.filter(o => o.collectedAt && o.collectedAt >= s.getTime() && o.collectedAt < e).length });
     }
     const W = 640, H = 240, pb = 30, pt = 14, max = Math.max(4, ...days.map(d => Math.max(d.del, d.col)));
     const cw = W / 7, bw = Math.min(22, cw * .26);
@@ -1563,19 +1197,19 @@ const Dashboard = {
       g += `<text x="${cx}" y="${H - 8}" text-anchor="middle" font-size="12" font-weight="${i === 6 ? 800 : 600}" fill="${i === 6 ? 'var(--text)' : 'var(--muted)'}">${d.label}</text>`;
       if (i === 6) g += `<text x="${cx - bw / 2 - 2}" y="${y(d.del) - 6}" text-anchor="middle" font-size="12" font-weight="800" fill="var(--text)">${d.del}</text>`;
     });
-    $('#chart').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Delivered and collected parcels">${g}</svg>`;
+    $('#chart').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Delivered and collected parcels over the last seven days">${g}</svg>`;
   },
-  renderOrders() {
+  renderOrders(){
     let rows = Store.all();
     if (this.filter !== 'all') rows = rows.filter(o => o.status === this.filter);
     if (this.query) rows = rows.filter(o => o.id.includes(this.query) || o.studentName.toLowerCase().includes(this.query) || o.studentId.toLowerCase().includes(this.query));
-    rows = rows.slice(0, 16);
-    if (!rows.length) { $('#ordersBody').innerHTML = `<tr><td colspan="6" class="empty-mini">No orders match the filter.</td></tr>`; return; }
+    rows = rows.slice(0, 14);
+    if (!rows.length) { $('#ordersBody').innerHTML = `<tr><td colspan="6" class="empty-mini">No orders match. Try a different filter or search.</td></tr>`; return; }
     $('#ordersBody').innerHTML = rows.map(o => {
       const st = studentById(o.studentId) || { color:'#888' };
-      const status = o.status === 'awaiting' ? '<span class="chip chip-kraft"><span class="dot"></span>Waiting Pickup</span>' : '<span class="chip chip-ok"><span class="dot"></span>Collected</span>';
+      const status = o.status === 'awaiting' ? '<span class="chip chip-kraft"><span class="dot"></span>Waiting</span>' : '<span class="chip chip-ok"><span class="dot"></span>Collected</span>';
       return `<tr>
-        <td><span class="oid">${esc(o.id)}</span>${o.sample ? '<div class="sample-note">Historical Data</div>' : ''}</td>
+        <td><span class="oid">${esc(o.id)}</span>${o.sample ? '<div class="sample-note">Sample history</div>' : ''}</td>
         <td><div class="who"><span class="avatar" style="background:${st.color}">${initials(o.studentName)}</span><div><b>${esc(o.studentName)}</b><div class="small muted">${esc(o.studentId)}</div></div></div></td>
         <td>Box ${esc((boxById(o.boxId) || {}).no || o.boxId)}</td>
         <td>${esc(o.courier)}</td>
@@ -1583,38 +1217,36 @@ const Dashboard = {
         <td>${status}</td></tr>`;
     }).join('');
   },
-  renderConsole() {
+  renderConsole(){
     const el = $('#console');
-    if (!Store.events.length) { el.innerHTML = '<div class="empty-mini">No hardware events yet. Live commands and sensor readings stream here.</div>'; return; }
-    el.innerHTML = Store.events.map(e => `<div class="ev"><time>${clock(e.t)}</time><span class="dir ${e.dir}">${e.dir === 'out' ? '↑' : '↓'}</span><code title="${esc(JSON.stringify(e.payload))}">${esc(e.boxId)} ${esc(e.action)} ${esc(JSON.stringify(e.payload))}</code></div>`).join('');
-  },
-  exportCsv() {
-    const rows = Store.all().map(o => `"${o.id}","${o.studentName}","${o.studentId}","${o.boxId}","${o.courier}","${o.size}","${o.status}","${new Date(o.createdAt).toISOString()}"`);
-    const csv = 'Order ID,Student Name,Student ID,Box,Courier,Size,Status,CreatedAt\n' + rows.join('\n');
-    const blob = new Blob([csv], { type:'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = `CampusDrop_Orders_${Date.now()}.csv`; a.click();
-    URL.revokeObjectURL(url);
+    if (!Hardware.events.length) { el.innerHTML = '<div class="empty-mini">No device traffic yet. Commands sent to the boxes and sensor readings will stream here.</div>'; return; }
+    el.innerHTML = Hardware.events.map(e => `<div class="ev"><time>${clock(e.t)}</time><span class="dir ${e.dir}">${e.dir === 'out' ? '↑' : '↓'}</span><code title="${esc(JSON.stringify(e.payload))}">${esc(e.boxId)} ${esc(e.action)} ${esc(JSON.stringify(e.payload))}</code></div>`).join('');
   }
 };
 
+async function seedDemo(){
+  const free = BOXES.filter(b => boxOnline(b) && !Store.awaitingIn(b.id));
+  const picks = [[STUDENTS[0], 'Amazon', 'Medium'], [STUDENTS[1], 'Flipkart', 'Small']];
+  for (let i = 0; i < picks.length && i < free.length; i++) {
+    const [st, courier, size] = picks[i];
+    let id; do { id = String(4035000000 + Math.floor(Math.random() * 9999999) * 10 + 12).slice(0, 12); } while (Store.all().some(o => o.id === id));
+    await Store.add({ id, boxId:free[i].id, studentId:st.id, studentName:st.name, phone:st.phone, courier, size, pin:pinFor(id), status:'awaiting', attempts:0, createdAt:Date.now() - (i + 1) * 9 * 6e4 });
+  }
+  toast('Demo parcels added', `${picks[0][0].name} and ${picks[1][0].name} each have a parcel waiting.`, 'ok');
+}
+
 /* ==========================================================================
-   2. Delivery Partner Flow
+   Deliver flow
    ========================================================================== */
 const Deliver = {
-  step: 1, boxId: 'B01', form: { orderId: '', studentId: '', courier: 'Amazon', size: 'Medium' },
-  drop: 0, busy: false, last: null, scene: null, useCamera: false, stream: null,
-  init() {
-    if (HAS3D) { this.scene = new LockerScene($('#deliverStage'), { boxes:[Store.boxes[0]] }); this.unit = this.scene.units[0]; }
+  step:1, boxId:null, scanned:false, form:{ orderId:'', studentId:'', courier:'Amazon', size:'Medium' }, drop:0, busy:false, last:null, scene:null,
+  init(){
+    if (HAS3D) { this.scene = new LockerScene($('#deliverStage'), { boxes:[BOXES[0]] }); this.unit = this.scene.units[0]; }
     else no3d($('#deliverStage'));
   },
-  reset(boxId) {
-    this.step = 1; this.boxId = boxId || this.firstFree() || 'B01';
-    this.form = { orderId:'', studentId:'', courier:'Amazon', size:'Medium' };
-    this.drop = 0; this.busy = false; this.stopCamera(); this.render();
-  },
-  firstFree() { const b = Store.boxes.find(b => b.online && !Store.awaitingIn(b.id)); return b ? b.id : null; },
-  sync3d() {
+  reset(boxId){ this.step = 1; this.boxId = boxId || null; this.scanned = false; this.form = { orderId:'', studentId:'', courier:'Amazon', size:'Medium' }; this.drop = 0; this.busy = false; this.render(); },
+  firstFree(){ const b = BOXES.find(b => boxOnline(b) && !Store.awaitingIn(b.id)); return b ? b.id : null; },
+  sync3d(){
     const b = boxById(this.boxId);
     if (this.unit) {
       if (b && this.unit.box.id !== b.id) this.unit.setBox(b);
@@ -1624,24 +1256,13 @@ const Deliver = {
       const st = !b ? 'free' : this.unit.openT ? 'open' : this.unit.pInT ? 'occupied' : 'free';
       this.unit.setState(st);
     }
-    $('#deliverBoxCard').innerHTML = b ? `<b>${esc(b.name)}</b><span class="muted">${esc(b.place)}</span>` : `<b>No Box Selected</b><span class="muted">Scan QR to connect</span>`;
+    $('#deliverBoxCard').innerHTML = b ? `<b>${esc(b.name)}</b><span class="muted">${esc(b.place)}</span>` : `<b>No box yet</b><span class="muted">Scan a QR to begin</span>`;
     const led = $('#deliverLed');
-    const map = {
-      1:['chip-lav','Waiting for Scan'],
-      2:['chip-ok','Box Ready'],
-      3:[this.drop >= 1 && this.drop < 3 ? 'chip-lav' : 'chip-ok', this.drop >= 1 && this.drop < 3 ? 'Door Unlocked (90°)' : 'Locked'],
-      4:['chip-kraft','Parcel Locked Inside']
-    };
-    led.className = 'chip ' + map[this.step][0];
-    led.innerHTML = `<span class="dot"></span>${map[this.step][1]}`;
+    const map = { 1:['chip-lav','Waiting for scan'], 2:['chip-ok','Box reserved'], 3:[this.drop >= 1 && this.drop < 3 ? 'chip-lav' : 'chip-ok', this.drop >= 1 && this.drop < 3 ? 'Door unlocked' : 'Locked'], 4:['chip-kraft','Parcel inside'] };
+    led.className = 'chip ' + map[this.step][0]; led.innerHTML = `<span class="dot"></span>${map[this.step][1]}`;
   },
-  steps() {
-    $$('#deliverSteps li').forEach((li, i) => {
-      li.className = i + 1 < this.step ? 'done' : i + 1 === this.step ? 'current' : '';
-      if (i + 1 === this.step) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
-    });
-  },
-  render() {
+  steps(){ $$('#deliverSteps li').forEach((li, i) => { li.className = i + 1 < this.step ? 'done' : i + 1 === this.step ? 'current' : ''; if (i + 1 === this.step) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current'); }); },
+  render(){
     this.steps();
     if (!this.boxId || (Store.awaitingIn(this.boxId) && this.step < 3)) this.boxId = this.firstFree() || 'B01';
     const body = $('#deliverBody');
@@ -1651,190 +1272,150 @@ const Deliver = {
     else if (this.step === 4) body.innerHTML = this.viewDone();
     this.bind(); this.sync3d();
   },
-  viewScan() {
-    const freeBox = this.firstFree();
+  viewScan(){
+    const noneFree = !this.firstFree();
+    if (noneFree) return `<div class="empty"><h3>Every online box is full</h3><p>Wait for a student to collect, or ask the admin to open a box from the dashboard.</p><a class="btn btn-ghost" href="#/dashboard">Open dashboard</a></div>`;
     return `
-      <h2 class="step-title">1. Arrive & Scan Box QR</h2>
-      <p class="step-sub">Scan the QR code printed on the locker front panel to connect to this smart box.</p>
-      <div class="scanner-container">
-        <div class="scanner" id="scanner">
-          <canvas id="scanQR" aria-label="QR Code"></canvas>
-          <video id="camVideo" playsinline autoplay muted></video>
-          <div class="laser"></div>
-          <div class="scanned-ok">Box ${esc((boxById(this.boxId)||{}).no || '01')} Connected ✓</div>
-        </div>
-      </div>
-      <div class="cam-toggle-row">
-        <button class="btn btn-ghost" id="toggleCamBtn" style="padding:6px 14px;font-size:12px">
-          📷 Toggle Live Camera
-        </button>
-      </div>
-      <div class="small muted" style="font-weight:700;margin-bottom:8px">Or Select Locker Box:</div>
+      <h2 class="step-title">Scan the QR on the box</h2>
+      <p class="step-sub">Point your camera at the code on the front panel. In this prototype, pick the box you're standing at and tap scan.</p>
+      <div class="scanner" id="deliverScanner"><canvas id="deliverScanQR" aria-label="QR code of the selected box"></canvas><div class="laser"></div><div class="scanned-ok">Box ${esc((boxById(this.boxId)||{}).no || '01')} found</div></div>
       <div class="box-pick" role="group" aria-label="Boxes">
-        ${Store.boxes.map(b => {
-          const busy = !b.online || Store.awaitingIn(b.id);
-          return `<button data-box="${b.id}" aria-pressed="${b.id === this.boxId}" ${busy ? 'disabled' : ''}>
-            <b>Box ${b.no}</b>
-            <span>${!b.online ? 'Offline' : Store.awaitingIn(b.id) ? 'Occupied' : 'Ready'}</span>
-          </button>`;
-        }).join('')}
+        ${BOXES.map(b => { const busy = !boxOnline(b) || Store.awaitingIn(b.id); return `<button data-box="${b.id}" aria-pressed="${b.id === this.boxId}" ${busy ? 'disabled' : ''}><b>Box ${b.no}</b><span>${!boxOnline(b) ? 'Offline' : Store.awaitingIn(b.id) ? 'In use' : esc(b.place)}</span></button>`; }).join('')}
       </div>
-      <button class="btn btn-primary btn-lg" id="doScan">Simulate / Scan QR Code</button>`;
+      <button class="btn btn-primary btn-lg" id="doScan">Scan QR code</button>`;
   },
-  viewForm() {
+  viewForm(){
     const f = this.form, pin = /^\d{4,}$/.test(f.orderId) ? pinFor(f.orderId).split('') : ['·','·','·','·'];
     return `
-      <button class="back" data-back="1">‹ Change Box</button>
-      <h2 class="step-title">2. Enter Order & Student Details</h2>
-      <p class="step-sub">Order ID automatically generates the 4-digit pickup PIN for the student.</p>
+      <button class="back" data-back="1">‹ Change box</button>
+      <h2 class="step-title">Add the order details</h2>
+      <p class="step-sub">The pickup PIN is created from the order ID, so the student can open the box without an extra code.</p>
       <div class="field">
-        <label for="fOrder">Order ID (from Parcel Label)</label>
-        <input class="input" id="fOrder" inputmode="numeric" placeholder="e.g. 123456789012" value="${esc(f.orderId)}" maxlength="20">
+        <label for="fOrder">Order ID</label>
+        <input class="input" id="fOrder" inputmode="numeric" autocomplete="off" placeholder="e.g. 123456789012" value="${esc(f.orderId)}" maxlength="20">
         <span class="err" id="eOrder"></span>
       </div>
       <div class="field">
-        <label for="fStudent">Select Student Recipient</label>
+        <label for="fStudent">Student</label>
         <select class="input" id="fStudent">
-          <option value="">Choose recipient...</option>
-          ${Store.students.map(s => `<option value="${s.id}" ${s.id === f.studentId ? 'selected' : ''}>${esc(s.name)} (${s.id})</option>`).join('')}
+          <option value="">Choose by name or ID</option>
+          ${STUDENTS.map(s => `<option value="${s.id}" ${s.id === f.studentId ? 'selected' : ''}>${esc(s.name)} (${s.id})</option>`).join('')}
         </select>
-        <span class="hint" id="hStudent">${f.studentId ? esc(studentById(f.studentId).hostel + ' • ' + studentById(f.studentId).phone) : 'Real-time push notification goes to student app.'}</span>
+        <span class="hint" id="hStudent">${f.studentId ? esc(studentById(f.studentId).hostel + ', ' + studentById(f.studentId).phone) : 'Notification goes to the student’s app and phone.'}</span>
         <span class="err" id="eStudent"></span>
       </div>
       <div class="grid2">
         <div class="field">
-          <label for="fCourier">Courier Service</label>
+          <label for="fCourier">Courier</label>
           <select class="input" id="fCourier">${COURIERS.map(c => `<option ${c === f.courier ? 'selected' : ''}>${c}</option>`).join('')}</select>
         </div>
         <div class="field">
-          <label id="lSize">Parcel Size</label>
+          <label id="lSize">Parcel size</label>
           <div class="seg" role="group" aria-labelledby="lSize">${['Small','Medium','Large'].map(s => `<button type="button" data-size="${s}" aria-pressed="${s === f.size}">${s}</button>`).join('')}</div>
         </div>
       </div>
       <div class="pinpreview">
-        <div>
-          <b>AUTOMATIC PICKUP PIN</b>
-          <p>Created from last 4 digits of Order ID. Will be shared with student.</p>
-        </div>
+        <p><b>Pickup PIN</b><br>Last 4 digits of the order ID. Shared only with the student.</p>
         <div class="pin-digits" id="pinPreview">${pin.map(d => `<span>${d}</span>`).join('')}</div>
       </div>
-      <button class="btn btn-primary btn-lg" id="toDrop">Proceed to Place Parcel</button>`;
+      <button class="btn btn-primary btn-lg" id="toDrop">Continue to drop</button>`;
   },
-  viewDrop() {
+  viewDrop(){
     const items = [
-      ['Signal Servo to Unlock Box (90°)', 'servo.unlock'],
-      ['Place parcel inside compartment', 'parcel'],
-      ['Close door & lock servo', 'servo.lock'],
-      ['IR / Ultrasonic sensor detects parcel', 'ir.sensor'],
+      ['Unlock the door', 'servo.unlock'],
+      ['Place the parcel inside', 'parcel'],
+      ['Close the door', 'servo.lock'],
+      ['Sensor confirms the parcel', 'ir.sensor'],
     ];
-    const label = ['Unlock Box Door', 'I’ve Placed the Parcel Inside', 'Close Door & Register', 'Registering...'][Math.min(this.drop, 3)];
+    const label = ['Unlock door', 'I’ve placed the parcel', 'Close door and register', 'Registering'][Math.min(this.drop, 3)];
     return `
-      <h2 class="step-title">3. Place Parcel in Box ${esc((boxById(this.boxId)||{}).no || '01')}</h2>
-      <p class="step-sub">Interact with the smart box. Each step coordinates directly with the IoT hardware.</p>
-      <ul class="checklist">${items.map((it, i) => `<li class="${i < this.drop ? 'done' : (i === this.drop && this.busy) ? 'busy' : ''}"><span class="ck">${i < this.drop ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="m5 12.5 4.5 4.5L19 7"/></svg>' : ''}</span>${it[0]}</li>`).join('')}</ul>
+      <h2 class="step-title">Drop the parcel in Box ${esc((boxById(this.boxId)||{}).no || '01')}</h2>
+      <p class="step-sub">Follow the box. Each step talks to the hardware and waits for it to confirm.</p>
+      <ul class="checklist">${items.map((it, i) => `<li class="${i < this.drop ? 'done' : (i === this.drop && this.busy) ? 'busy' : ''}"><span class="ck">${i < this.drop ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7"/></svg>' : ''}</span>${it[0]}</li>`).join('')}</ul>
       <button class="btn btn-primary btn-lg" id="dropAct" ${this.busy || this.drop >= 3 ? 'disabled' : ''}>${label}</button>`;
   },
-  viewDone() {
+  viewDone(){
     const o = this.last, b = boxById(o.boxId);
     return `
-      <div class="bigok"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7"/></svg></div>
-      <h2 class="step-title">Parcel Registered Successfully!</h2>
-      <p class="step-sub">${esc(o.studentName)} has received a real-time notification with PIN ${esc(o.pin)} to collect from ${esc(b.name)}.</p>
+      <div class="bigok"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7"/></svg></div>
+      <h2 class="step-title">Parcel registered</h2>
+      <p class="step-sub">${esc(o.studentName)} has been notified that the parcel is waiting in ${esc(b.name)}.</p>
       <div class="receipt"><dl class="kv">
         <dt>Order ID</dt><dd class="oid">${esc(o.id)}</dd>
-        <dt>Student</dt><dd>${esc(o.studentName)} (${esc(o.studentId)})</dd>
-        <dt>Locker</dt><dd>${esc(b.name)}, ${esc(b.place)}</dd>
-        <dt>Pickup PIN</dt><dd style="font-family:var(--font-d);color:var(--kraft);font-size:18px">•••• ${esc(o.pin.slice(-2))}</dd>
-        <dt>Status</dt><dd><span class="chip chip-kraft">Awaiting Student</span></dd>
+        <dt>Student</dt><dd>${esc(o.studentName)}</dd>
+        <dt>Box</dt><dd>${esc(b.name)}, ${esc(b.place)}</dd>
+        <dt>Courier</dt><dd>${esc(o.courier)}, ${esc(o.size.toLowerCase())}</dd>
+        <dt>Pickup PIN</dt><dd style="font-family:var(--font-d);color:var(--kraft);font-size:18px">•• ${esc(o.pin.slice(-2))}</dd>
       </dl></div>
       <div class="btn-row">
-        <button class="btn btn-primary" id="again">Deliver Another Parcel</button>
-        <button class="btn btn-ghost" id="asStudent">Switch to Student View</button>
+        <button class="btn btn-primary" id="again">Deliver another parcel</button>
+        <button class="btn btn-ghost" id="asStudent">Open as student</button>
       </div>`;
   },
-  bind() {
+  bind(){
     const body = $('#deliverBody');
     if (this.step === 1) {
-      const cv = $('#scanQR'); if (cv) drawQR(cv, 'campusdrop:' + this.boxId);
+      const cv = $('#deliverScanQR'); if (cv) drawQR(cv, 'campusdrop:' + this.boxId);
       body.querySelectorAll('[data-box]').forEach(b => b.onclick = () => { this.boxId = b.dataset.box; this.render(); });
-      const toggleBtn = $('#toggleCamBtn');
-      if (toggleBtn) toggleBtn.onclick = () => this.toggleCamera();
-      const sc = $('#doScan');
-      if (sc) sc.onclick = async () => {
-        const s = $('#scanner'); sc.disabled = true; sc.textContent = 'Scanning QR...';
+      const sc = $('#doScan'); if (sc) sc.onclick = async () => {
+        const s = $('#deliverScanner'); sc.disabled = true; sc.textContent = 'Scanning';
         s.classList.add('scanning'); Sound.keypadClick();
-        await sleep(1200); s.classList.remove('scanning'); s.classList.add('ok');
+        await sleep(1300); s.classList.remove('scanning'); s.classList.add('ok');
         Sound.success();
-        Hardware.push({ t:Date.now(), dir:'in', boxId:this.boxId, action:'qr.scanned', payload:{ by:'delivery_partner' } });
-        await sleep(600); this.stopCamera(); this.step = 2; this.render();
+        Hardware.push({ t:Date.now(), dir:'in', boxId:this.boxId, action:'qr.scanned', payload:{ by:'delivery' } });
+        await sleep(650); this.step = 2; this.render();
       };
     }
     if (this.step === 2) {
       const fo = $('#fOrder'), fs = $('#fStudent');
       fo.oninput = () => {
-        fo.value = fo.value.replace(/\D/g, ''); this.form.orderId = fo.value;
-        fo.classList.remove('invalid'); $('#eOrder').textContent = '';
+        fo.value = fo.value.replace(/\D/g, ''); this.form.orderId = fo.value; fo.classList.remove('invalid'); $('#eOrder').textContent = '';
         const d = fo.value.length >= 4 ? pinFor(fo.value).split('') : ['·','·','·','·'];
         $('#pinPreview').innerHTML = d.map(x => `<span>${x}</span>`).join('');
       };
-      fs.onchange = () => {
-        this.form.studentId = fs.value; const s = studentById(fs.value);
-        $('#hStudent').textContent = s ? `${s.hostel} • ${s.phone}` : 'Real-time push notification goes to student app.';
-        $('#eStudent').textContent = ''; fs.classList.remove('invalid');
-      };
+      fs.onchange = () => { this.form.studentId = fs.value; const s = studentById(fs.value); $('#hStudent').textContent = s ? `${s.hostel}, ${s.phone}` : 'Notification goes to the student’s app and phone.'; $('#eStudent').textContent = ''; fs.classList.remove('invalid'); };
       $('#fCourier').onchange = e => this.form.courier = e.target.value;
-      body.querySelectorAll('[data-size]').forEach(b => b.onclick = () => {
-        this.form.size = b.dataset.size;
-        body.querySelectorAll('[data-size]').forEach(x => x.setAttribute('aria-pressed', x === b));
-        this.sync3d();
-      });
-      body.querySelector('[data-back]').onclick = () => { this.step = 1; this.render(); };
+      body.querySelectorAll('[data-size]').forEach(b => b.onclick = () => { this.form.size = b.dataset.size; body.querySelectorAll('[data-size]').forEach(x => x.setAttribute('aria-pressed', x === b)); this.sync3d(); });
+      body.querySelector('[data-back]').onclick = () => { this.step = 1; this.scanned = false; this.render(); };
       $('#toDrop').onclick = () => {
         let ok = true;
-        if (!/^\d{4,20}$/.test(this.form.orderId)) {
-          ok = false; fo.classList.add('invalid'); $('#eOrder').textContent = 'Enter a valid numeric Order ID (at least 4 digits).';
-        } else if (Store.all().some(o => o.id === this.form.orderId && o.status === 'awaiting')) {
-          ok = false; fo.classList.add('invalid'); $('#eOrder').textContent = 'This Order ID is already registered.';
-        }
-        if (!this.form.studentId) {
-          ok = false; fs.classList.add('invalid'); $('#eStudent').textContent = 'Please choose a student recipient.';
-        }
-        if (!ok) { Sound.errorBuzz(); return; }
+        if (!/^\d{4,20}$/.test(this.form.orderId)) { ok = false; fo.classList.add('invalid'); $('#eOrder').textContent = 'Enter the numeric order ID from the parcel label (at least 4 digits).'; }
+        else if (Store.all().some(o => o.id === this.form.orderId && o.status === 'awaiting')) { ok = false; fo.classList.add('invalid'); $('#eOrder').textContent = 'This order ID is already registered. Check the label and try again.'; }
+        if (!this.form.studentId) { ok = false; fs.classList.add('invalid'); $('#eStudent').textContent = 'Choose the student this parcel belongs to.'; }
+        if (!ok) return;
         this.step = 3; this.drop = 0; this.render();
       };
     }
     if (this.step === 3) {
-      const a = $('#dropAct');
-      if (a) a.onclick = async () => {
+      const a = $('#dropAct'); if (a) a.onclick = async () => {
         const id = this.boxId;
+        const noReply = () => toast(`Box ${boxById(id).no} didn't respond`, 'Check the ESP8266 has power and WiFi, then try again.', 'warn');
         if (this.drop === 0) {
           this.busy = true; this.render();
-          await Hardware.send(id, 'servo.unlock', { reason:'delivery_drop' });
-          this.busy = false; this.drop = 1; this.render();
-        } else if (this.drop === 1) {
-          this.drop = 2; this.render();
-        } else if (this.drop === 2) {
+          const res = await Hardware.send(id, 'servo.unlock', { reason:'drop' });
+          this.busy = false;
+          if (!res.ok) { this.render(); noReply(); return; }
+          this.drop = 1; this.render();
+        }
+        else if (this.drop === 1) { this.drop = 2; this.render(); }
+        else if (this.drop === 2) {
           this.busy = true; this.render();
-          await Hardware.send(id, 'servo.lock', {});
-          this.drop = 3; this.render();
-          await sleep(500);
-          Hardware.sensor(id, true);
-          try {
-            const order = await Store.addOrder({
-              orderId: this.form.orderId,
-              boxId: id,
-              studentId: this.form.studentId,
-              courier: this.form.courier,
-              size: this.form.size
-            });
-            this.last = order;
-            this.busy = false; this.step = 4; this.render();
-            Sound.success();
-            toast('Parcel Dropped!', `Notified ${order.studentName}. Box ${boxById(id).no} locked.`, 'ok');
-          } catch(err) {
-            this.busy = false; this.drop = 2; this.render();
-            toast('Error Registering', err.message, 'warn');
-          }
+          const res = await Hardware.send(id, 'servo.lock', {});
+          if (!res.ok) { this.busy = false; this.render(); noReply(); return; }
+          this.drop = 3; this.busy = true; this.render();
+          if (isReal(id)) {
+            // Wait for the ultrasonic sensor on the real box to see the parcel.
+            const seen = await Store.waitFor(() => liveBox(id).parcelPresent === true, 6000);
+            if (!seen) toast(`Box ${boxById(id).no} sensor didn't see a parcel`, 'Registered anyway. Check the parcel is inside and in front of the sensor.', 'warn');
+          } else { await sleep(600); Hardware.sensor(id, true); }
+          const st = studentById(this.form.studentId);
+          const order = { id:this.form.orderId, boxId:id, studentId:st.id, studentName:st.name, phone:st.phone, courier:this.form.courier, size:this.form.size, pin:pinFor(this.form.orderId), status:'awaiting', attempts:0, createdAt:Date.now() };
+          try { await Store.add(order); } catch(e) { this.busy = false; this.drop = 2; this.render(); toast('Could not register the parcel', 'Check connection and try again.', 'warn'); return; }
+          Hardware.push({ t:Date.now(), dir:'out', boxId:id, action:'notify.student', payload:{ student:st.id } });
+          this.last = order; this.busy = false; this.step = 4; this.render();
+          Sound.success();
+          showMobilePushBanner('Parcel Arrived! 📦', `Your ${order.courier} parcel is in Box ${boxById(id).no}. PIN: ${order.pin}`, order);
+          toast('Notification sent', `${st.name} knows the parcel is in Box ${boxById(id).no}.`, 'ok');
         }
       };
     }
@@ -1842,54 +1423,26 @@ const Deliver = {
       $('#again').onclick = () => this.reset();
       $('#asStudent').onclick = () => { Collect.setStudent(this.last.studentId); location.hash = '#/collect'; };
     }
-  },
-  async toggleCamera() {
-    const video = $('#camVideo');
-    const container = $('#scanner');
-    if (this.stream) {
-      this.stopCamera();
-    } else {
-      try {
-        this.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-        video.srcObject = this.stream;
-        container.classList.add('video-active');
-        $('#toggleCamBtn').textContent = '⏹ Stop Camera';
-      } catch(e) {
-        toast('Camera Access', 'Could not open camera stream. Use simulated QR scan button.', 'warn');
-      }
-    }
-  },
-  stopCamera() {
-    if (this.stream) {
-      this.stream.getTracks().forEach(t => t.stop());
-      this.stream = null;
-    }
-    const container = $('#scanner');
-    if (container) container.classList.remove('video-active');
-    const btn = $('#toggleCamBtn');
-    if (btn) btn.textContent = '📷 Toggle Live Camera';
   }
 };
 
 /* ==========================================================================
-   3. Student Collect Flow
+   Collect flow
    ========================================================================== */
 const Collect = {
-  studentId: STUDENTS[0].id, orderId: null, phase: 'list', pin: '', msg: '', msgKind: '', scene: null, justCollected: null,
-  init() {
+  studentId:STUDENTS[0].id, orderId:null, phase:'list', pin:'', msg:'', msgKind:'', scene:null, justCollected:null,
+  init(){
     const sel = $('#studentSelect');
-    sel.innerHTML = Store.students.map(s => `<option value="${s.id}">${esc(s.name)} (${s.id})</option>`).join('');
-    try { const saved = localStorage.getItem('campusdrop.student'); if (saved && studentById(saved)) this.studentId = saved; } catch(e){}
+    sel.innerHTML = STUDENTS.map(s => `<option value="${s.id}">${esc(s.name)} (${s.id})</option>`).join('');
+    try { const saved = localStorage.getItem('campusdrop.me'); if (saved && studentById(saved)) this.studentId = saved; } catch(e){}
     sel.value = this.studentId;
     sel.onchange = () => this.setStudent(sel.value);
-    if (HAS3D) { this.scene = new LockerScene($('#collectStage'), { boxes:[Store.boxes[1]] }); this.unit = this.scene.units[0]; }
+    if (HAS3D) { this.scene = new LockerScene($('#collectStage'), { boxes:[BOXES[1]] }); this.unit = this.scene.units[0]; }
     else no3d($('#collectStage'));
-
     document.addEventListener('keydown', e => {
       if (location.hash !== '#/collect' || this.phase !== 'pin') return;
       if (/^\d$/.test(e.key)) this.press(e.key); else if (e.key === 'Backspace') this.press('del');
     });
-
     $('#testNotifBtn').onclick = () => {
       const pending = this.mine()[0];
       const order = pending || { id:'123456789012', boxId:'B01', pin:'9012', courier:'Amazon', studentId:this.studentId };
@@ -1897,14 +1450,14 @@ const Collect = {
       Sound.alert();
     };
   },
-  setStudent(id) {
+  setStudent(id){
     this.studentId = id; this.orderId = null; this.phase = 'list'; this.pin = ''; this.msg = '';
-    try { localStorage.setItem('campusdrop.student', id); } catch(e){}
+    try { localStorage.setItem('campusdrop.me', id); } catch(e){}
     $('#studentSelect').value = id; this.render();
   },
-  mine() { return Store.orders.filter(o => o.studentId === this.studentId && o.status === 'awaiting').sort((a,b) => b.createdAt - a.createdAt); },
-  order() { return Store.orders.find(o => o.id === this.orderId); },
-  sync3d() {
+  mine(){ return Store.orders.filter(o => o.studentId === this.studentId && o.status === 'awaiting').sort((a,b) => b.createdAt - a.createdAt); },
+  order(){ return Store.orders.find(o => o.id === this.orderId); },
+  sync3d(){
     const o = this.order(), b = o ? boxById(o.boxId) : null;
     if (this.unit) {
       if (b && this.unit.box.id !== b.id) this.unit.setBox(b);
@@ -1914,18 +1467,23 @@ const Collect = {
       if (o) this.unit.size = sizeScale(o.size);
       this.unit.setState(open ? 'open' : o ? 'occupied' : 'free');
     }
-    $('#collectBoxCard').innerHTML = b ? `<b>${esc(b.name)}</b><span class="muted">${esc(b.place)}</span>` : `<b>Your Smart Box</b><span class="muted">Select parcel to inspect</span>`;
+    $('#collectBoxCard').innerHTML = b ? `<b>${esc(b.name)}</b><span class="muted">${esc(b.place)}</span>` : `<b>Your box</b><span class="muted">Pick a parcel to see its box</span>`;
     const led = $('#collectLed');
-    const [cls, txt] = this.phase === 'open' ? ['chip-lav','Door Unlocked (90°)'] : this.phase === 'taken' ? ['chip-ok','Collected'] : o ? ['chip-kraft','Locked, Parcel Inside'] : ['chip-lav','Locked'];
+    const [cls, txt] = this.phase === 'open' ? ['chip-lav','Door open'] : this.phase === 'taken' ? ['chip-ok','Collected'] : o ? ['chip-kraft','Locked, parcel inside'] : ['chip-lav','Locked'];
     led.className = 'chip ' + cls; led.innerHTML = `<span class="dot"></span>${txt}`;
   },
-  render() {
+  render(){
     const st = studentById(this.studentId) || STUDENTS[0];
     $('#meAvatar').textContent = initials(st.name); $('#meAvatar').style.background = st.color;
-    const n = this.mine().length;
+    const n = Store.orders.filter(o => o.studentId === this.studentId && o.status === 'awaiting').length;
     const badge = $('#collectBadge'); badge.hidden = !n; badge.textContent = n;
     if (this.orderId && !this.order() && this.phase !== 'taken') { this.orderId = null; this.phase = 'list'; }
-
+    // The real box verified the PIN on its own keypad and marked the order collected.
+    if (this.phase === 'pin' && this.order()?.status === 'collected' && isReal(this.order().boxId)) {
+      this.justCollected = { ...this.order(), viaKeypad:true }; this.orderId = null; this.phase = 'taken';
+      Sound.success();
+    }
+    if (this.phase !== 'taken' && this.order() && this.order().status === 'collected') { this.orderId = null; this.phase = 'list'; }
     const body = $('#collectBody');
     if (this.phase === 'list') body.innerHTML = this.viewList();
     else if (this.phase === 'scan') body.innerHTML = this.viewScan();
@@ -1934,294 +1492,182 @@ const Collect = {
     else if (this.phase === 'taken') body.innerHTML = this.viewTaken();
     this.bind(); this.sync3d();
   },
-  viewList() {
-    const list = this.mine(), st = studentById(this.studentId);
+  viewList(){
+    const list = this.mine(), st = studentById(this.studentId) || STUDENTS[0];
     const done = Store.all().filter(o => o.studentId === this.studentId && o.status === 'collected').slice(0, 3);
-    const parcelIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></svg>';
+    const parcelIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></svg>';
     return `
-      <h2 class="step-title">${list.length ? `${list.length === 1 ? '1 Parcel' : list.length + ' Parcels'} Waiting for Pickup` : 'No Pending Parcels'}</h2>
-      <p class="step-sub">${list.length ? 'Tap on your parcel below, head to the box, and enter your 4-digit PIN.' : `When a delivery is made for ${esc(st.name.split(' ')[0])}, it appears here instantly.`}</p>
+      <h2 class="step-title">${list.length ? `${list.length === 1 ? 'A parcel is' : list.length + ' parcels are'} waiting for you` : 'Nothing waiting right now'}</h2>
+      <p class="step-sub">${list.length ? 'Choose a parcel, then head to its box.' : `When a delivery is registered for ${esc(st.name.split(' ')[0])}, it appears here instantly.`}</p>
       ${list.length ? `<div class="inbox">${list.map(o => { const b = boxById(o.boxId); return `
         <button class="parcel" data-order="${esc(o.id)}">
           <span class="pic">${parcelIcon}</span>
-          <span><b>${esc(o.courier)} • Order #${esc(o.id)}</b><span>In Box ${esc(b.no)} (${esc(b.place)}) • Arrived ${ago(o.createdAt)}</span></span>
-          <span class="chip chip-kraft">Collect Now</span>
+          <span><b>${esc(o.courier)} parcel in Box ${esc(b.no)}</b><span>${esc(b.place)}, arrived ${ago(o.createdAt)}</span></span>
+          <span class="chip chip-kraft">Collect</span>
         </button>`; }).join('')}</div>` : `
-        <div class="empty">
-          <h3>Your Delivery Shelf is Clear</h3>
-          <p>Drop a parcel using the Delivery Boy portal or add demo parcels to test the student pickup workflow.</p>
-          <div class="btn-row" style="justify-content:center">
-            <button class="btn btn-ghost" id="seedC">+ Add Demo Parcel</button>
-            <a class="btn btn-primary" href="#/deliver">Deliver a Parcel</a>
-          </div>
-        </div>`}
-      ${done.length ? `<div style="margin-top:24px"><div class="small muted" style="font-weight:700;margin-bottom:8px">Recently Collected</div>${done.map(o => `<div class="small" style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)"><span>${esc(o.courier)} #${esc(o.id)}</span><span class="muted">${ago(o.collectedAt)}</span></div>`).join('')}</div>` : ''}`;
+        <div class="empty"><h3>Your shelf is clear</h3><p>Try the full flow: register a parcel from Deliver, or add demo parcels to see it here.</p>
+        <div class="btn-row" style="justify-content:center"><button class="btn btn-ghost" id="seedC">Add demo parcels</button><a class="btn btn-primary" href="#/deliver">Deliver a parcel</a></div></div>`}
+      ${done.length ? `<div style="margin-top:22px"><div class="small muted" style="font-weight:700;margin-bottom:8px">Recently collected</div>${done.map(o => `<div class="small" style="display:flex;justify-content:space-between;padding:8px 2px;border-bottom:1px solid var(--line)"><span>${esc(o.courier)}, order ${esc(o.id)}</span><span class="muted">${ago(o.collectedAt)}</span></div>`).join('')}</div>` : ''}`;
   },
-  viewScan() {
+  viewScan(){
     const o = this.order(), b = boxById(o.boxId);
     return `
-      <button class="back" data-back="list">‹ Back to Parcels</button>
-      <h2 class="step-title">8. Reach Box ${esc(b.no)} & Scan QR</h2>
-      <p class="step-sub">Walk to <b>${esc(b.place)}</b> and scan the box QR to verify you're standing in front of the right locker.</p>
-      <div class="scanner-container">
-        <div class="scanner" id="scanner">
-          <canvas id="scanQR" aria-label="QR Code on Box"></canvas>
-          <div class="laser"></div>
-          <div class="scanned-ok">Matched Box ${esc(b.no)} ✓</div>
-        </div>
-      </div>
-      <button class="btn btn-primary btn-lg" id="doScan">Verify Presence at Box</button>`;
+      <button class="back" data-back="list">‹ Your parcels</button>
+      <h2 class="step-title">Scan the QR on Box ${esc(b.no)}</h2>
+      <p class="step-sub">Go to ${esc(b.place)} and scan the code on the front panel so we know you're at the right box.</p>
+      <div class="scanner" id="collectScanner"><canvas id="collectScanQR" aria-label="QR code on Box ${esc(b.no)}"></canvas><div class="laser"></div><div class="scanned-ok">Box ${esc(b.no)} matched</div></div>
+      <button class="btn btn-primary btn-lg" id="doScan">Scan QR code</button>`;
   },
-  viewPin() {
-    const o = this.order(), locked = o.lockedUntil && o.lockedUntil > Date.now();
+  // Real box: the PIN is typed on the physical keypad; this view mirrors boxes/B01/keypad live.
+  viewBoxPin(){
+    const o = this.order(), b = boxById(o.boxId), live = liveBox(o.boxId), typed = String(live.keypad || '');
+    const locked = o.lockedUntil && o.lockedUntil > Store.now(), attempts = o.attempts || 0;
+    const msg = !boxOnline(b) ? `Box ${b.no} is offline. Check it has power and WiFi.`
+      : locked ? `Too many wrong PINs. The keypad unlocks in ${Math.ceil((o.lockedUntil - Store.now()) / 1000)} seconds.`
+      : typed ? 'Reading the keypad…'
+      : attempts ? `That PIN didn't match. ${5 - (attempts % 5)} tries left before a short lock.` : '';
+    const kind = locked || (!typed && attempts) || !boxOnline(b) ? 'bad' : '';
+    return `
+      <button class="back" data-back="list">‹ Your parcels</button>
+      <h2 class="step-title">Type your PIN on Box ${esc(b.no)}'s keypad</h2>
+      <p class="step-sub">It's the last 4 digits of order ${esc(o.id.slice(0, -4))}<b>····</b>. Press <b>*</b> to clear or <b>#</b> to delete a digit. The box opens as soon as the 4th digit is right.</p>
+      <div class="pin-entry" aria-label="Digits typed on the box keypad">${[0,1,2,3].map(i => `<span class="${typed[i] ? 'filled' : ''}">${typed[i] ? '•' : ''}</span>`).join('')}</div>
+      <div class="msg ${kind}" role="status">${esc(msg)}</div>`;
+  },
+  viewPin(){
+    const o = this.order();
+    if (isReal(o.boxId)) return this.viewBoxPin();
+    const locked = o.lockedUntil && o.lockedUntil > Date.now();
     const cls = this.msgKind === 'bad' ? 'bad' : this.msgKind === 'ok' ? 'good' : '';
     return `
-      <button class="back" data-back="list">‹ Cancel</button>
-      <h2 class="step-title">9. Enter 4-Digit Pickup PIN</h2>
-      <p class="step-sub">PIN is the last 4 digits of Order ID: <b>${esc(o.id.slice(0, -4))}</b><span style="color:var(--kraft);font-weight:800;font-size:16px">${esc(o.pin)}</span></p>
-      <div class="pin-entry ${cls}" id="pinEntry" aria-label="PIN Entry">
-        ${[0,1,2,3].map(i => `<span class="${this.pin[i] ? 'filled' : ''}">${this.pin[i] ? (this.msgKind === 'ok' ? this.pin[i] : '•') : ''}</span>`).join('')}
-      </div>
-      <div class="msg ${this.msgKind}" role="status">${esc(locked ? `Too many wrong attempts. Locked for ${Math.ceil((o.lockedUntil - Date.now())/1000)}s.` : this.msg)}</div>
-      <div class="keypad">
-        ${['1','2','3','4','5','6','7','8','9','clear','0','del'].map(k => `<button data-k="${k}" class="${k.length > 1 ? 'fn' : ''}" ${locked ? 'disabled' : ''}>${k === 'del' ? '⌫' : k === 'clear' ? 'Clear' : k}</button>`).join('')}
-      </div>
-      <button class="btn btn-primary btn-lg" id="verify" ${this.pin.length < 4 || locked ? 'disabled' : ''}>10. Verify PIN & Unlock Box</button>`;
+      <button class="back" data-back="list">‹ Your parcels</button>
+      <h2 class="step-title">Enter your 4-digit PIN</h2>
+      <p class="step-sub">It's the last 4 digits of order ${esc(o.id.slice(0, -4))}<b>····</b></p>
+      <div class="pin-entry ${cls}" id="pinEntry" aria-label="PIN entry">${[0,1,2,3].map(i => `<span class="${this.pin[i] ? 'filled' : ''}">${this.pin[i] ? (this.msgKind === 'ok' ? this.pin[i] : '•') : ''}</span>`).join('')}</div>
+      <div class="msg ${this.msgKind}" role="status">${esc(locked ? `Too many wrong PINs. Try again in ${Math.ceil((o.lockedUntil - Date.now()) / 1000)} seconds.` : this.msg)}</div>
+      <div class="keypad">${['1','2','3','4','5','6','7','8','9','clear','0','del'].map(k => `<button data-k="${k}" class="${k.length > 1 ? 'fn' : ''}" ${locked ? 'disabled' : ''} aria-label="${k === 'del' ? 'Delete' : k === 'clear' ? 'Clear' : k}">${k === 'del' ? '⌫' : k === 'clear' ? 'Clear' : k}</button>`).join('')}</div>
+      <button class="btn btn-primary btn-lg" id="verify" ${this.pin.length < 4 || locked ? 'disabled' : ''}>Verify and open box</button>`;
   },
-  viewOpen() {
+  viewOpen(){
     const o = this.order(), b = boxById(o.boxId);
     return `
-      <div class="bigok" style="background:var(--lav);color:#fff"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg></div>
-      <h2 class="step-title">11. Box ${esc(b.no)} Unlocked!</h2>
-      <p class="step-sub">The servo motor has unlocked the door. Take your ${esc(o.courier)} parcel inside and close the door.</p>
-      <div class="receipt"><dl class="kv">
-        <dt>Order ID</dt><dd class="oid">${esc(o.id)}</dd>
-        <dt>Locker</dt><dd>${esc(b.name)}, ${esc(b.place)}</dd>
-        <dt>Servo Status</dt><dd style="color:var(--ok);font-weight:700">90° UNLOCKED</dd>
-      </dl></div>
-      <button class="btn btn-kraft btn-lg" id="taken">I’ve Taken My Parcel</button>`;
+      <div class="bigok" style="background:var(--lav);color:var(--lav-ink)"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg></div>
+      <h2 class="step-title">Box ${esc(b.no)} is open</h2>
+      <p class="step-sub">Take your ${esc(o.courier)} parcel and close the door. It locks again automatically.</p>
+      <div class="receipt"><dl class="kv"><dt>Order ID</dt><dd class="oid">${esc(o.id)}</dd><dt>Size</dt><dd>${esc(o.size)}</dd><dt>Dropped</dt><dd>${ago(o.createdAt)}</dd></dl></div>
+      <button class="btn btn-kraft btn-lg" id="taken">I’ve taken my parcel</button>`;
   },
-  viewTaken() {
-    const o = this.justCollected;
+  viewTaken(){
+    const o = this.justCollected, no = esc((boxById(o.boxId)||{}).no || o.boxId);
     return `
-      <div class="bigok"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="m5 12.5 4.5 4.5L19 7"/></svg></div>
-      <h2 class="step-title">12. Parcel Collected Successfully!</h2>
-      <p class="step-sub">Thank you! Have a nice day 👍. Box ${esc((boxById(o.boxId)||{}).no || '01')} is now locked and ready for the next drop.</p>
-      <button class="btn btn-primary btn-lg" id="backList">Back to Your Shelf</button>`;
+      <div class="bigok"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7"/></svg></div>
+      <h2 class="step-title">${o.viaKeypad ? `PIN correct, Box ${no} is open` : 'Parcel collected'}</h2>
+      <p class="step-sub">${o.viaKeypad
+        ? `Take your ${esc(o.courier)} parcel. The box locks again by itself in a few seconds. Order ${esc(o.id)} is marked collected.`
+        : `Order ${esc(o.id)} is marked collected and Box ${no} is free for the next delivery.`}</p>
+      <button class="btn btn-primary btn-lg" id="backList">Back to your parcels</button>`;
   },
-  press(k) {
-    const o = this.order(); if (!o || (o.lockedUntil && o.lockedUntil > Date.now())) return;
+  press(k){
+    const o = this.order(); if (!o || isReal(o.boxId) || (o.lockedUntil && o.lockedUntil > Date.now())) return;
     Sound.keypadClick();
     if (this.msgKind) { this.msg = ''; this.msgKind = ''; }
     if (k === 'del') this.pin = this.pin.slice(0, -1);
     else if (k === 'clear') this.pin = '';
     else if (this.pin.length < 4) this.pin += k;
     this.render();
-    if (this.pin.length === 4) {
-      setTimeout(() => { const v = $('#verify'); if (v && !v.disabled) v.focus(); }, 50);
-    }
+    if (this.pin.length === 4) setTimeout(() => { const v = $('#verify'); if (v && !v.disabled) v.focus(); }, 0);
   },
-  bind() {
+  bind(){
     const body = $('#collectBody');
     body.querySelectorAll('[data-order]').forEach(b => b.onclick = () => { this.orderId = b.dataset.order; this.phase = 'scan'; this.render(); });
     body.querySelectorAll('[data-back]').forEach(b => b.onclick = () => { this.phase = 'list'; this.orderId = null; this.pin = ''; this.msg = ''; this.msgKind = ''; this.render(); });
     const sd = $('#seedC'); if (sd) sd.onclick = async () => { await seedDemo(); this.render(); };
-
     if (this.phase === 'scan') {
-      const o = this.order(); drawQR($('#scanQR'), 'campusdrop:' + o.boxId);
+      const o = this.order();
+      const cv = $('#collectScanQR');
+      if (cv) drawQR(cv, 'campusdrop:' + o.boxId);
       $('#doScan').onclick = async () => {
-        const s = $('#scanner'), btn = $('#doScan'); btn.disabled = true; btn.textContent = 'Verifying Box...';
+        const s = $('#collectScanner'), btn = $('#doScan'); btn.disabled = true; btn.textContent = 'Scanning';
         s.classList.add('scanning'); Sound.keypadClick();
-        await sleep(1000); s.classList.remove('scanning'); s.classList.add('ok');
+        await sleep(1200); s.classList.remove('scanning'); s.classList.add('ok');
         Sound.success();
         Hardware.push({ t:Date.now(), dir:'in', boxId:o.boxId, action:'qr.scanned', payload:{ by:this.studentId } });
-        await sleep(500); this.phase = 'pin'; this.pin = ''; this.render();
+        await sleep(600); this.phase = 'pin'; this.pin = ''; this.render();
       };
     }
-    if (this.phase === 'pin') {
+    if (this.phase === 'pin' && isReal(this.order().boxId)) {
+      const o = this.order();
+      clearTimeout(this.lockTimer);
+      if (o.lockedUntil && o.lockedUntil > Store.now()) this.lockTimer = setTimeout(() => { if (this.phase === 'pin') this.render(); }, 1000);
+    }
+    else if (this.phase === 'pin') {
       body.querySelectorAll('[data-k]').forEach(b => b.onclick = () => this.press(b.dataset.k));
       const o = this.order();
-      if (o.lockedUntil && o.lockedUntil > Date.now()) {
-        clearTimeout(this.lockTimer);
-        this.lockTimer = setTimeout(() => { if (this.phase === 'pin') this.render(); }, 1000);
-      }
+      if (o.lockedUntil && o.lockedUntil > Date.now()) { clearTimeout(this.lockTimer); this.lockTimer = setTimeout(() => { if (this.phase === 'pin') this.render(); }, 1000); }
       $('#verify').onclick = async () => {
-        const v = $('#verify'); v.disabled = true; v.textContent = 'Verifying PIN...';
-        const res = await Store.verifyPin(o.id, this.pin);
-        if (res.success) {
+        const v = $('#verify'); v.disabled = true; v.textContent = 'Verifying';
+        await sleep(500);
+        if (this.pin === o.pin) {
           Sound.success();
-          this.msg = 'PIN Correct! Unlocking Box...'; this.msgKind = 'ok'; this.render();
-          await sleep(600);
-          this.phase = 'open'; this.render();
+          this.msg = 'PIN correct. Unlocking the box.'; this.msgKind = 'ok'; this.render();
+          $('#verify').disabled = true; $('#verify').textContent = 'Unlocking';
+          await Hardware.send(o.boxId, 'servo.unlock', { order:o.id, reason:'pin_verified' });
+          this.phase = 'open'; this.msg = ''; this.msgKind = ''; this.render();
         } else {
-          Sound.errorBuzz();
-          this.pin = '';
-          this.msg = res.locked ? `Too many wrong PIN attempts. Box locked for ${res.waitSec}s.` : 'Incorrect PIN. Last 4 digits of Order ID.';
-          this.msgKind = 'bad';
-          this.render();
+          const attempts = (o.attempts || 0) + 1;
+          const patch = { attempts };
+          if (attempts % 5 === 0) patch.lockedUntil = Date.now() + 30000;
+          Hardware.push({ t:Date.now(), dir:'in', boxId:o.boxId, action:'pin.rejected', payload:{ attempts } });
+          this.pin = ''; this.msg = attempts % 5 === 0 ? '' : `That PIN doesn't match. ${5 - (attempts % 5)} tries left before a short lock.`; this.msgKind = 'bad';
+          await Store.update(o.id, patch); this.render();
         }
       };
     }
     if (this.phase === 'open') {
       $('#taken').onclick = async () => {
-        const o = this.order(), btn = $('#taken'); btn.disabled = true; btn.textContent = 'Locking Box...';
+        const o = this.order(), btn = $('#taken'); btn.disabled = true; btn.textContent = 'Locking the box';
         this.justCollected = { ...o };
-        Sound.servoHum();
-        await sleep(700);
+        if (this.unit) { this.unit.pInT = 0; }
+        await sleep(800);
         this.phase = 'taken'; this.sync3d();
-        await Store.collectOrder(o.id);
-        Sound.success();
-        toast('Parcel Collected', `Order #${o.id} completed. Have a nice day!`, 'ok');
+        Hardware.sensor(o.boxId, false);
+        await Hardware.send(o.boxId, 'servo.lock', {});
+        await Store.update(o.id, { status:'collected', collectedAt:Date.now() });
         this.orderId = null; this.render();
+        Sound.success();
+        toast('Parcel collected', `Order ${o.id} is complete. Box ${boxById(o.boxId).no} is free again.`, 'ok');
       };
     }
-    if (this.phase === 'taken') {
-      $('#backList').onclick = () => { this.phase = 'list'; this.render(); };
-    }
+    if (this.phase === 'taken') $('#backList').onclick = () => { this.phase = 'list'; this.render(); };
   }
 };
 
 /* ==========================================================================
-   4. IoT Hardware Bench & Simulator
+   Router + Theme + Boot
    ========================================================================== */
-const HwBench = {
-  boxId: 'B01', servoAngle: 0, parcelPresent: false, keypadBuffer: '',
-  init() {
-    $('#hwManualUnlock').onclick = async () => {
-      await Hardware.send(this.boxId, 'servo.unlock', { reason:'hw_bench_override' });
-      this.setServo(90);
-    };
-    $('#hwManualLock').onclick = async () => {
-      await Hardware.send(this.boxId, 'servo.lock', { reason:'hw_bench_override' });
-      this.setServo(0);
-    };
-    $('#hwTriggerSensor').onclick = () => {
-      this.parcelPresent = true;
-      Hardware.sensor(this.boxId, true);
-      this.updateSensorUi();
-      toast('IR Sensor Triggered', 'Parcel presence confirmed by sensor (< 15cm).', 'ok');
-    };
-    $('#hwClearSensor').onclick = () => {
-      this.parcelPresent = false;
-      Hardware.sensor(this.boxId, false);
-      this.updateSensorUi();
-      toast('IR Sensor Cleared', 'Box compartment is empty (> 25cm).', 'ok');
-    };
-    $$('.hw-k').forEach(b => b.onclick = () => this.pressKeypad(b.dataset.k));
-  },
-  setServo(deg) {
-    this.servoAngle = deg;
-    const dial = $('#gaugeDial');
-    if (dial) {
-      dial.textContent = deg + '°';
-      dial.style.borderColor = deg > 0 ? '#63E6A5' : '#6E55F5';
-      dial.style.color = deg > 0 ? '#63E6A5' : '#B3A1FF';
-    }
-    $('#servoStateText').textContent = deg > 0 ? 'UNLOCKED (90°)' : 'LOCKED (0°)';
-    $('#servoStateText').style.color = deg > 0 ? 'var(--ok)' : '#ECEAFB';
-    this.updateOled();
-  },
-  updateSensorUi() {
-    const txt = $('#sensorStateText'), dist = $('#sensorDistText');
-    if (txt) {
-      txt.textContent = this.parcelPresent ? 'PARCEL DETECTED' : 'EMPTY (No parcel)';
-      txt.style.color = this.parcelPresent ? 'var(--kraft)' : 'var(--ok)';
-      dist.textContent = this.parcelPresent ? 'Distance: 9.8 cm (Object present)' : 'Distance: > 28 cm';
-    }
-    this.updateOled();
-  },
-  pressKeypad(k) {
-    Sound.keypadClick();
-    if (k === '#') {
-      if (this.keypadBuffer.length >= 4) {
-        this.verifyPhysicalKeypad(this.keypadBuffer);
-      }
-      this.keypadBuffer = '';
-    } else if (k === '*') {
-      this.keypadBuffer = '';
-      this.updateOled();
-    } else if (isDigit(k) && this.keypadBuffer.length < 4) {
-      this.keypadBuffer += k;
-      this.updateOled();
-    }
-  },
-  async verifyPhysicalKeypad(pin) {
-    const o = Store.awaitingIn(this.boxId);
-    if (!o) {
-      $('#oledLine2').textContent = 'NO ORDER IN BOX';
-      Sound.errorBuzz();
-      await sleep(1500); this.updateOled(); return;
-    }
-    const res = await Store.verifyPin(o.id, pin);
-    if (res.success) {
-      $('#oledLine2').textContent = 'PIN OK! UNLOCKED';
-      Sound.success();
-      this.setServo(90);
-    } else {
-      $('#oledLine2').textContent = 'INVALID PIN!';
-      Sound.errorBuzz();
-      await sleep(1500); this.updateOled();
-    }
-  },
-  updateOled() {
-    const b = boxById(this.boxId) || Store.boxes[0];
-    const o = Store.awaitingIn(this.boxId);
-    $('#oledLine1').textContent = `CampusDrop Box #${b.no}`;
-    if (this.keypadBuffer) {
-      $('#oledLine2').textContent = `PIN: ${'•'.repeat(this.keypadBuffer.length)}`;
-      $('#oledLine3').textContent = 'Press # to Enter';
-    } else if (this.servoAngle > 0) {
-      $('#oledLine2').textContent = 'STATUS: UNLOCKED';
-      $('#oledLine3').textContent = 'Door Open (90 deg)';
-    } else if (this.parcelPresent || o) {
-      $('#oledLine2').textContent = 'STATUS: PARCEL INSIDE';
-      $('#oledLine3').textContent = 'Waiting for student PIN';
-    } else {
-      $('#oledLine2').textContent = 'STATUS: READY';
-      $('#oledLine3').textContent = 'Scan QR to Deliver';
-    }
-  },
-  syncFromCommand(cmd) {
-    if (cmd.angle !== undefined) this.setServo(cmd.angle);
-    else if (cmd.action === 'SERVO_UNLOCK') this.setServo(90);
-    else if (cmd.action === 'SERVO_LOCK') this.setServo(0);
-  }
-};
-const isDigit = c => /^\d$/.test(c);
-
-/* ---------- Seed Helper ---------- */
-async function seedDemo() {
-  const free = Store.boxes.filter(b => b.online && !Store.awaitingIn(b.id));
-  if (!free.length) { toast('All boxes full', 'No free online lockers available.', 'warn'); return; }
-  const picks = [[Store.students[0], 'Amazon', 'Medium'], [Store.students[1], 'Flipkart', 'Small']];
-  for (let i = 0; i < picks.length && i < free.length; i++) {
-    const [st, courier, size] = picks[i];
-    const id = String(402900000000 + Math.floor(Math.random() * 9999999) * 10 + 12);
-    await Store.addOrder({ orderId: id, boxId: free[i].id, studentId: st.id, courier, size });
-  }
-  toast('Demo Parcels Added', 'Orders registered for Aarav and Diya.', 'ok');
-}
-
-/* ==========================================================================
-   Router, Theme & Initialization
-   ========================================================================== */
-function route() {
+function route(){
   const r = (location.hash.replace('#/', '') || 'dashboard');
-  const valid = ['dashboard', 'deliver', 'collect', 'hardware'];
-  const name = valid.includes(r) ? r : 'dashboard';
-
+  const name = ['dashboard','deliver','collect'].includes(r) ? r : 'dashboard';
   $$('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + name));
   $$('.nav a').forEach(a => a.dataset.route === name ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'));
-  $$('.role-tab').forEach(b => b.setAttribute('aria-selected', b.dataset.target === name));
-
   requestAnimationFrame(() => Scenes.forEach(s => s.resize()));
-  window.scrollTo({ top: 0 });
+  window.scrollTo({ top:0 });
 }
 
-function renderAll() {
+function renderAll(){
+  const live = Store.mode === 'live' && Store.connected;
+  $$('[data-sync]').forEach(el => {
+    el.classList.toggle('live', live);
+    const txt = el.querySelector('span');
+    if (txt) txt.textContent = live ? 'Live sync via Firebase' : Store.mode === 'live' ? 'Reconnecting to Firebase…' : 'This device only';
+  });
+  const hw = $('#hwMode');
+  if (hw) hw.innerHTML = `<span class="dot"></span>${Store.mode === 'live' ? 'Box 01 live, others simulated' : 'Simulated hardware'}`;
   Dashboard.render();
-  if (Deliver.step !== 3 || !Deliver.busy) Deliver.render();
-  if (Collect.phase === 'list' || Collect.phase === 'taken') Collect.render();
+  // Step 2 is a form; re-rendering it on every heartbeat would steal focus while typing.
+  if (Deliver.step !== 2 && (Deliver.step !== 3 || !Deliver.busy)) Deliver.render();
+  const collectLivePin = Collect.phase === 'pin' && Collect.order() && isReal(Collect.order().boxId);
+  if (Collect.phase === 'list' || Collect.phase === 'taken' || collectLivePin) Collect.render();
   else {
     Collect.sync3d();
     const n = Collect.mine().length;
@@ -2234,16 +1680,13 @@ function applyTheme(theme) {
   localStorage.setItem('campusdrop.theme.v2', theme);
   localStorage.setItem('campusdrop.theme', theme);
   const isDark = theme === 'dark';
-  const label = $('#topThemeLabel');
-  const icon = $('#topThemeIcon');
-  if (label) label.textContent = isDark ? 'Dark Mode' : 'Light Mode';
-  if (icon) icon.textContent = isDark ? '🌙' : '☀️';
-  const railBtn = $('#themeToggle');
-  if (railBtn) railBtn.title = isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+  const topBtn = $('#topThemeBtn');
+  if (topBtn) topBtn.textContent = isDark ? '🌙 Dark Mode' : '☀️ Light Mode';
+  const railBtn = $('#railThemeBtn');
+  if (railBtn) railBtn.textContent = isDark ? '🌙' : '☀️';
 }
 
 function initTheme() {
-  // Guarantee clean white/light aesthetic by default
   let saved = localStorage.getItem('campusdrop.theme.v2');
   if (!saved) {
     saved = 'light';
@@ -2256,33 +1699,32 @@ function initTheme() {
     const cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
     applyTheme(cur);
   };
-
-  const b1 = $('#themeToggle'); if (b1) b1.onclick = toggle;
-  const b2 = $('#topThemeToggle'); if (b2) b2.onclick = toggle;
+  const b1 = $('#railThemeBtn'); if (b1) b1.onclick = toggle;
+  const b2 = $('#topThemeBtn'); if (b2) b2.onclick = toggle;
 }
 
-function boot() {
+function boot(){
   initTheme();
-  Dashboard.init(); Deliver.init(); Collect.init(); HwBench.init();
+  Dashboard.init(); Deliver.init(); Collect.init();
   Store.on(renderAll);
-
   window.addEventListener('hashchange', route);
   if (!location.hash) history.replaceState(null, '', '#/dashboard');
-
-  $$('.role-tab').forEach(b => b.onclick = () => { location.hash = '#/' + b.dataset.target; });
   $('#logoBtn').onclick = () => { location.hash = '#/dashboard'; };
-  $('#quickSeed').onclick = () => seedDemo();
-
   route();
   renderAll();
   Store.init();
   requestAnimationFrame(loop);
-
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(() => Scenes.forEach(s => s.units.forEach(u => u.setBox(u.box))));
-  }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => {
+    Scenes.forEach(s => s.units.forEach(u => u.setBox(u.box)));
+  });
+  setInterval(() => { if (location.hash === '#/dashboard') { Dashboard.renderOrders(); Dashboard.renderDetail(); } }, 30000);
+  // A box that stops sending heartbeats produces no data change, so check for it on a timer.
+  let onlineWas = '';
+  setInterval(() => {
+    const now = BOXES.map(b => boxOnline(b) ? 1 : 0).join('');
+    if (now !== onlineWas) { onlineWas = now; Store.emit(); }
+  }, 5000);
 }
-
 boot();
 </script>
 </body>

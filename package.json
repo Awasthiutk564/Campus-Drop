@@ -1,25 +1,25 @@
 {
   "name": "campus-drop",
   "version": "1.0.0",
-  "description": "Smart Campus Delivery Box - Full Web App and IoT Hardware Integration",
+  "description": "Smart Campus Delivery Box - web app (Firebase) and ESP8266 + Arduino UNO firmware",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "test": "node test/api_test.js"
+    "start": "node server.js"
   },
   "keywords": [
     "iot",
     "smart-box",
     "campus-delivery",
-    "esp32",
+    "esp8266",
+    "arduino",
+    "firebase",
     "servo",
     "parcel-locker"
   ],
   "author": "CampusDrop Team",
   "license": "MIT",
   "dependencies": {
-    "cors": "^2.8.5",
     "express": "^4.19.2",
-    "ws": "^8.17.0"
+    "firebase": "^12.19.0"
   }
 }

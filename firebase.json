@@ -1,0 +1,22 @@
+{
+  "database": {
+    "rules": "database.rules.json"
+  },
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "database.rules.json",
+      "**/.*",
+      "node_modules/**",
+      "firmware/**",
+      "data/**",
+      "test/**",
+      "server.js",
+      "package.json",
+      "package-lock.json",
+      "README.md",
+      "image.png"
+    ]
+  }
+}
