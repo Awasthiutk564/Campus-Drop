@@ -30,7 +30,7 @@ Boxes 02–06 on the website are simulated.
 > **Changed from the first build:** swap the **R1** and **C4** wires.
 > D0 (GPIO16) has no internal pull-up resistor, and the keypad library needs one on every
 > **row** pin, so row 1 (keys 1 2 3 A) never reads on D0. Column pins don't need a pull-up,
-> so C4 works fine on D0.
+> so C4 works fine on D0. 
 
 ```
 4×4 KEYPAD              ESP8266

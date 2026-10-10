@@ -1,0 +1,16 @@
+# Dependencies (reinstall with `npm install`)
+node_modules/
+
+# Local editor / tool settings
+.claude/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Firebase CLI cache
+.firebase/
+firebase-debug.log
+
+# Local documents not kept in the repo
+CampusDrop_Project_Report.docx
+~$*.docx
