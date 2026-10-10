@@ -19,7 +19,6 @@
   "author": "CampusDrop Team",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.19.2",
-    "firebase": "^12.19.0"
+    "express": "^4.19.2"
   }
 }
