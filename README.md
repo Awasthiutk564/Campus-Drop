@@ -82,9 +82,7 @@ See [`firmware/HARDWARE_GUIDE.md`](firmware/HARDWARE_GUIDE.md) for full wiring, 
 | HC-SR04 ultrasonic | UNO | TRIG D7, ECHO D6 |
 | 16×2 I2C LCD | UNO | SDA A4, SCL A5 |
 | UNO ↔ ESP8266 serial | both | UNO TX → 1k/2k divider → ESP RX, ESP TX → UNO RX, common GND |
-
----
-
+----
 ## 🗄️ Firebase Data
 
 | Path | Written by | Contents |
