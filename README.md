@@ -93,3 +93,4 @@ See [`firmware/HARDWARE_GUIDE.md`](firmware/HARDWARE_GUIDE.md) for full wiring, 
 | `boxes/B01` | ESP8266, website | `lastSeen` heartbeat, `locked`, `servoAngle`, `parcelPresent`, `distanceCm`, `keypad` (digits typed so far), `currentOrder` |
 | `boxes/B01/command` | website | `{ action: "unlock" \| "lock", id }`. The ESP8266 runs it and writes `commandAck = id` |
 | `events/{id}` | website, ESP8266 | device log shown on the dashboard |
+Live Webapp:- https://campus-drop-zeta.vercel.app/ 
