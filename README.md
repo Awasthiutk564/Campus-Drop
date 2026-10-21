@@ -21,12 +21,7 @@ An IoT-powered smart locker parcel delivery and pickup platform designed for uni
 - **Two modes**:
   - **Firebase mode**: when `firebase-config.js` is filled in, orders, box state and device events sync live through **Firebase Realtime Database** across all devices and the real box.
   - **This device only**: with no Firebase config, everything runs in the browser (`localStorage`) and all six boxes are simulated.
-
----
-
 ## 📁 Project Structure
-
-```
 campus drop/
 ├── index.html                       # Web app (all portals & 3D visualizer)
 ├── firebase-config.js               # Your Firebase web config (fill this in)
