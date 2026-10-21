@@ -1,10 +1,9 @@
 # CampusDrop — Smart Campus Delivery Box System
 
-An IoT-powered smart locker parcel delivery and pickup platform designed for university campuses and colleges. Built to streamline parcel logistics: **Drop &rarr; Notify &rarr; Verify &rarr; Collect**.
+An IoT-powered smart locker parcel delivery and pickup platform designed for university campuses and colleges. Built to streamline parcel logistics:
 
 ![CampusDrop System Flowchart](image.png)
 
----
 
 ## 🚀 Key Features
 
