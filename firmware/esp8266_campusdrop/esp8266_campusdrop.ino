@@ -42,7 +42,7 @@ const char *WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
 // Realtime Database host from the Firebase console, without https:// and
 // without a trailing slash.
 const char *FIREBASE_HOST =
-    "YOUR_PROJECT_ID-default-rtdb.asia-southeast1.firebasedatabase.app";
+    "campusdrop-312a5-default-rtdb.asia-southeast1.firebasedatabase.app";
 // Optional: a database secret (Project settings → Service accounts → Database
 // secrets). Leave empty while the database rules allow open access.
 const char *FIREBASE_AUTH = "";
