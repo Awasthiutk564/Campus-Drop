@@ -37,8 +37,8 @@
 #include <time.h>
 
 // ================= Settings =================
-const char *WIFI_SSID = "YOUR_WIFI_SSID";
-const char *WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
+const char *WIFI_SSID = "Wifi ssdi";
+const char *WIFI_PASSWORD = "password";
 // Realtime Database host from the Firebase console, without https:// and
 // without a trailing slash.
 const char *FIREBASE_HOST =
