@@ -115,8 +115,6 @@ Then install:
    - `WIFI_SSID`, `WIFI_PASSWORD` (the ESP8266 needs **2.4 GHz** WiFi)
    - `FIREBASE_HOST`: your Realtime Database URL **without** `https://` and without the trailing `/`,
      e.g. `campusdrop-1234-default-rtdb.asia-southeast1.firebasedatabase.app`
-   - `FIREBASE_AUTH`: a database secret from **Project settings → Service accounts → Database secrets**.
-     The database rules only let signed-in website users in, so without this the box gets `401` errors.
 3. Select *NodeMCU 1.0 (ESP-12E Module)* and upload.
 
 ### Calibrating the parcel sensor

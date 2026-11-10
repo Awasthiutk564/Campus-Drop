@@ -42,10 +42,9 @@ const char *WIFI_PASSWORD = "awutk@564";
 // Realtime Database host from the Firebase console, without https:// and
 // without a trailing slash.
 const char *FIREBASE_HOST =
-    "campusdrop-312a5-default-rtdb.asia-southeast1.firebasedatabase.app";
-// Required: a database secret (Project settings → Service accounts → Database
-// secrets). The rules in database.rules.json only admit signed-in website users,
-// so the box authenticates with this secret instead. Keep it private.
+    "campusdrop-80526-default-rtdb.firebaseio.com";
+// Optional: a database secret (Project settings → Service accounts → Database
+// secrets). Leave empty while the database rules allow open access.
 const char *FIREBASE_AUTH = "";
 const char *BOX_ID = "B01";
 

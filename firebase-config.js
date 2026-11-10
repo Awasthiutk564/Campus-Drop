@@ -8,20 +8,12 @@
 
   While databaseURL still contains "YOUR_", the website runs in "This device only" mode
   (browser storage + fully simulated boxes).
+
+  The website only uses the Realtime Database, so databaseURL and projectId are all it needs.
+  The other web-app values (apiKey, appId, ...) are optional; add them from the console if you
+  later turn on Authentication or other Firebase services.
 */
 window.CAMPUSDROP_FIREBASE = {
-  apiKey: "AIzaSyCaryvlPfIv-5DU0TL7tCZ0cu6Hpu2n9h4",
-  authDomain: "campusdrop-312a5.firebaseapp.com",
-  // Disable Firebase temporarily: the app uses its local, no-account demo mode
-  // while the database authentication setup is being sorted out.
-  databaseURL: "YOUR_DATABASE_URL",
-  projectId: "campusdrop-312a5",
-  storageBucket: "campusdrop-312a5.firebasestorage.app",
-  messagingSenderId: "1006083398375",
-  appId: "1:1006083398375:web:b8e83c88aa1a561787a042"
+  databaseURL: "https://campusdrop-80526-default-rtdb.firebaseio.com",
+  projectId: "campusdrop-80526"
 };
-
-
-// App Check: paste the reCAPTCHA Enterprise site key (Google Cloud console → Security → reCAPTCHA).
-// Leave as-is to keep App Check off.
-window.CAMPUSDROP_APPCHECK_SITE_KEY = "";
