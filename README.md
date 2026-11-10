@@ -4,6 +4,7 @@ An IoT-powered smart locker parcel delivery and pickup platform designed for uni
 
 ![CampusDrop System Flowchart](image.png)
 
+**Live web app:** https://campus-drop-zeta.vercel.app/ (may change over time)
 
 ## 🚀 Key Features
 
@@ -17,19 +18,27 @@ An IoT-powered smart locker parcel delivery and pickup platform designed for uni
   - When a parcel is registered, every open copy of the website shows a phone-style notification banner with a chime. SMS will be added later.
 - **One real box, five simulated**:
   - **Box 01** is the physical box (ESP8266 + Arduino UNO). **Boxes 02–06** are simulated in the browser.
+  - In Firebase mode Box 01 shows **Online** only while the ESP8266 is sending its heartbeat (every 10 s, marked offline after 30 s without one). Until the hardware connects it shows **Offline** with "No heartbeat".
 - **Two modes**:
-  - **Firebase mode**: when `firebase-config.js` is filled in, orders, box state and device events sync live through **Firebase Realtime Database** across all devices and the real box.
-  - **This device only**: with no Firebase config, everything runs in the browser (`localStorage`) and all six boxes are simulated.
+  - **Firebase mode**: when `firebase-config.js` has a real `databaseURL`, orders, box state and device events sync live through **Firebase Realtime Database** across all devices and the real box. The page header shows **Live / Firebase**.
+  - **This device only**: with no Firebase config (`databaseURL` empty or containing `YOUR_`), everything runs in the browser (`localStorage`) and all six boxes are simulated, so Box 01 always looks online.
+
 ## 📁 Project Structure
+
+```
 campus drop/
 ├── index.html                       # Web app (all portals & 3D visualizer)
-├── firebase-config.js               # Your Firebase web config (fill this in)
+├── firebase-config.js               # Firebase web config (databaseURL + projectId)
 ├── database.rules.json              # Realtime Database rules
 ├── firebase.json                    # Firebase Hosting + database config
 ├── server.js                        # Small local web server (npm start)
 ├── image.png                        # System flowchart
+├── report-figures/                  # Figures used in the project report
 └── firmware/
     ├── esp8266_campusdrop/          # ESP8266: WiFi, Firebase, keypad
+    │   ├── esp8266_campusdrop.ino
+    │   ├── secrets.example.h        # Template for your WiFi login
+    │   └── secrets.h                # Your WiFi login (git-ignored, you create it)
     ├── uno_campusdrop/              # Arduino UNO: servo, HC-SR04, 16x2 I2C LCD
     └── HARDWARE_GUIDE.md            # Wiring, flashing, calibration, troubleshooting
 ```
@@ -38,13 +47,22 @@ campus drop/
 
 ## 🔥 Firebase Setup (one time)
 
-1. Go to [console.firebase.google.com](https://console.firebase.google.com) and create a project.
-2. **Build → Realtime Database → Create database** (pick the location closest to you, e.g. Singapore, start in *test mode*).
-3. In the database's **Rules** tab, paste the contents of `database.rules.json` and publish.
-4. **Project settings → General → Your apps → Add app → Web**. Copy the `firebaseConfig` values into `firebase-config.js`.
-5. Put the same database host (without `https://`) into `FIREBASE_HOST` in `firmware/esp8266_campusdrop/esp8266_campusdrop.ino`.
+The site only uses the **Realtime Database**. It needs no sign-in, Authentication, App Check or service account.
 
-> ⚠️ The included rules allow anyone with the database URL to read and write. That's fine for a prototype demo, but lock them down before real use.
+1. Go to [console.firebase.google.com](https://console.firebase.google.com) and create a project.
+2. **Build → Realtime Database → Create database** (pick the location closest to you, e.g. Singapore).
+3. In the database's **Rules** tab, paste the contents of `database.rules.json` and publish. Do not rely on "test mode": it stops working after 30 days.
+4. Copy the **database URL** from the top of the Data tab (e.g. `https://<project>-default-rtdb.<region>.firebasedatabase.app`) and your project ID into `firebase-config.js`:
+   ```js
+   window.CAMPUSDROP_FIREBASE = {
+     databaseURL: "https://<project>-default-rtdb.<region>.firebasedatabase.app",
+     projectId: "<project>"
+   };
+   ```
+   The other web-app values (`apiKey`, `appId`, …) are optional and only needed if you later add Firebase Authentication or other services.
+5. Put the same database host (without `https://` and without a trailing `/`) into `FIREBASE_HOST` in `firmware/esp8266_campusdrop/esp8266_campusdrop.ino`, then re-flash the ESP8266.
+
+> ⚠️ The included rules allow anyone with the database URL to read and write, and the URL is public in `firebase-config.js`. That's fine for a prototype demo, but lock the database down before real use. The pickup PIN (last 4 digits of the order ID) is also easy to guess.
 
 ---
 
@@ -55,9 +73,12 @@ npm install
 npm start
 ```
 
-Open 👉 **`http://localhost:3000`**. The top of the page shows **Live sync via Firebase** when Firebase is connected, or **This device only** when it isn't.
+Open 👉 **`http://localhost:3000`**. The top of the page shows **Live / Firebase** when Firebase is connected, or **This device only** when it isn't.
 
-To put it online, install the Firebase CLI and deploy with Hosting:
+### Deploying
+
+The live site is hosted on **Vercel** (see the link at the top). `firebase.json` is also set up if you prefer Firebase Hosting:
+
 ```bash
 npx firebase-tools login
 npx firebase-tools deploy --only hosting,database
@@ -69,6 +90,8 @@ npx firebase-tools deploy --only hosting,database
 
 See [`firmware/HARDWARE_GUIDE.md`](firmware/HARDWARE_GUIDE.md) for full wiring, flashing, and calibration.
 
+Before flashing the ESP8266, copy `firmware/esp8266_campusdrop/secrets.example.h` to `secrets.h` in the same folder and enter your 2.4 GHz WiFi name and password. `secrets.h` is git-ignored, so your password is never committed.
+
 | Part | Board | Pins |
 |---|---|---|
 | 4×4 keypad | ESP8266 | Rows D1, D3, D4, D5 · Cols D6, D7, D8, D0 |
@@ -76,7 +99,9 @@ See [`firmware/HARDWARE_GUIDE.md`](firmware/HARDWARE_GUIDE.md) for full wiring, 
 | HC-SR04 ultrasonic | UNO | TRIG D7, ECHO D6 |
 | 16×2 I2C LCD | UNO | SDA A4, SCL A5 |
 | UNO ↔ ESP8266 serial | both | UNO TX → 1k/2k divider → ESP RX, ESP TX → UNO RX, common GND |
-----
+
+---
+
 ## 🗄️ Firebase Data
 
 | Path | Written by | Contents |
@@ -85,5 +110,3 @@ See [`firmware/HARDWARE_GUIDE.md`](firmware/HARDWARE_GUIDE.md) for full wiring, 
 | `boxes/B01` | ESP8266, website | `lastSeen` heartbeat, `locked`, `servoAngle`, `parcelPresent`, `distanceCm`, `keypad` (digits typed so far), `currentOrder` |
 | `boxes/B01/command` | website | `{ action: "unlock" \| "lock", id }`. The ESP8266 runs it and writes `commandAck = id` |
 | `events/{id}` | website, ESP8266 | device log shown on the dashboard |
-Live Webapp:- https://campus-drop-zeta.vercel.app/ 
-(The website is subject to be changed as per the time changes)
