@@ -37,8 +37,8 @@ campus drop/
 └── firmware/
     ├── esp8266_campusdrop/          # ESP8266: WiFi, Firebase, keypad
     │   ├── esp8266_campusdrop.ino
-    │   ├── secrets.example.h        # Template for your WiFi login
-    │   └── secrets.h                # Your WiFi login (git-ignored, you create it)
+    │   ├── secrets.example.h        # Template for the setup + update passwords
+    │   └── secrets.h                # Your passwords (git-ignored, you create it)
     ├── uno_campusdrop/              # Arduino UNO: servo, HC-SR04, 16x2 I2C LCD
     └── HARDWARE_GUIDE.md            # Wiring, flashing, calibration, troubleshooting
 ```
@@ -108,7 +108,9 @@ npx firebase-tools deploy --only hosting,database
 
 See [`firmware/HARDWARE_GUIDE.md`](firmware/HARDWARE_GUIDE.md) for full wiring, flashing, and calibration.
 
-Before flashing the ESP8266, copy `firmware/esp8266_campusdrop/secrets.example.h` to `secrets.h` in the same folder and enter your 2.4 GHz WiFi name and password. `secrets.h` is git-ignored, so your password is never committed.
+Before the first upload to the ESP8266, copy `firmware/esp8266_campusdrop/secrets.example.h` to `secrets.h` in the same folder and choose two passwords (for the box's WiFi setup network and for wireless updates). `secrets.h` is git-ignored, so they are never committed.
+
+There is no WiFi login in the code: the box remembers its network, and when it can't join one it opens a **CampusDrop-Setup** network where you pick the WiFi from your phone. After the first USB upload, later firmware updates to the ESP8266 can be sent over WiFi (OTA). Both are explained in the hardware guide.
 
 | Part | Board | Pins |
 |---|---|---|

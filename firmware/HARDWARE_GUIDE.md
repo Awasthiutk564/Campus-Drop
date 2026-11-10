@@ -108,15 +108,35 @@ https://arduino.esp8266.com/stable/package_esp8266com_index.json
 ```
 Then install:
 - **Boards Manager:** `esp8266` by ESP8266 Community (board: *NodeMCU 1.0 (ESP-12E Module)*). The *Arduino AVR Boards* package is already there for the UNO.
-- **Library Manager:** `Keypad` by Mark Stanley, `ArduinoJson` by Benoit Blanchon (v7), `LiquidCrystal I2C` by Frank de Brabander. `Servo` is built in.
+- **Library Manager:** `Keypad` by Mark Stanley, `ArduinoJson` by Benoit Blanchon (v7), `WiFiManager` by tzapu (tablatronix), `LiquidCrystal I2C` by Frank de Brabander. `Servo` and `ArduinoOTA` are built in.
 
 1. Open `uno_campusdrop/uno_campusdrop.ino`, select *Arduino Uno*, and upload.
-2. In the `esp8266_campusdrop` folder, copy `secrets.example.h` to `secrets.h` and put your WiFi login in it
-   (`WIFI_SSID`, `WIFI_PASSWORD`; the ESP8266 needs **2.4 GHz** WiFi). `secrets.h` is ignored by git, so the password
-   never gets committed. Then open `esp8266_campusdrop/esp8266_campusdrop.ino` and fill in:
+2. In the `esp8266_campusdrop` folder, copy `secrets.example.h` to `secrets.h` and choose two passwords
+   (`SETUP_AP_PASSWORD`, 8+ characters, for the box's WiFi setup network, and `OTA_PASSWORD` for wireless uploads).
+   `secrets.h` is ignored by git, so they never get committed. Then open `esp8266_campusdrop/esp8266_campusdrop.ino` and fill in:
    - `FIREBASE_HOST`: your Realtime Database URL **without** `https://` and without the trailing `/`,
      e.g. `campusdrop-1234-default-rtdb.asia-southeast1.firebasedatabase.app`
-3. Select *NodeMCU 1.0 (ESP-12E Module)* and upload.
+3. Select *NodeMCU 1.0 (ESP-12E Module)*, unplug the UNO's wire from the ESP RX pin, and upload **by USB cable**.
+   This first upload is the only one that needs the cable.
+
+### Connecting the box to WiFi (no WiFi login in the code)
+The WiFi login is not stored in the sketch. The box remembers the last network it joined (kept in the ESP8266's flash,
+so an existing box should reconnect to its old network after this upgrade; if not, use the setup network). When it can't join any network, the LCD shows
+**Join this WiFi: CampusDrop-Setup** and the box opens that network:
+1. On a phone, join **CampusDrop-Setup** (password: `SETUP_AP_PASSWORD` from `secrets.h`).
+2. A page opens by itself (if not, go to `192.168.4.1`). Tap **Configure WiFi**, pick your **2.4 GHz** network, type its
+   password, and save. The box joins it and restarts its work; no re-flashing.
+
+This happens on a new box, after you change the WiFi password, or when the box has been offline for 3 minutes
+(it then reopens the setup network for 2 minutes at a time, and tries your WiFi again in between).
+
+### Updating the box over WiFi (OTA)
+After the first USB upload, later uploads don't need the cable. The box must be powered and on the same WiFi as your PC.
+1. In the Arduino IDE choose **Tools → Port → Network ports → `campusdrop-b01 at <ip>`**
+   (the IP is shown on the LCD for a moment after the box joins WiFi, and is stored in Firebase at `boxes/B01/ip`).
+2. Upload as usual and enter `OTA_PASSWORD` when asked. The LCD shows **Updating... Do not unplug** and the box restarts.
+3. If the network port doesn't appear, restart the IDE and check the PC and box are on the same network. Only the
+   ESP8266 can be updated this way; the UNO still needs its USB cable.
 
 ### Calibrating the parcel sensor
 With the box **empty and closed**, open the Serial Monitor on the ESP8266 at 9600 baud. Every
@@ -173,6 +193,8 @@ Lines starting with `#` are ESP8266 debug messages; the UNO ignores them.
 | "Box 01 didn't respond" when unlocking | Same as above. The website waits 10 s for the ESP8266 to confirm. |
 | Keys 1, 2, 3, A don't work | R1 is still on D0; see the wiring note above. |
 | ESP8266 won't start or upload | Unplug the UNO's wire from ESP RX, and don't press keys while it powers on. |
+| LCD says "Join this WiFi" | The box can't join its WiFi. Use the setup steps above (**CampusDrop-Setup**). If your hotspot was just off, turn it on: the box keeps retrying and reopens setup after 3 minutes offline. |
+| Wireless upload fails or the port is missing | Same network as the PC? Wrong `OTA_PASSWORD`? Otherwise upload once by USB cable. |
 | Servo moves but the UNO resets | Add a 470 µF capacitor, or give the servo its own 5 V supply. |
 | LCD blank | Adjust contrast; try `LCD_ADDRESS 0x3F`. |
 | Parcel never detected | Recalibrate `PARCEL_THRESHOLD_CM` (section 3). The sensor must point into the box. |
