@@ -747,7 +747,7 @@ const HISTORY = (() => {
 */
 const FIREBASE_SDK = 'https://www.gstatic.com/firebasejs/10.12.2';
 const Store = {
-  mode:'local', connected:false, gaveUp:false, orders:[], boxLive:{}, subs:new Set(), seen:new Set(), mine:new Set(),
+  mode:'local', connected:false, gaveUp:false, appCheckError:null, orders:[], boxLive:{}, subs:new Set(), seen:new Set(), mine:new Set(),
   fb:null, db:null, offset:0, loaded:false,
   KEY:'campusdrop.orders.v1',
   on(fn){ this.subs.add(fn); },
@@ -772,8 +772,18 @@ const Store = {
       const siteKey = window.CAMPUSDROP_APPCHECK_SITE_KEY;
       if (siteKey && !/YOUR_/.test(siteKey)) {
         try {
-          if (['localhost', '127.0.0.1'].includes(location.hostname)) self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
-          appCheck.initializeAppCheck(fbApp, { provider: new appCheck.ReCaptchaEnterpriseProvider(siteKey), isTokenAutoRefreshEnabled: true });
+          const local = ['localhost', '127.0.0.1'].includes(location.hostname);
+          if (local) self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+          const ac = appCheck.initializeAppCheck(fbApp, { provider: new appCheck.ReCaptchaEnterpriseProvider(siteKey), isTokenAutoRefreshEnabled: true });
+          // Failures here are otherwise silent: the database just never connects once App Check is enforced.
+          // The SDK retries quietly in the background, so ask for one token up front to find out.
+          appCheck.getToken(ac).then(() => { this.appCheckError = null; this.emit(); }, e => {
+            const hint = local
+              ? 'Register this browser\'s debug token (printed above as "App Check debug token") in Firebase console → App Check → Apps → ⋮ → Manage debug tokens, then reload.'
+              : `Add ${location.hostname} to the reCAPTCHA Enterprise key's allowed domains (Google Cloud console → Security → reCAPTCHA), then reload.`;
+            console.warn(`[CampusDrop] App Check could not verify this page (${e && e.code || e}). ${hint}`);
+            this.appCheckError = e || true; this.emit();
+          });
         } catch (e) { console.warn('[CampusDrop] App Check failed to start:', e); }
       }
       this.attach(fb, fb.getDatabase(fbApp), auth, auth.getAuth(fbApp));
@@ -2110,7 +2120,8 @@ function renderAll(){
   $$('[data-sync]').forEach(el => {
     el.classList.toggle('live', live);
     const txt = el.querySelector('span');
-    if (txt) txt.textContent = live ? 'Live / Firebase' : Store.mode === 'live' ? 'Reconnecting…' : 'This device only';
+    if (txt) txt.textContent = live ? (Store.appCheckError ? 'Live / App Check failing' : 'Live / Firebase')
+      : Store.mode === 'live' ? (Store.appCheckError ? 'Blocked by App Check' : 'Reconnecting…') : 'This device only';
   });
   const hw = $('#hwMode');
   if (hw) hw.innerHTML = `<span class="dot"></span>${Store.mode === 'live' ? 'Box 01 live, others simulated' : 'Simulated hardware'}`;

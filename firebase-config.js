@@ -12,7 +12,9 @@
 window.CAMPUSDROP_FIREBASE = {
   apiKey: "AIzaSyCaryvlPfIv-5DU0TL7tCZ0cu6Hpu2n9h4",
   authDomain: "campusdrop-312a5.firebaseapp.com",
-  databaseURL: "https://campusdrop-312a5-default-rtdb.asia-southeast1.firebasedatabase.app",
+  // Disable Firebase temporarily: the app uses its local, no-account demo mode
+  // while the database authentication setup is being sorted out.
+  databaseURL: "YOUR_DATABASE_URL",
   projectId: "campusdrop-312a5",
   storageBucket: "campusdrop-312a5.firebasestorage.app",
   messagingSenderId: "1006083398375",
@@ -22,4 +24,4 @@ window.CAMPUSDROP_FIREBASE = {
 
 // App Check: paste the reCAPTCHA Enterprise site key (Google Cloud console → Security → reCAPTCHA).
 // Leave as-is to keep App Check off.
-window.CAMPUSDROP_APPCHECK_SITE_KEY = "6Ld6zxkuAAAAAIiXT6AfkTAzOORH-zrT7MPPt7zF";
+window.CAMPUSDROP_APPCHECK_SITE_KEY = "";
