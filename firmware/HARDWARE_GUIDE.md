@@ -111,8 +111,9 @@ Then install:
 - **Library Manager:** `Keypad` by Mark Stanley, `ArduinoJson` by Benoit Blanchon (v7), `LiquidCrystal I2C` by Frank de Brabander. `Servo` is built in.
 
 1. Open `uno_campusdrop/uno_campusdrop.ino`, select *Arduino Uno*, and upload.
-2. Open `esp8266_campusdrop/esp8266_campusdrop.ino` and fill in:
-   - `WIFI_SSID`, `WIFI_PASSWORD` (the ESP8266 needs **2.4 GHz** WiFi)
+2. In the `esp8266_campusdrop` folder, copy `secrets.example.h` to `secrets.h` and put your WiFi login in it
+   (`WIFI_SSID`, `WIFI_PASSWORD`; the ESP8266 needs **2.4 GHz** WiFi). `secrets.h` is ignored by git, so the password
+   never gets committed. Then open `esp8266_campusdrop/esp8266_campusdrop.ino` and fill in:
    - `FIREBASE_HOST`: your Realtime Database URL **without** `https://` and without the trailing `/`,
      e.g. `campusdrop-1234-default-rtdb.asia-southeast1.firebasedatabase.app`
 3. Select *NodeMCU 1.0 (ESP-12E Module)* and upload.

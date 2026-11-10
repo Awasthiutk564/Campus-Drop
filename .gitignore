@@ -14,3 +14,6 @@ firebase-debug.log
 # Local documents not kept in the repo
 CampusDrop_Project_Report.docx
 ~$*.docx
+
+# WiFi login for the ESP8266 (see secrets.example.h)
+firmware/**/secrets.h
