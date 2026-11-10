@@ -66,6 +66,24 @@ The site only uses the **Realtime Database**. It needs no sign-in, Authenticatio
 
 ---
 
+## 📱 Mobile App (`mobile/`)
+
+An Expo / React Native app (Android + iOS) that talks to the same Firebase Realtime Database as the website and the box.
+
+- **Pickup**: choose your student profile, see waiting parcels, get an in-app alert + vibration when one arrives, and collect with the PIN (live keypad mirror for Box 01, on-screen keypad for simulated boxes).
+- **Deliver**: register a parcel; the app unlocks the box, waits for the drop, locks it and notifies the student.
+- **Boxes**: live online/free/occupied status and remote lock/unlock for Box 01.
+
+```bash
+cd mobile
+npm install
+npx expo start      # scan the QR code with the Expo Go app
+```
+
+The database URL lives in `mobile/src/db.js` (keep it in sync with `firebase-config.js`).
+
+---
+
 ## 🏃 Quick Start
 
 ```bash
