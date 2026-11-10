@@ -13,8 +13,9 @@ An IoT-powered smart locker parcel delivery and pickup platform designed for uni
   3. 🖥️ **Admin / Campus Overview Dashboard** (`#/dashboard`): Interactive Three.js 3D locker wall, live device event log, remote unlock, weekly volume chart, and searchable order records.
 - **PIN Rule**:
   - The Pickup PIN is strictly the **last 4 digits of the Order ID** (e.g. Order `123456789012` &rarr; PIN `9012`).
+- **Logins and roles** (Firebase mode): email/password accounts with **student**, **courier** and **admin** roles, enforced by the database rules. See *Accounts and roles* below.
 - **Real-Time Notifications**:
-  - When a parcel is registered, every open copy of the website shows a phone-style notification banner with a chime. SMS will be added later.
+  - When a parcel is registered, the student it belongs to gets a phone-style notification banner with a chime on every device they're signed in on. SMS will be added later.
 - **One real box, five simulated**:
   - **Box 01** is the physical box (ESP8266 + Arduino UNO). **Boxes 02–06** are simulated in the browser.
 - **Two modes**:
@@ -39,12 +40,24 @@ campus drop/
 ## 🔥 Firebase Setup (one time)
 
 1. Go to [console.firebase.google.com](https://console.firebase.google.com) and create a project.
-2. **Build → Realtime Database → Create database** (pick the location closest to you, e.g. Singapore, start in *test mode*).
-3. In the database's **Rules** tab, paste the contents of `database.rules.json` and publish.
+2. **Build → Realtime Database → Create database** (pick the location closest to you, e.g. Singapore).
+3. **Build → Authentication → Get started → Sign-in method → Email/Password → Enable**.
 4. **Project settings → General → Your apps → Add app → Web**. Copy the `firebaseConfig` values into `firebase-config.js`.
-5. Put the same database host (without `https://`) into `FIREBASE_HOST` in `firmware/esp8266_campusdrop/esp8266_campusdrop.ino`.
+5. Open the website, **Create account** for yourself, then make yourself the first admin: in **Realtime Database → Data**, open `users/<your uid>` and change `role` from `student` to `admin`. From then on, change roles from the **People** table on the Dashboard.
+6. In the database's **Rules** tab, paste the contents of `database.rules.json` and publish (or `npx firebase-tools deploy --only database`).
+7. Firmware: put the database host (without `https://`) into `FIREBASE_HOST`, and a database secret into `FIREBASE_AUTH`, in `firmware/esp8266_campusdrop/esp8266_campusdrop.ino`. Get the secret from **Project settings → Service accounts → Database secrets → Show**. Without it the box is refused by the rules.
 
-> ⚠️ The included rules allow anyone with the database URL to read and write. That's fine for a prototype demo, but lock them down before real use.
+### Accounts and roles
+
+| Role | Pages | Can |
+|---|---|---|
+| **student** (every new sign-up) | Collect | See only their own parcels and PINs, collect them |
+| **courier** | Dashboard, Deliver | Register parcels for registered students, unlock an *empty* box to drop a parcel |
+| **admin** | Dashboard, Deliver | Everything a courier can, plus remote unlock of any box, demo parcels, and changing roles |
+
+The rules in `database.rules.json` enforce this on Firebase's side, not just in the page. Sign-ups with nobody's role changed only ever see their own (empty) parcel list.
+
+> ⚠️ The database secret gives the box full access. Keep it out of any public repository, and treat the sketch file like a password.
 
 ---
 

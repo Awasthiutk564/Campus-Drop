@@ -350,6 +350,27 @@ select.input option,#studentSelect option{background:#000;color:var(--w1)}
   .sec{padding-bottom:64px}
   .search{min-width:0;flex:1}
 }
+/* ==========================================================================
+   Accounts — sign-in gate, header chip, people table
+   ========================================================================== */
+.me{display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:600;min-width:0}
+.me[hidden],[data-role-hide]{display:none!important}
+[hidden]{display:none!important}
+.me .who-name{max-width:18ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.linkbtn{border:1px solid var(--hair);background:transparent;padding:4px 8px;font-family:var(--mono);font-size:11px;text-transform:uppercase;color:var(--w1)}
+.linkbtn:hover{border-color:var(--w1);color:var(--o)}
+.gate{position:fixed;inset:0;z-index:39;background:var(--k);overflow:auto;padding:calc(var(--head) + 40px) 16px 60px;display:none}
+.gate.show{display:block}
+.gate-in{max-width:440px;margin:0 auto}
+.gate .h0{font-size:clamp(44px,9vw,72px);margin:12px 0 14px}
+.gate .filters{margin-bottom:24px;width:max-content}
+.gate .btn-lg{margin-top:4px}
+.textbtn{border:0;background:none;padding:0;margin-top:18px;color:var(--g1);font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.textbtn:hover{color:var(--o)}
+.role-select{border:1px solid var(--hair);background:#000;border-radius:0;padding:5px 8px;font-size:12px;font-weight:600}
+.role-select:focus{border-color:var(--o);outline:none}
+@media (max-width:760px){ .me .who-name{display:none} }
+
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
   .js-motion [data-reveal]{opacity:1}
@@ -366,8 +387,23 @@ select.input option,#studentSelect option{background:#000;color:var(--w1)}
   </nav>
   <div class="head-right">
     <span class="sync" data-sync><i></i><span>Connecting</span></span>
+    <span class="me" id="meBox" hidden>
+      <span class="chip" id="meRole">Student</span>
+      <span class="who-name" id="meName"></span>
+      <button class="linkbtn" id="signOutBtn" type="button">Sign out</button>
+    </span>
   </div>
 </header>
+
+<!-- Sign-in gate (live/Firebase mode only) -->
+<section class="gate" id="gate" aria-labelledby="t-gate">
+  <div class="gate-in">
+    <span class="kicker">Account</span>
+    <h1 class="h0" id="t-gate">Sign in.</h1>
+    <p class="step-sub" id="gateSub">Checking your sign-in…</p>
+    <div id="gateBody"></div>
+  </div>
+</section>
 <nav class="nav pill-nav" aria-label="Main">
   <a href="#/dashboard" data-route="dashboard">Dashboard</a>
   <a href="#/deliver" data-route="deliver">Deliver</a>
@@ -441,6 +477,20 @@ select.input option,#studentSelect option{background:#000;color:var(--w1)}
         <div class="table-wrap"><table>
           <thead><tr><th>Order ID</th><th>Student</th><th>Box</th><th>Courier</th><th>Arrived</th><th>Status</th></tr></thead>
           <tbody id="ordersBody"></tbody>
+        </table></div>
+      </div>
+    </section>
+
+    <section class="sec grid-layout" id="peopleSec" data-reveal hidden>
+      <h2 class="sec-label">People</h2>
+      <div class="sec-body">
+        <div class="panel-head">
+          <h3>Accounts and roles</h3>
+          <span class="small muted">New sign-ups start as students. Change a role here to make someone a courier or an admin.</span>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Name</th><th>Email</th><th>Reg. no.</th><th>Phone</th><th>Role</th></tr></thead>
+          <tbody id="peopleBody"></tbody>
         </table></div>
       </div>
     </section>
@@ -631,10 +681,41 @@ const STUDENTS = [
   { id:'23BCS0620', name:'Rohan Das',    phone:'+91 88850 70620', hostel:'Hostel A, room 402', color:'#4A86E8' },
   { id:'22BDS0115', name:'Ananya Patel', phone:'+91 98123 45678', hostel:'Hostel B, room 105', color:'#F59E0B' },
 ];
+// In "This device only" mode the demo students' uid is their reg. no.
+STUDENTS.forEach(s => s.uid = s.id);
 const COURIERS = ['Amazon','Flipkart','Delhivery','Blue Dart','Meesho','Other'];
 const boxById = id => BOXES.find(b => b.id === id);
-const studentById = id => STUDENTS.find(s => s.id === id);
-const initials = n => n.split(' ').map(p => p[0]).join('').slice(0,2).toUpperCase();
+const PALETTE = ['#7B61FF','#E0875A','#2FA58B','#D05C8E','#4A86E8','#F59E0B'];
+const colorFor = key => { let h = 0; for (const c of String(key)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return PALETTE[h % PALETTE.length]; };
+
+/* ---------- Accounts ----------
+   Firebase mode: everyone signs in. users/{uid}.role is 'student' | 'courier' | 'admin' and the
+   database rules (database.rules.json) enforce what each role can read and write.
+   This-device-only mode has no accounts: role 'demo' can use every page, as before. */
+const Auth = {
+  ready:false, user:null, profile:null, users:{}, signingUp:false,
+  get live(){ return Store.mode === 'live'; },
+  get role(){ return this.live ? (this.profile && this.profile.role) || null : 'demo'; },
+  get uid(){ return this.live ? this.user && this.user.uid : null; },
+  is(...roles){ return roles.includes(this.role); },
+  get staff(){ return this.is('admin', 'courier', 'demo'); },
+  get admin(){ return this.is('admin', 'demo'); },
+  routes(){
+    return { demo:['dashboard','deliver','collect'], admin:['dashboard','deliver'], courier:['dashboard','deliver'], student:['collect'] }[this.role] || [];
+  }
+};
+
+// Students a courier can deliver to: registered student accounts in Firebase mode, the demo list otherwise.
+function students(){
+  if (!Auth.live) return STUDENTS;
+  return Object.entries(Auth.users)
+    .filter(([, u]) => u && u.role === 'student')
+    .map(([uid, u]) => ({ uid, id:u.regNo || '', name:u.name || u.email || 'Student', phone:u.phone || '', hostel:u.hostel || '', color:colorFor(uid) }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+const studentByUid = uid => students().find(s => s.uid === uid);
+const orderUid = o => o.studentUid || o.studentId;
+const initials = n => String(n || '?').split(' ').filter(Boolean).map(p => p[0]).join('').slice(0,2).toUpperCase() || '?';
 const pinFor = orderId => String(orderId).slice(-4);
 
 /* Sample history */
@@ -650,7 +731,7 @@ const HISTORY = (() => {
       const collectedAt = created + (10 + rnd() * 220) * 6e4;
       if (collectedAt > now) continue;
       const id = String(402000000000 + Math.floor(rnd() * 99999999));
-      out.push({ id, sample:true, boxId:BOXES[Math.floor(rnd()*5)].id, studentId:st.id, studentName:st.name,
+      out.push({ id, sample:true, boxId:BOXES[Math.floor(rnd()*5)].id, studentUid:st.uid, studentId:st.id, studentName:st.name,
         courier:COURIERS[Math.floor(rnd()*5)], size:['Small','Medium','Large'][Math.floor(rnd()*3)],
         pin:pinFor(id), status:'collected', createdAt:created, collectedAt });
     }
@@ -666,7 +747,7 @@ const HISTORY = (() => {
 */
 const FIREBASE_SDK = 'https://www.gstatic.com/firebasejs/10.12.2';
 const Store = {
-  mode:'local', connected:false, orders:[], boxLive:{}, subs:new Set(), seen:new Set(), mine:new Set(),
+  mode:'local', connected:false, gaveUp:false, orders:[], boxLive:{}, subs:new Set(), seen:new Set(), mine:new Set(),
   fb:null, db:null, offset:0, loaded:false,
   KEY:'campusdrop.orders.v1',
   on(fn){ this.subs.add(fn); },
@@ -685,29 +766,82 @@ const Store = {
       return;
     }
     try {
-      const [app, fb] = await Promise.all([import(`${FIREBASE_SDK}/firebase-app.js`), import(`${FIREBASE_SDK}/firebase-database.js`)]);
-      this.attach(fb, fb.getDatabase(app.initializeApp(cfg)));
+      const [app, fb, auth, appCheck] = await Promise.all([import(`${FIREBASE_SDK}/firebase-app.js`), import(`${FIREBASE_SDK}/firebase-database.js`), import(`${FIREBASE_SDK}/firebase-auth.js`), import(`${FIREBASE_SDK}/firebase-app-check.js`)]);
+      const fbApp = app.initializeApp(cfg);
+      // App Check (reCAPTCHA Enterprise). Only active once a site key is set in firebase-config.js.
+      const siteKey = window.CAMPUSDROP_APPCHECK_SITE_KEY;
+      if (siteKey && !/YOUR_/.test(siteKey)) {
+        try {
+          if (['localhost', '127.0.0.1'].includes(location.hostname)) self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+          appCheck.initializeAppCheck(fbApp, { provider: new appCheck.ReCaptchaEnterpriseProvider(siteKey), isTokenAutoRefreshEnabled: true });
+        } catch (e) { console.warn('[CampusDrop] App Check failed to start:', e); }
+      }
+      this.attach(fb, fb.getDatabase(fbApp), auth, auth.getAuth(fbApp));
     } catch(e) {
       console.warn('[CampusDrop] Could not load Firebase, staying on this device only:', e);
+      this.gaveUp = true; this.emit();
     }
   },
-  attach(fb, db){
-    this.fb = fb; this.db = db;
+  attach(fb, db, authLib, auth){
+    this.fb = fb; this.db = db; this.authLib = authLib; this.auth = auth;
     this.mode = 'live'; this.orders = []; this.seen.clear();
-    const { ref, onValue, query, limitToLast } = this.fb;
+    const { ref, onValue } = this.fb;
     onValue(ref(this.db, '.info/connected'), s => { this.connected = !!s.val(); this.emit(); });
     onValue(ref(this.db, '.info/serverTimeOffset'), s => { this.offset = s.val() || 0; });
-    onValue(ref(this.db, 'orders'), s => {
+    authLib.onAuthStateChanged(auth, user => this.onUser(user));
+    this.emit();
+  },
+  // Listeners that depend on who is signed in. Torn down and rebuilt whenever the user or role changes.
+  unsubs:[], profileUnsub:null, dataRole:null,
+  stopData(){
+    this.unsubs.forEach(u => { try { u(); } catch(e){} });
+    this.unsubs = []; this.dataRole = null;
+    this.orders = []; this.seen.clear(); this.loaded = false; this.boxLive = {};
+    Hardware.events = []; Auth.users = {};
+  },
+  onUser(user){
+    if (this.profileUnsub) { this.profileUnsub(); this.profileUnsub = null; }
+    this.stopData();
+    Auth.user = user; Auth.profile = null; Auth.ready = !user;
+    if (user) {
+      const { ref, onValue, set } = this.fb;
+      this.profileUnsub = onValue(ref(this.db, `users/${user.uid}`), s => {
+        const p = s.val();
+        // Accounts made outside the sign-up form (e.g. in the Firebase console) get a student profile.
+        if (!p && !Auth.signingUp) {
+          set(ref(this.db, `users/${user.uid}`), { name:user.email ? user.email.split('@')[0] : 'Student', email:user.email || '', role:'student', createdAt:Date.now() })
+            .catch(e => console.warn('[CampusDrop] Could not create profile:', e));
+          return;
+        }
+        Auth.profile = p; Auth.ready = !!p;
+        if (p && p.role !== this.dataRole) this.startData(p.role);
+        this.emit();
+      }, e => { console.warn('[CampusDrop] Could not read profile:', e); Auth.ready = true; this.emit(); });
+    }
+    this.emit();
+  },
+  startData(role){
+    this.stopData();
+    this.dataRole = role;
+    const { ref, onValue, query, limitToLast, orderByChild, equalTo } = this.fb;
+    const staff = role === 'admin' || role === 'courier';
+    const warn = what => e => console.warn(`[CampusDrop] Not allowed to read ${what}:`, e.message);
+    // Students may only read their own orders, so they must ask for exactly that query (see database.rules.json).
+    const ordersRef = staff ? ref(this.db, 'orders') : query(ref(this.db, 'orders'), orderByChild('studentUid'), equalTo(Auth.uid));
+    this.unsubs.push(onValue(ordersRef, s => {
       this.orders = Object.values(s.val() || {});
       if (!this.loaded) { this.orders.forEach(o => this.seen.add(o.id)); this.loaded = true; }
       else this.detectNew();
       this.emit();
-    });
-    BOXES.filter(b => b.real).forEach(b => onValue(ref(this.db, `boxes/${b.id}`), s => { this.boxLive[b.id] = s.val() || {}; this.emit(); }));
-    onValue(query(ref(this.db, 'events'), limitToLast(40)), s => {
-      Hardware.events = Object.values(s.val() || {}).sort((a, b) => b.t - a.t);
-      Dashboard.renderConsole();
-    });
+    }, warn('orders')));
+    BOXES.filter(b => b.real).forEach(b => this.unsubs.push(onValue(ref(this.db, `boxes/${b.id}`), s => { this.boxLive[b.id] = s.val() || {}; this.emit(); }, warn('boxes'))));
+    if (staff) {
+      this.unsubs.push(onValue(query(ref(this.db, 'events'), limitToLast(40)), s => {
+        Hardware.events = Object.values(s.val() || {}).sort((a, b) => b.t - a.t);
+        Dashboard.renderConsole();
+      }, warn('events')));
+      this.unsubs.push(onValue(ref(this.db, 'users'), s => { Auth.users = s.val() || {}; this.emit(); }, warn('users')));
+    }
   },
   // Resolves true as soon as pred() holds after a data change, or false after ms.
   waitFor(pred, ms){
@@ -723,7 +857,8 @@ const Store = {
     for (const o of this.orders) {
       if (this.seen.has(o.id)) continue;
       this.seen.add(o.id);
-      if (o.status === 'awaiting' && !this.mine.has(o.id)) Notify.arrival(o);
+      // Only the student it belongs to is told about a new parcel (and its PIN).
+      if (o.status === 'awaiting' && !this.mine.has(o.id) && Auth.is('student', 'demo')) Notify.arrival(o);
     }
   },
   async add(order){
@@ -770,7 +905,12 @@ const Hardware = {
     if (!isReal(boxId)) { await sleep(600); return { ok:true, simulated:true }; }
     const { ref, set, serverTimestamp } = Store.fb;
     const id = Math.random().toString(36).slice(2, 10);
-    await set(ref(Store.db, `boxes/${boxId}/command`), { action: action === 'servo.unlock' ? 'unlock' : 'lock', id, t: serverTimestamp(), reason: payload.reason || '' });
+    try {
+      await set(ref(Store.db, `boxes/${boxId}/command`), { action: action === 'servo.unlock' ? 'unlock' : 'lock', id, t: serverTimestamp(), reason: payload.reason || '' });
+    } catch(e) {
+      // The rules refuse e.g. a courier unlocking a box that already holds a parcel.
+      return { ok:false, denied:true, error:'Not allowed for your account' };
+    }
     const ok = await Store.waitFor(() => liveBox(boxId).commandAck === id, 10000);
     return ok ? { ok:true } : { ok:false, error:'Box did not respond in 10 s' };
   },
@@ -799,7 +939,7 @@ const Notify = {
     showMobilePushBanner('Parcel Arrived! 📦', `Your ${o.courier} order #${o.id} is in ${b ? b.name : o.boxId}. PIN: ${o.pin}`, o);
     Sound.alert();
     toast(`Parcel arrived for ${o.studentName}`, `${o.courier} parcel at ${b ? b.name : o.boxId}. PIN is the last 4 digits (${o.pin}).`, 'parcel', () => {
-      Collect.setStudent(o.studentId); location.hash = '#/collect';
+      Collect.setStudent(orderUid(o)); location.hash = '#/collect';
     });
   }
 };
@@ -826,8 +966,8 @@ function showMobilePushBanner(title, body, order) {
   b.style.display = 'block';
   b.onclick = () => {
     b.style.display = 'none';
-    if (order) {
-      Collect.setStudent(order.studentId);
+    if (order && Auth.routes().includes('collect')) {
+      Collect.setStudent(orderUid(order));
       location.hash = '#/collect';
     }
   };
@@ -1214,7 +1354,7 @@ const Dashboard = {
       const col = { free:'var(--ok)', occupied:'var(--kraft)', offline:'var(--bad)', open:'var(--lav)' }[s];
       u.tag.innerHTML = `<b>${BOXES[i].no}</b><span style="color:${col}">${txt}</span>`;
     });
-    this.renderDetail(); this.renderStats(); this.renderChart(); this.renderOrders();
+    this.renderDetail(); this.renderStats(); this.renderChart(); this.renderOrders(); this.renderPeople();
   },
   renderDetail(){
     const b = BOXES[this.selected] || BOXES[0], s = this.boxState(b), o = Store.awaitingIn(b.id), online = boxOnline(b);
@@ -1242,14 +1382,15 @@ const Dashboard = {
       <div class="small muted" style="margin-top:6px">${esc(b.place)}</div>
       <dl class="kv">${rows}</dl>
       <div class="actions">
-        ${o ? `<button class="btn btn-ghost" id="remoteUnlock">Unlock remotely</button>` : ''}
-        ${!o && s === 'free' ? `<button class="btn btn-primary" id="dropHere">Drop a parcel here</button>` : ''}
+        ${o && Auth.admin ? `<button class="btn btn-ghost" id="remoteUnlock">Unlock remotely</button>` : ''}
+        ${!o && s === 'free' && Auth.staff ? `<button class="btn btn-primary" id="dropHere">Drop a parcel here</button>` : ''}
         ${s === 'offline' ? `<button class="btn btn-ghost" id="pingBox">Ping device</button>` : ''}
-        <button class="btn btn-ghost" id="seedDemo">Add demo parcels</button>
+        ${Auth.admin ? `<button class="btn btn-ghost" id="seedDemo">Add demo parcels</button>` : ''}
       </div>`;
     const ru = $('#remoteUnlock'); if (ru) ru.onclick = async () => {
       ru.disabled = true; ru.textContent = 'Unlocking';
       const res = await Hardware.send(b.id, 'servo.unlock', { reason:'admin_override' });
+      if (res.denied) { toast('Unlock refused', 'Only admins can open a box remotely.', 'warn'); this.render(); return; }
       if (!res.ok) { toast(`Box ${b.no} didn't respond`, 'Check the ESP8266 has power and WiFi, then try again.', 'warn'); this.render(); return; }
       this.opening = b.id; this.render();
       await sleep(3200);
@@ -1312,11 +1453,11 @@ const Dashboard = {
   renderOrders(){
     let rows = Store.all();
     if (this.filter !== 'all') rows = rows.filter(o => o.status === this.filter);
-    if (this.query) rows = rows.filter(o => o.id.includes(this.query) || o.studentName.toLowerCase().includes(this.query) || o.studentId.toLowerCase().includes(this.query));
+    if (this.query) rows = rows.filter(o => o.id.includes(this.query) || String(o.studentName || '').toLowerCase().includes(this.query) || String(o.studentId || '').toLowerCase().includes(this.query));
     rows = rows.slice(0, 14);
     if (!rows.length) { $('#ordersBody').innerHTML = `<tr><td colspan="6" class="empty-mini">No orders match. Try a different filter or search.</td></tr>`; return; }
     $('#ordersBody').innerHTML = rows.map(o => {
-      const st = studentById(o.studentId) || { color:'#888' };
+      const st = studentByUid(orderUid(o)) || { color:colorFor(orderUid(o) || o.studentName) };
       const status = o.status === 'awaiting' ? '<span class="chip chip-kraft"><span class="dot"></span>Waiting</span>' : '<span class="chip chip-ok"><span class="dot"></span>Collected</span>';
       return `<tr>
         <td><span class="oid">${esc(o.id)}</span>${o.sample ? '<div class="sample-note">Sample history</div>' : ''}</td>
@@ -1327,6 +1468,37 @@ const Dashboard = {
         <td>${status}</td></tr>`;
     }).join('');
   },
+  // Admin only: every account and its role. Role changes are enforced by the database rules too.
+  renderPeople(){
+    const sec = $('#peopleSec'), show = Auth.live && Auth.role === 'admin';
+    sec.hidden = !show;
+    if (!show) return;
+    const rows = Object.entries(Auth.users).sort((a, b) => String(a[1].name || '').localeCompare(String(b[1].name || '')));
+    const sig = JSON.stringify(rows);
+    if (sig === this._peopleSig) return;   // don't rebuild (and drop focus from) an open select on every heartbeat
+    this._peopleSig = sig;
+    $('#peopleBody').innerHTML = rows.length ? rows.map(([uid, u]) => `<tr>
+        <td><div class="who"><span class="avatar" style="background:${colorFor(uid)}">${esc(initials(u.name))}</span><b>${esc(u.name)}${uid === Auth.uid ? ' <span class="small muted">(you)</span>' : ''}</b></div></td>
+        <td>${esc(u.email || '')}</td>
+        <td>${esc(u.regNo || '')}</td>
+        <td>${esc(u.phone || '')}</td>
+        <td><select class="role-select" data-uid="${esc(uid)}" aria-label="Role for ${esc(u.name)}" ${uid === Auth.uid ? 'disabled title="You can\'t change your own role"' : ''}>
+          ${['student','courier','admin'].map(r => `<option value="${r}" ${u.role === r ? 'selected' : ''}>${r[0].toUpperCase() + r.slice(1)}</option>`).join('')}
+        </select></td></tr>`).join('')
+      : `<tr><td colspan="5" class="empty-mini">No accounts yet.</td></tr>`;
+    $$('#peopleBody select').forEach(sel => sel.onchange = async () => {
+      const uid = sel.dataset.uid, name = (Auth.users[uid] || {}).name || 'User';
+      sel.disabled = true;
+      try {
+        await Store.fb.set(Store.fb.ref(Store.db, `users/${uid}/role`), sel.value);
+        toast('Role updated', `${name} is now ${sel.value === 'admin' ? 'an admin' : 'a ' + sel.value}.`, 'ok');
+      } catch(e) {
+        toast('Could not change the role', e.message, 'warn');
+        this._peopleSig = null; this.renderPeople();
+      }
+      sel.disabled = false;
+    });
+  },
   renderConsole(){
     const el = $('#console');
     if (!Hardware.events.length) { el.innerHTML = '<div class="empty-mini">No device traffic yet. Commands sent to the boxes and sensor readings will stream here.</div>'; return; }
@@ -1336,13 +1508,20 @@ const Dashboard = {
 
 async function seedDemo(){
   const free = BOXES.filter(b => boxOnline(b) && !Store.awaitingIn(b.id));
-  const picks = [[STUDENTS[0], 'Amazon', 'Medium'], [STUDENTS[1], 'Flipkart', 'Small']];
+  const list = students();
+  if (!list.length) { toast('No student accounts yet', 'Sign up a student account first, then add demo parcels for it.', 'warn'); return; }
+  const picks = [[list[0], 'Amazon', 'Medium'], [list[1] || list[0], 'Flipkart', 'Small']];
+  const done = [];
   for (let i = 0; i < picks.length && i < free.length; i++) {
     const [st, courier, size] = picks[i];
     let id; do { id = String(4035000000 + Math.floor(Math.random() * 9999999) * 10 + 12).slice(0, 12); } while (Store.all().some(o => o.id === id));
-    await Store.add({ id, boxId:free[i].id, studentId:st.id, studentName:st.name, phone:st.phone, courier, size, pin:pinFor(id), status:'awaiting', attempts:0, createdAt:Date.now() - (i + 1) * 9 * 6e4 });
+    try {
+      await Store.add({ id, boxId:free[i].id, studentUid:st.uid, studentId:st.id, studentName:st.name, phone:st.phone, courier, size, pin:pinFor(id), status:'awaiting', attempts:0, createdAt:Date.now() - (i + 1) * 9 * 6e4 });
+      done.push(st.name);
+    } catch(e) { toast('Could not add a demo parcel', e.message, 'warn'); return; }
   }
-  toast('Demo parcels added', `${picks[0][0].name} and ${picks[1][0].name} each have a parcel waiting.`, 'ok');
+  if (done.length) toast('Demo parcels added', `${[...new Set(done)].join(' and ')} ${done.length > 1 ? 'each have' : 'has'} a parcel waiting.`, 'ok');
+  else toast('No free boxes', 'Every online box already holds a parcel.', 'warn');
 }
 
 /* ==========================================================================
@@ -1395,8 +1574,10 @@ const Deliver = {
       </div>
       <button class="btn btn-primary btn-lg" id="doScan">Scan QR code</button>`;
   },
+  hintFor(s){ return s ? [s.id, s.hostel, s.phone].filter(Boolean).join(', ') || 'No contact details on file.' : 'Notification goes to the student’s app and phone.'; },
   viewForm(){
     const f = this.form, pin = /^\d{4,}$/.test(f.orderId) ? pinFor(f.orderId).split('') : ['·','·','·','·'];
+    const list = students();
     return `
       <button class="back" data-back="1">‹ Change box</button>
       <h2 class="step-title">Add the order details</h2>
@@ -1409,10 +1590,10 @@ const Deliver = {
       <div class="field">
         <label for="fStudent">Student</label>
         <select class="input" id="fStudent">
-          <option value="">Choose by name or ID</option>
-          ${STUDENTS.map(s => `<option value="${s.id}" ${s.id === f.studentId ? 'selected' : ''}>${esc(s.name)} (${s.id})</option>`).join('')}
+          <option value="">${list.length ? 'Choose by name or ID' : 'No student accounts yet'}</option>
+          ${list.map(s => `<option value="${esc(s.uid)}" ${s.uid === f.studentId ? 'selected' : ''}>${esc(s.name)}${s.id ? ` (${esc(s.id)})` : ''}</option>`).join('')}
         </select>
-        <span class="hint" id="hStudent">${f.studentId ? esc(studentById(f.studentId).hostel + ', ' + studentById(f.studentId).phone) : 'Notification goes to the student’s app and phone.'}</span>
+        <span class="hint" id="hStudent">${esc(this.hintFor(studentByUid(f.studentId)))}</span>
         <span class="err" id="eStudent"></span>
       </div>
       <div class="grid2">
@@ -1460,7 +1641,7 @@ const Deliver = {
       </dl></div>
       <div class="btn-row">
         <button class="btn btn-primary" id="again">Deliver another parcel</button>
-        <button class="btn btn-ghost" id="asStudent">Open as student</button>
+        ${Auth.routes().includes('collect') ? '<button class="btn btn-ghost" id="asStudent">Open as student</button>' : ''}
       </div>`;
   },
   bind(){
@@ -1484,14 +1665,14 @@ const Deliver = {
         const d = fo.value.length >= 4 ? pinFor(fo.value).split('') : ['·','·','·','·'];
         $('#pinPreview').innerHTML = d.map(x => `<span>${x}</span>`).join('');
       };
-      fs.onchange = () => { this.form.studentId = fs.value; const s = studentById(fs.value); $('#hStudent').textContent = s ? `${s.hostel}, ${s.phone}` : 'Notification goes to the student’s app and phone.'; $('#eStudent').textContent = ''; fs.classList.remove('invalid'); };
+      fs.onchange = () => { this.form.studentId = fs.value; $('#hStudent').textContent = this.hintFor(studentByUid(fs.value)); $('#eStudent').textContent = ''; fs.classList.remove('invalid'); };
       $('#fCourier').onchange = e => this.form.courier = e.target.value;
       body.querySelectorAll('[data-size]').forEach(b => b.onclick = () => { this.form.size = b.dataset.size; body.querySelectorAll('[data-size]').forEach(x => x.setAttribute('aria-pressed', x === b)); this.sync3d(); });
       body.querySelector('[data-back]').onclick = () => { this.step = 1; this.scanned = false; this.render(); };
       $('#toDrop').onclick = () => {
         let ok = true;
         if (!/^\d{4,20}$/.test(this.form.orderId)) { ok = false; fo.classList.add('invalid'); $('#eOrder').textContent = 'Enter the numeric order ID from the parcel label (at least 4 digits).'; }
-        else if (Store.all().some(o => o.id === this.form.orderId && o.status === 'awaiting')) { ok = false; fo.classList.add('invalid'); $('#eOrder').textContent = 'This order ID is already registered. Check the label and try again.'; }
+        else if (Store.orders.some(o => o.id === this.form.orderId)) { ok = false; fo.classList.add('invalid'); $('#eOrder').textContent = 'This order ID is already registered. Check the label and try again.'; }
         if (!this.form.studentId) { ok = false; fs.classList.add('invalid'); $('#eStudent').textContent = 'Choose the student this parcel belongs to.'; }
         if (!ok) return;
         this.step = 3; this.drop = 0; this.render();
@@ -1505,6 +1686,7 @@ const Deliver = {
           this.busy = true; this.render();
           const res = await Hardware.send(id, 'servo.unlock', { reason:'drop' });
           this.busy = false;
+          if (res.denied) { this.render(); toast('Unlock refused', `Box ${boxById(id).no} already holds a parcel, so only an admin can open it.`, 'warn'); return; }
           if (!res.ok) { this.render(); noReply(); return; }
           this.drop = 1; this.render();
         }
@@ -1519,10 +1701,11 @@ const Deliver = {
             const seen = await Store.waitFor(() => liveBox(id).parcelPresent === true, 6000);
             if (!seen) toast(`Box ${boxById(id).no} sensor didn't see a parcel`, 'Registered anyway. Check the parcel is inside and in front of the sensor.', 'warn');
           } else { await sleep(600); Hardware.sensor(id, true); }
-          const st = studentById(this.form.studentId);
-          const order = { id:this.form.orderId, boxId:id, studentId:st.id, studentName:st.name, phone:st.phone, courier:this.form.courier, size:this.form.size, pin:pinFor(this.form.orderId), status:'awaiting', attempts:0, createdAt:Date.now() };
-          try { await Store.add(order); } catch(e) { this.busy = false; this.drop = 2; this.render(); toast('Could not register the parcel', 'Check connection and try again.', 'warn'); return; }
-          Hardware.push({ t:Date.now(), dir:'out', boxId:id, action:'notify.student', payload:{ student:st.id } });
+          const st = studentByUid(this.form.studentId);
+          if (!st) { this.busy = false; this.drop = 2; this.render(); toast('Student not found', 'That account is no longer a student. Go back and pick again.', 'warn'); return; }
+          const order = { id:this.form.orderId, boxId:id, studentUid:st.uid, studentId:st.id, studentName:st.name, phone:st.phone, courier:this.form.courier, size:this.form.size, pin:pinFor(this.form.orderId), status:'awaiting', attempts:0, createdAt:Date.now() };
+          try { await Store.add(order); } catch(e) { this.busy = false; this.drop = 2; this.render(); toast('Could not register the parcel', /permission/i.test(e.message) ? 'Your account is not allowed to do that, or this order ID already exists.' : 'Check connection and try again.', 'warn'); return; }
+          Hardware.push({ t:Date.now(), dir:'out', boxId:id, action:'notify.student', payload:{ student:st.id || st.uid } });
           this.last = order; this.busy = false; this.step = 4; this.render();
           Sound.success();
           showMobilePushBanner('Parcel Arrived! 📦', `Your ${order.courier} parcel is in Box ${boxById(id).no}. PIN: ${order.pin}`, order);
@@ -1532,7 +1715,7 @@ const Deliver = {
     }
     if (this.step === 4) {
       $('#again').onclick = () => this.reset();
-      $('#asStudent').onclick = () => { Collect.setStudent(this.last.studentId); location.hash = '#/collect'; };
+      const as = $('#asStudent'); if (as) as.onclick = () => { Collect.setStudent(orderUid(this.last)); location.hash = '#/collect'; };
     }
   }
 };
@@ -1545,7 +1728,7 @@ const Collect = {
   init(){
     const sel = $('#studentSelect');
     sel.innerHTML = STUDENTS.map(s => `<option value="${s.id}">${esc(s.name)} (${s.id})</option>`).join('');
-    try { const saved = localStorage.getItem('campusdrop.me'); if (saved && studentById(saved)) this.studentId = saved; } catch(e){}
+    try { const saved = localStorage.getItem('campusdrop.me'); if (saved && STUDENTS.some(s => s.id === saved)) this.studentId = saved; } catch(e){}
     sel.value = this.studentId;
     sel.onchange = () => this.setStudent(sel.value);
     if (HAS3D) { this.scene = new LockerScene($('#collectStage'), { boxes:[BOXES[1]] }); this.unit = this.scene.units[0]; }
@@ -1556,17 +1739,25 @@ const Collect = {
     });
     $('#testNotifBtn').onclick = () => {
       const pending = this.mine()[0];
-      const order = pending || { id:'123456789012', boxId:'B01', pin:'9012', courier:'Amazon', studentId:this.studentId };
+      const order = pending || { id:'123456789012', boxId:'B01', pin:'9012', courier:'Amazon', studentUid:this.uid() };
       showMobilePushBanner('Parcel Arrived! 📦', `Your ${order.courier} order #${order.id} is in Box #01. Enter last 4 digits PIN to collect.`, order);
       Sound.alert();
     };
   },
   setStudent(id){
+    if (Auth.live) { this.render(); return; }   // signed-in accounts are always themselves
     this.studentId = id; this.orderId = null; this.phase = 'list'; this.pin = ''; this.msg = '';
     try { localStorage.setItem('campusdrop.me', id); } catch(e){}
     $('#studentSelect').value = id; this.render();
   },
-  mine(){ return Store.orders.filter(o => o.studentId === this.studentId && o.status === 'awaiting').sort((a,b) => b.createdAt - a.createdAt); },
+  // Who is collecting: the signed-in account in Firebase mode, the picked demo student otherwise.
+  uid(){ return Auth.live ? Auth.uid : this.studentId; },
+  me(){
+    if (!Auth.live) return STUDENTS.find(s => s.id === this.studentId) || STUDENTS[0];
+    const p = Auth.profile || {};
+    return { uid:Auth.uid, id:p.regNo || '', name:p.name || 'Student', color:colorFor(Auth.uid) };
+  },
+  mine(){ return Store.orders.filter(o => orderUid(o) === this.uid() && o.status === 'awaiting').sort((a,b) => b.createdAt - a.createdAt); },
   order(){ return Store.orders.find(o => o.id === this.orderId); },
   sync3d(){
     const o = this.order(), b = o ? boxById(o.boxId) : null;
@@ -1584,8 +1775,14 @@ const Collect = {
     led.className = 'chip ' + cls; led.innerHTML = `<span class="dot"></span>${txt}`;
   },
   render(){
-    const st = studentById(this.studentId) || STUDENTS[0];
+    const st = this.me();
     $('#meAvatar').textContent = initials(st.name); $('#meAvatar').style.background = st.color;
+    const sel = $('#studentSelect');
+    sel.hidden = Auth.live;
+    let fixed = $('#meFixed');
+    if (!fixed) { fixed = document.createElement('b'); fixed.id = 'meFixed'; fixed.style.cssText = 'font-size:18px;letter-spacing:-.02em;font-weight:600;padding:2px 0'; sel.after(fixed); }
+    fixed.hidden = !Auth.live;
+    fixed.textContent = `${st.name}${st.id ? ` (${st.id})` : ''}`;
     setCounts();
     if (this.orderId && !this.order() && this.phase !== 'taken') { this.orderId = null; this.phase = 'list'; }
     // The real box verified the PIN on its own keypad and marked the order collected.
@@ -1605,8 +1802,8 @@ const Collect = {
     if (this._fx !== fxKey) { this._fx = fxKey; Fx.enter(body); }
   },
   viewList(){
-    const list = this.mine(), st = studentById(this.studentId) || STUDENTS[0];
-    const done = Store.all().filter(o => o.studentId === this.studentId && o.status === 'collected').slice(0, 3);
+    const list = this.mine(), st = this.me();
+    const done = Store.all().filter(o => orderUid(o) === this.uid() && o.status === 'collected').slice(0, 3);
     const parcelIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></svg>';
     return `
       <h2 class="step-title">${list.length ? `${list.length === 1 ? 'A parcel is' : list.length + ' parcels are'} waiting for you` : 'Nothing waiting right now'}</h2>
@@ -1617,8 +1814,9 @@ const Collect = {
           <span><b>${esc(o.courier)} parcel in Box ${esc(b.no)}</b><span>${esc(b.place)}, arrived ${ago(o.createdAt)}</span></span>
           <span class="chip chip-kraft">Collect</span>
         </button>`; }).join('')}</div>` : `
+        ${Auth.live ? `<div class="empty"><h3>Your shelf is clear</h3><p>When a courier drops a parcel for you, it shows up here with a notification.</p></div>` : `
         <div class="empty"><h3>Your shelf is clear</h3><p>Try the full flow: register a parcel from Deliver, or add demo parcels to see it here.</p>
-        <div class="btn-row" style="justify-content:center"><button class="btn btn-ghost" id="seedC">Add demo parcels</button><a class="btn btn-primary" href="#/deliver">Deliver a parcel</a></div></div>`}
+        <div class="btn-row" style="justify-content:center"><button class="btn btn-ghost" id="seedC">Add demo parcels</button><a class="btn btn-primary" href="#/deliver">Deliver a parcel</a></div></div>`}`}
       ${done.length ? `<div style="margin-top:22px"><div class="small muted" style="font-weight:700;margin-bottom:8px">Recently collected</div>${done.map(o => `<div class="small" style="display:flex;justify-content:space-between;padding:8px 2px;border-bottom:1px solid var(--line)"><span>${esc(o.courier)}, order ${esc(o.id)}</span><span class="muted">${ago(o.collectedAt)}</span></div>`).join('')}</div>` : ''}`;
   },
   viewScan(){
@@ -1703,7 +1901,7 @@ const Collect = {
         s.classList.add('scanning'); Sound.keypadClick();
         await sleep(1200); s.classList.remove('scanning'); s.classList.add('ok');
         Sound.success();
-        Hardware.push({ t:Date.now(), dir:'in', boxId:o.boxId, action:'qr.scanned', payload:{ by:this.studentId } });
+        Hardware.push({ t:Date.now(), dir:'in', boxId:o.boxId, action:'qr.scanned', payload:{ by:this.me().id || this.uid() } });
         await sleep(600); this.phase = 'pin'; this.pin = ''; this.render();
       };
     }
@@ -1757,9 +1955,148 @@ const Collect = {
 /* ==========================================================================
    Router + Theme + Boot
    ========================================================================== */
+/* ==========================================================================
+   Sign-in gate (Firebase mode). Email + password through Firebase Auth.
+   ========================================================================== */
+const firebaseConfigured = () => { const c = window.CAMPUSDROP_FIREBASE; return !!(c && c.databaseURL && !/YOUR_/.test(c.databaseURL)); };
+const AUTH_ERRORS = {
+  'auth/invalid-credential':'Email or password is wrong.',
+  'auth/wrong-password':'Email or password is wrong.',
+  'auth/user-not-found':'Email or password is wrong.',
+  'auth/invalid-email':'Enter a valid email address.',
+  'auth/missing-password':'Enter your password.',
+  'auth/email-already-in-use':'An account with this email already exists. Sign in instead.',
+  'auth/weak-password':'Use a password of at least 6 characters.',
+  'auth/too-many-requests':'Too many tries. Wait a minute and try again.',
+  'auth/network-request-failed':'No connection. Check your internet and try again.',
+  'auth/operation-not-allowed':'Email sign-in is not turned on for this Firebase project yet (Authentication → Sign-in method → Email/Password).',
+};
+const authError = e => AUTH_ERRORS[e && e.code] || (e && e.message) || 'Something went wrong. Try again.';
+
+const Gate = {
+  tab:'signin', key:'',
+  needed(){
+    // While the Firebase SDK is still loading we already know a sign-in will be required.
+    if (Store.mode !== 'live') return firebaseConfigured() && !Store.gaveUp;
+    return !(Auth.user && Auth.profile);
+  },
+  update(){
+    const need = this.needed();
+    $('#gate').classList.toggle('show', need);
+    document.documentElement.style.overflow = need ? 'hidden' : '';
+    if (!need) { this.key = ''; return; }
+    const state = Store.mode !== 'live' || (!Auth.user && !Auth.ready) ? 'loading' : Auth.user ? 'setup' : this.tab;
+    if (state === this.key) return;   // re-rendering on every heartbeat would wipe what's being typed
+    this.key = state;
+    this.render(state);
+  },
+  render(state){
+    const sub = $('#gateSub'), body = $('#gateBody'), h = $('#t-gate');
+    const tabs = `<div class="filters" role="group" aria-label="Sign in or create an account">
+      <button type="button" data-tab="signin" aria-pressed="${state === 'signin'}">Sign in</button>
+      <button type="button" data-tab="signup" aria-pressed="${state === 'signup'}">Create account</button></div>`;
+    const field = (id, label, type, extra = '') => `<div class="field"><label for="${id}">${label}</label><input class="input" id="${id}" type="${type}" ${extra}></div>`;
+    if (state === 'loading') { h.textContent = 'Sign in.'; sub.textContent = 'Checking your sign-in…'; body.innerHTML = ''; return; }
+    if (state === 'setup') {
+      h.textContent = 'One moment.';
+      sub.textContent = `Setting up the account for ${Auth.user.email || 'you'}.`;
+      body.innerHTML = `<div class="msg" id="gMsg" role="status"></div><button class="textbtn" type="button" id="gOut">Sign out</button>`;
+      $('#gOut').onclick = () => signOutNow();
+      return;
+    }
+    if (state === 'signin') {
+      h.textContent = 'Sign in.';
+      sub.textContent = 'Students see their parcels. Couriers and admins see the boxes.';
+      body.innerHTML = `${tabs}<form id="gForm" novalidate>
+        ${field('gEmail', 'Email', 'email', 'autocomplete="username" required')}
+        ${field('gPass', 'Password', 'password', 'autocomplete="current-password" required')}
+        <div class="msg" id="gMsg" role="status"></div>
+        <button class="btn btn-primary btn-lg" type="submit">Sign in</button></form>
+        <button class="textbtn" type="button" id="gForgot">Forgot your password?</button>`;
+    } else if (state === 'signup') {
+      h.textContent = 'Create account.';
+      sub.textContent = 'New accounts start as students. An admin can make you a courier or admin afterwards.';
+      body.innerHTML = `${tabs}<form id="gForm" novalidate>
+        ${field('gName', 'Full name', 'text', 'autocomplete="name" maxlength="80" required')}
+        <div class="grid2">
+          ${field('gReg', 'Reg. no. (students)', 'text', 'autocomplete="off" maxlength="20" placeholder="22BCE1043"')}
+          ${field('gPhone', 'Phone', 'tel', 'autocomplete="tel" maxlength="20"')}
+        </div>
+        ${field('gEmail', 'Email', 'email', 'autocomplete="username" required')}
+        ${field('gPass', 'Password (6+ characters)', 'password', 'autocomplete="new-password" minlength="6" required')}
+        <div class="msg" id="gMsg" role="status"></div>
+        <button class="btn btn-primary btn-lg" type="submit">Create account</button></form>`;
+    } else if (state === 'reset') {
+      h.textContent = 'Reset password.';
+      sub.textContent = 'We’ll email you a link to choose a new password.';
+      body.innerHTML = `<form id="gForm" novalidate>
+        ${field('gEmail', 'Email', 'email', 'autocomplete="username" required')}
+        <div class="msg" id="gMsg" role="status"></div>
+        <button class="btn btn-primary btn-lg" type="submit">Send reset link</button></form>
+        <button class="textbtn" type="button" id="gBack">Back to sign in</button>`;
+    }
+    body.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { this.tab = b.dataset.tab; this.update(); });
+    const fg = $('#gForgot'); if (fg) fg.onclick = () => { this.tab = 'reset'; this.update(); };
+    const bk = $('#gBack'); if (bk) bk.onclick = () => { this.tab = 'signin'; this.update(); };
+    $('#gForm').onsubmit = e => { e.preventDefault(); this.submit(state); };
+    const first = body.querySelector('input'); if (first && !('ontouchstart' in window)) first.focus();
+  },
+  say(text, kind = 'bad'){ const m = $('#gMsg'); if (m) { m.textContent = text; m.className = 'msg ' + kind; } },
+  async submit(state){
+    const btn = $('#gForm button[type=submit]'), label = btn.textContent;
+    const v = id => ($('#' + id) ? $('#' + id).value.trim() : '');
+    const email = v('gEmail'), pass = $('#gPass') ? $('#gPass').value : '';
+    const A = Store.authLib, auth = Store.auth;
+    if (!email) return this.say('Enter your email address.');
+    if (state === 'signup' && !v('gName')) return this.say('Enter your full name.');
+    btn.disabled = true; btn.textContent = state === 'reset' ? 'Sending' : state === 'signup' ? 'Creating account' : 'Signing in';
+    try {
+      if (state === 'signin') await A.signInWithEmailAndPassword(auth, email, pass);
+      else if (state === 'reset') { await A.sendPasswordResetEmail(auth, email); this.say('If that email has an account, a reset link is on its way.', 'ok'); }
+      else {
+        Auth.signingUp = true;
+        try {
+          const cred = await A.createUserWithEmailAndPassword(auth, email, pass);
+          const { ref, set } = Store.fb;
+          await set(ref(Store.db, `users/${cred.user.uid}`), { name:v('gName'), email, regNo:v('gReg').toUpperCase(), phone:v('gPhone'), role:'student', createdAt:Date.now() });
+        } finally { Auth.signingUp = false; }
+      }
+    } catch(e) {
+      this.say(authError(e));
+    }
+    if (btn.isConnected) { btn.disabled = false; btn.textContent = label; }
+  }
+};
+
+async function signOutNow(){
+  try { await Store.authLib.signOut(Store.auth); } catch(e) { toast('Could not sign out', e.message, 'warn'); }
+  Gate.tab = 'signin';
+  history.replaceState(null, '', location.pathname);
+}
+
+function renderAccount(){
+  const show = Auth.live && !!Auth.profile;
+  $('#meBox').hidden = !show;
+  if (show) {
+    const r = Auth.profile.role || 'student';
+    $('#meRole').textContent = r;
+    $('#meRole').className = 'chip ' + (r === 'admin' ? 'chip-kraft' : r === 'courier' ? 'chip-ok' : 'chip-lav');
+    $('#meName').textContent = Auth.profile.name || Auth.user.email || '';
+  }
+  const allowed = Auth.routes();
+  $$('.nav a[data-route]').forEach(a => a.hidden = !allowed.includes(a.dataset.route));
+  $('#logoBtn').setAttribute('href', '#/' + (allowed[0] || 'dashboard'));
+  // Signing in or changing role changes which pages exist, so send the user to one they can open.
+  const key = allowed.join();
+  if (key !== renderAccount.key) { renderAccount.key = key; if (allowed.length) route(); }
+}
+
 function route(){
-  const r = (location.hash.replace('#/', '') || 'dashboard');
-  const name = ['dashboard','deliver','collect'].includes(r) ? r : 'dashboard';
+  const allowed = Auth.routes();
+  if (!allowed.length) return;   // the sign-in gate is covering the page
+  const r = location.hash.replace('#/', '');
+  const name = allowed.includes(r) ? r : allowed[0];
+  if (r !== name) history.replaceState(null, '', '#/' + name);
   $$('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + name));
   $$('.nav a').forEach(a => a.dataset.route === name ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'));
   requestAnimationFrame(() => Scenes.forEach(s => s.resize()));
@@ -1768,6 +2105,7 @@ function route(){
 }
 
 function renderAll(){
+  Gate.update(); renderAccount();
   const live = Store.mode === 'live' && Store.connected;
   $$('[data-sync]').forEach(el => {
     el.classList.toggle('live', live);
@@ -1845,8 +2183,8 @@ function boot(){
   Dashboard.init(); Deliver.init(); Collect.init();
   Store.on(renderAll);
   window.addEventListener('hashchange', route);
-  if (!location.hash) history.replaceState(null, '', '#/dashboard');
-  $('#logoBtn').onclick = () => { location.hash = '#/dashboard'; };
+  $('#logoBtn').onclick = e => { e.preventDefault(); location.hash = '#/' + (Auth.routes()[0] || 'dashboard'); };
+  $('#signOutBtn').onclick = () => signOutNow();
   route();
   renderAll();
   Store.init();

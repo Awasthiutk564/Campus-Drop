@@ -19,3 +19,7 @@ window.CAMPUSDROP_FIREBASE = {
   appId: "1:1006083398375:web:b8e83c88aa1a561787a042"
 };
 
+
+// App Check: paste the reCAPTCHA Enterprise site key (Google Cloud console → Security → reCAPTCHA).
+// Leave as-is to keep App Check off.
+window.CAMPUSDROP_APPCHECK_SITE_KEY = "6Ld6zxkuAAAAAIiXT6AfkTAzOORH-zrT7MPPt7zF";

@@ -43,8 +43,9 @@ const char *WIFI_PASSWORD = "password";
 // without a trailing slash.
 const char *FIREBASE_HOST =
     "campusdrop-312a5-default-rtdb.asia-southeast1.firebasedatabase.app";
-// Optional: a database secret (Project settings → Service accounts → Database
-// secrets). Leave empty while the database rules allow open access.
+// Required: a database secret (Project settings → Service accounts → Database
+// secrets). The rules in database.rules.json only admit signed-in website users,
+// so the box authenticates with this secret instead. Keep it private.
 const char *FIREBASE_AUTH = "";
 const char *BOX_ID = "B01";
 

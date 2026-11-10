@@ -1,9 +1,81 @@
 {
   "rules": {
-    ".read": true,
-    ".write": true,
+    ".read": false,
+    ".write": false,
+
+    "users": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'admin' || root.child('users').child(auth.uid).child('role').val() === 'courier')",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'admin' || (auth.uid === $uid && newData.exists()))",
+        ".validate": "newData.hasChildren(['name', 'role'])",
+        "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 80" },
+        "email": { ".validate": "newData.isString() && newData.val().length <= 120" },
+        "regNo": { ".validate": "newData.isString() && newData.val().length <= 20" },
+        "phone": { ".validate": "newData.isString() && newData.val().length <= 20" },
+        "hostel": { ".validate": "newData.isString() && newData.val().length <= 60" },
+        "createdAt": { ".validate": "newData.isNumber()" },
+        "role": { ".validate": "(newData.val() === 'student' || newData.val() === 'courier' || newData.val() === 'admin') && (root.child('users').child(auth.uid).child('role').val() === 'admin' || newData.val() === data.val() || (!data.exists() && newData.val() === 'student'))" },
+        "$other": { ".validate": false }
+      }
+    },
+
+    "orders": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'admin' || root.child('users').child(auth.uid).child('role').val() === 'courier' || (query.orderByChild === 'studentUid' && query.equalTo === auth.uid))",
+      ".indexOn": ["studentUid"],
+      "$orderId": {
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'admin' || (root.child('users').child(auth.uid).child('role').val() === 'courier' && !data.exists()) || (data.child('studentUid').val() === auth.uid && newData.exists()))",
+        ".validate": "$orderId.matches(/^[0-9]{4,20}$/) && newData.hasChildren(['id', 'boxId', 'studentUid', 'status', 'createdAt']) && newData.child('id').val() === $orderId",
+        "id": { ".validate": "newData.isString()" },
+        "boxId": { ".validate": "newData.isString() && newData.val().matches(/^B[0-9]{2}$/) && (newData.val() === data.val() || root.child('users').child(auth.uid).child('role').val() === 'admin' || root.child('users').child(auth.uid).child('role').val() === 'courier')" },
+        "studentUid": { ".validate": "newData.isString() && root.child('users').child(newData.val()).child('role').val() === 'student' && (newData.val() === data.val() || root.child('users').child(auth.uid).child('role').val() === 'admin' || root.child('users').child(auth.uid).child('role').val() === 'courier')" },
+        "studentId": { ".validate": "newData.isString() && newData.val().length <= 20 && (newData.val() === data.val() || root.child('users').child(auth.uid).child('role').val() === 'admin' || root.child('users').child(auth.uid).child('role').val() === 'courier')" },
+        "studentName": { ".validate": "newData.isString() && newData.val().length <= 80 && (newData.val() === data.val() || root.child('users').child(auth.uid).child('role').val() === 'admin' || root.child('users').child(auth.uid).child('role').val() === 'courier')" },
+        "phone": { ".validate": "newData.isString() && newData.val().length <= 20 && (newData.val() === data.val() || root.child('users').child(auth.uid).child('role').val() === 'admin' || root.child('users').child(auth.uid).child('role').val() === 'courier')" },
+        "courier": { ".validate": "newData.isString() && newData.val().length <= 30 && (newData.val() === data.val() || root.child('users').child(auth.uid).child('role').val() === 'admin' || root.child('users').child(auth.uid).child('role').val() === 'courier')" },
+        "size": { ".validate": "(newData.val() === 'Small' || newData.val() === 'Medium' || newData.val() === 'Large') && (newData.val() === data.val() || root.child('users').child(auth.uid).child('role').val() === 'admin' || root.child('users').child(auth.uid).child('role').val() === 'courier')" },
+        "pin": { ".validate": "newData.isString() && newData.val().matches(/^[0-9]{4}$/) && (newData.val() === data.val() || root.child('users').child(auth.uid).child('role').val() === 'admin' || root.child('users').child(auth.uid).child('role').val() === 'courier')" },
+        "createdAt": { ".validate": "newData.isNumber() && (newData.val() === data.val() || root.child('users').child(auth.uid).child('role').val() === 'admin' || root.child('users').child(auth.uid).child('role').val() === 'courier')" },
+        "status": { ".validate": "(newData.val() === 'awaiting' || newData.val() === 'collected') && (root.child('users').child(auth.uid).child('role').val() === 'admin' || (!data.exists() && newData.val() === 'awaiting') || newData.val() === data.val() || (data.val() === 'awaiting' && newData.val() === 'collected'))" },
+        "collectedAt": { ".validate": "newData.isNumber()" },
+        "attempts": { ".validate": "newData.isNumber() && newData.val() >= 0 && (!data.exists() || newData.val() >= data.val() || root.child('users').child(auth.uid).child('role').val() === 'admin')" },
+        "lockedUntil": { ".validate": "newData.isNumber()" },
+        "$other": { ".validate": false }
+      }
+    },
+
+    "boxes": {
+      ".read": "auth != null",
+      "$boxId": {
+        "currentOrder": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'admin' || root.child('users').child(auth.uid).child('role').val() === 'courier')",
+          ".validate": "newData.isString() && newData.val().matches(/^[0-9]{4,20}$/)"
+        },
+        "command": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'admin' || (root.child('users').child(auth.uid).child('role').val() === 'courier' && (newData.child('action').val() === 'lock' || !root.child('boxes').child($boxId).child('currentOrder').exists())))",
+          ".validate": "newData.hasChildren(['action', 'id', 't'])",
+          "action": { ".validate": "newData.val() === 'unlock' || newData.val() === 'lock'" },
+          "id": { ".validate": "newData.isString() && newData.val().length <= 16" },
+          "t": { ".validate": "newData.isNumber()" },
+          "reason": { ".validate": "newData.isString() && newData.val().length <= 32" },
+          "$other": { ".validate": false }
+        }
+      }
+    },
+
     "events": {
-      ".indexOn": ["t"]
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'admin' || root.child('users').child(auth.uid).child('role').val() === 'courier')",
+      ".indexOn": ["t"],
+      "$eventId": {
+        ".write": "auth != null && !data.exists()",
+        ".validate": "newData.hasChildren(['t', 'dir', 'boxId', 'action'])",
+        "t": { ".validate": "newData.isNumber()" },
+        "dir": { ".validate": "newData.val() === 'in' || newData.val() === 'out'" },
+        "boxId": { ".validate": "newData.isString() && newData.val().length <= 8" },
+        "action": { ".validate": "newData.isString() && newData.val().length <= 40" },
+        "payload": { ".validate": true },
+        "$other": { ".validate": false }
+      }
     }
   }
 }
