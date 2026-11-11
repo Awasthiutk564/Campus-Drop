@@ -306,6 +306,34 @@ select.input option,#studentSelect option{background:#000;color:var(--w1)}
 .pl-content b{display:block;font-size:18px;letter-spacing:-.02em;margin-bottom:4px}
 .pl-content p{margin:0;font-size:13px;color:var(--w2)}
 .pl-pin-badge{display:inline-block;margin-top:10px;padding:3px 8px;background:var(--o);color:#000;font-family:var(--mono);font-weight:600;font-size:11px}
+/* Ultrasonic sensor section + door-open pop-up */
+.sensor-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.sensor-card{display:grid;gap:10px;text-align:left;border:1px solid var(--hair-soft);background:transparent;padding:14px;transition:border-color .2s}
+.sensor-card:hover{border-color:var(--hair)}
+.sensor-card[aria-pressed="true"]{border-color:var(--o)}
+.sensor-top{display:flex;justify-content:space-between;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;text-transform:uppercase;color:var(--g1)}
+.sensor-top b{font-family:var(--font);font-size:15px;letter-spacing:-.02em;color:var(--w1);text-transform:none}
+.sensor-cm{display:block;font-size:clamp(34px,3.6vw,56px);line-height:.95;letter-spacing:-.04em;font-weight:600;font-variant-numeric:tabular-nums}
+.sensor-cm small{font-size:.38em;letter-spacing:0;color:var(--g1);margin-left:4px;font-weight:500}
+.sensor-bar{display:block;position:relative;height:6px;background:var(--g2)}
+.sensor-bar .fill{position:absolute;left:0;top:0;bottom:0;background:var(--gr);transition:width .4s var(--ease)}
+.sensor-bar .fill.near{background:var(--o)}
+.sensor-bar .tick{position:absolute;top:-4px;bottom:-4px;width:1px;background:var(--w2)}
+.sensor-note{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;color:var(--g1)}
+.door-pop{position:fixed;left:50%;top:calc(var(--head) + 16px);transform:translate(-50%,-16px);opacity:0;pointer-events:none;z-index:60;width:min(380px,calc(100vw - 32px));background:#000;border:1px solid var(--o);padding:16px 18px;transition:opacity .25s,transform .35s var(--ease)}
+.door-pop.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.door-pop-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.door-pop .kicker{display:block;margin-bottom:6px;color:var(--o)}
+.door-pop h3{margin:0;font-size:16px;letter-spacing:-.02em;font-weight:600}
+.door-pop .cm{font-size:64px;line-height:.95;letter-spacing:-.04em;font-weight:600;margin:14px 0 6px;font-variant-numeric:tabular-nums}
+.door-pop .cm small{font-size:22px;letter-spacing:0;color:var(--g1);margin-left:6px;font-weight:500}
+.door-pop p{margin:0;font-size:13px;color:var(--w2)}
+.door-pop #dpBar{margin-top:14px}
+.dp-close{border:1px solid var(--hair);background:transparent;padding:4px 8px;font-family:var(--mono);font-size:11px;text-transform:uppercase;color:var(--w1)}
+.dp-close:hover{border-color:var(--w1);color:var(--o)}
+.dp-note{margin-top:10px!important;font-family:var(--mono);font-size:10.5px!important;text-transform:uppercase;color:var(--g1)!important}
+@media (max-width:1080px){ .sensor-grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media (max-width:520px){ .sensor-grid{grid-template-columns:1fr} }
 .toasts{position:fixed;top:calc(var(--head) + 12px);right:16px;z-index:50;display:grid;gap:8px;width:min(360px,calc(100vw - 32px))}
 .toast{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;padding:12px 14px;background:#000;border:1px solid var(--hair);border-left:2px solid var(--o);cursor:pointer;text-align:left;animation:toastIn .5s var(--ease)}
 .toast .ti{width:30px;height:30px;border:1px solid var(--hair);color:var(--o);display:grid;place-items:center}
@@ -405,6 +433,18 @@ select.input option,#studentSelect option{background:#000;color:var(--w1)}
     <section class="sec grid-layout" data-reveal>
       <h2 class="sec-label">Right now</h2>
       <div class="sec-body"><div class="stats" id="stats"></div></div>
+    </section>
+
+    <section class="sec grid-layout" data-reveal>
+      <h2 class="sec-label">Sensor</h2>
+      <div class="sec-body">
+        <div class="panel-head">
+          <h3>Ultrasonic distance</h3>
+          <span class="chip chip-lav"><span class="dot"></span>Demo values</span>
+        </div>
+        <p class="small muted" style="margin:0 0 14px;max-width:62ch">Distance from the HC-SR04 sensor at the top of each box to whatever is in front of it. Under 12 cm means a parcel is inside. The line on each bar marks that 12 cm limit.</p>
+        <div class="sensor-grid" id="sensorGrid"></div>
+      </div>
     </section>
 
     <section class="sec grid-layout" data-reveal>
@@ -530,6 +570,18 @@ select.input option,#studentSelect option{background:#000;color:var(--w1)}
 </div>
 
 <div class="toasts" id="toasts" aria-live="polite"></div>
+
+<!-- Door-open pop-up: shows the ultrasonic distance whenever a box door opens -->
+<div class="door-pop" id="doorPop" role="alertdialog" aria-live="assertive" aria-labelledby="dpTitle" aria-describedby="dpState">
+  <div class="door-pop-top">
+    <div><span class="kicker">Door open / ultrasonic</span><h3 id="dpTitle">Box 01 door is open</h3></div>
+    <button class="dp-close" id="dpClose" type="button">Close</button>
+  </div>
+  <div class="cm" id="dpCm"></div>
+  <p id="dpState"></p>
+  <div id="dpBar"></div>
+  <p class="dp-note">Demo value</p>
+</div>
 
 <script src="firebase-config.js"></script>
 <script>
@@ -763,6 +815,59 @@ function boxOnline(b){
   const seen = liveBox(b.id).lastSeen;
   return !!seen && Store.now() - seen < HEARTBEAT_STALE_MS;
 }
+/* ---------- Ultrasonic sensor (demo values) ----------
+   The distances on the dashboard and in the door-open pop-up are hard-coded for the showcase:
+   an empty box reads emptyCm, a box holding a parcel reads parcelCm. The sensor faces into the
+   box and the UNO treats anything closer than thresholdCm as "parcel inside" (same limit as
+   PARCEL_THRESHOLD_CM in the UNO sketch). Set useLive to true to show Box 01's real reading
+   instead, whenever the box is reporting one. */
+const SENSOR = { emptyCm:24.0, parcelCm:6.5, thresholdCm:12.0, scaleCm:30, useLive:false };
+function sensorReading(b){
+  let cm = Store.awaitingIn(b.id) ? SENSOR.parcelCm : SENSOR.emptyCm;
+  if (SENSOR.useLive && isReal(b.id)) { const d = Number(liveBox(b.id).distanceCm); if (d >= 0) cm = d; }
+  return { cm, parcel: cm < SENSOR.thresholdCm };
+}
+function sensorBar(cm, on = true){
+  const pct = v => Math.max(0, Math.min(100, v / SENSOR.scaleCm * 100));
+  return `<span class="sensor-bar" aria-hidden="true"><span class="fill ${cm < SENSOR.thresholdCm ? 'near' : ''}" style="width:${on ? pct(cm) : 0}%"></span><span class="tick" style="left:${pct(SENSOR.thresholdCm)}%"></span></span>`;
+}
+
+/* ---------- Door-open pop-up ----------
+   Shows the sensor distance whenever a door opens: from the website (drop-off, pickup, remote
+   unlock) via Hardware.send, and when Box 01 is unlocked from its own keypad via watch(). */
+const DoorPopup = {
+  last:{}, wasOpen:{}, timer:null,
+  init(){
+    $('#dpClose').onclick = () => this.hide();
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') this.hide(); });
+  },
+  show(boxId){
+    const b = boxById(boxId), el = $('#doorPop');
+    if (!b || !el) return;
+    const now = Date.now();
+    if (now - (this.last[boxId] || 0) < 4000) return;   // one pop-up per opening, however many signals report it
+    this.last[boxId] = now;
+    const r = sensorReading(b);
+    $('#dpTitle').textContent = `Box ${b.no} door is open`;
+    $('#dpCm').innerHTML = `${r.cm.toFixed(1)}<small>cm</small>`;
+    $('#dpState').textContent = r.parcel ? 'Ultrasonic sensor: parcel detected inside.' : 'Ultrasonic sensor: box is empty.';
+    $('#dpBar').innerHTML = sensorBar(r.cm);
+    el.classList.add('show');
+    clearTimeout(this.timer);
+    this.timer = setTimeout(() => this.hide(), 7000);
+  },
+  hide(){ clearTimeout(this.timer); const el = $('#doorPop'); if (el) el.classList.remove('show'); },
+  // Real box: catches an unlock that did not come from the website (PIN typed on the keypad).
+  watch(){
+    BOXES.forEach(b => {
+      if (!isReal(b.id)) return;
+      const open = liveBox(b.id).locked === false, prev = this.wasOpen[b.id];
+      this.wasOpen[b.id] = open;
+      if (open && prev === false) this.show(b.id);
+    });
+  }
+};
+
 const Hardware = {
   events:[], subs:new Set(),
   async transport(boxId, action, payload){
@@ -783,6 +888,7 @@ const Hardware = {
     this.push({ t:Store.now(), dir:'out', boxId, action, payload });
     const res = await this.transport(boxId, action, payload);
     this.push({ t:Store.now(), dir:'in', boxId, action: action + (res.ok ? '.ack' : '.timeout'), payload: res });
+    if (action === 'servo.unlock' && res.ok) DoorPopup.show(boxId);
     return res;
   },
   // Real boxes report their own ultrasonic readings; this only simulates the others.
@@ -1214,7 +1320,20 @@ const Dashboard = {
       const col = { free:'var(--ok)', occupied:'var(--kraft)', offline:'var(--bad)', open:'var(--lav)' }[s];
       u.tag.innerHTML = `<b>${BOXES[i].no}</b><span style="color:${col}">${txt}</span>`;
     });
-    this.renderDetail(); this.renderStats(); this.renderChart(); this.renderOrders();
+    this.renderDetail(); this.renderStats(); this.renderSensors(); this.renderChart(); this.renderOrders();
+  },
+  renderSensors(){
+    const el = $('#sensorGrid'); if (!el) return;
+    el.innerHTML = BOXES.map((b, i) => {
+      const on = boxOnline(b), r = sensorReading(b);
+      return `<button class="sensor-card" type="button" data-sensor="${i}" aria-pressed="${i === this.selected}" aria-label="Box ${esc(b.no)}, ${on ? r.cm.toFixed(1) + ' centimetres' : 'offline'}">
+        <span class="sensor-top"><b>Box ${esc(b.no)}</b><span>${on ? (r.parcel ? 'Parcel inside' : 'Empty') : 'Offline'}</span></span>
+        <span class="sensor-cm">${on ? r.cm.toFixed(1) + '<small>cm</small>' : '—'}</span>
+        ${sensorBar(r.cm, on)}
+        <span class="sensor-note">${esc(b.place)}</span>
+      </button>`;
+    }).join('');
+    el.querySelectorAll('[data-sensor]').forEach(c => c.onclick = () => { this.selected = +c.dataset.sensor; this.render(); });
   },
   renderDetail(){
     const b = BOXES[this.selected] || BOXES[0], s = this.boxState(b), o = Store.awaitingIn(b.id), online = boxOnline(b);
@@ -1777,6 +1896,7 @@ function renderAll(){
   const hw = $('#hwMode');
   if (hw) hw.innerHTML = `<span class="dot"></span>${Store.mode === 'live' ? 'Box 01 live, others simulated' : 'Simulated hardware'}`;
   Dashboard.render();
+  DoorPopup.watch();
   // Step 2 is a form; re-rendering it on every heartbeat would steal focus while typing.
   if (Deliver.step !== 2 && (Deliver.step !== 3 || !Deliver.busy)) Deliver.render();
   const collectLivePin = Collect.phase === 'pin' && Collect.order() && isReal(Collect.order().boxId);
@@ -1842,7 +1962,7 @@ function setCounts(){
 
 function boot(){
   Fx.init();
-  Dashboard.init(); Deliver.init(); Collect.init();
+  Dashboard.init(); Deliver.init(); Collect.init(); DoorPopup.init();
   Store.on(renderAll);
   window.addEventListener('hashchange', route);
   if (!location.hash) history.replaceState(null, '', '#/dashboard');
