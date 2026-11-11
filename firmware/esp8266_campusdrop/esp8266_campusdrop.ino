@@ -24,35 +24,21 @@
   collectedAt, attempts, lockedUntil events/{pushId}    device log shown on the
   dashboard
 
-  WiFi setup: there is no WiFi login in this sketch. The box remembers the last
-  network it joined. If it can't join one (new place, changed password,
-  hotspot off for 3 minutes) it opens its own network "CampusDrop-Setup"; join
-  it with a phone and a page lets you pick the WiFi and type the password.
-
-  Updates: after the first upload over USB, upload again over WiFi (Arduino IDE
-  → Tools → Port → "campusdrop-b01 at <ip>", password = OTA_PASSWORD).
-
   Board: "NodeMCU 1.0 (ESP-12E Module)" from the esp8266 core
          (Boards Manager URL:
   https://arduino.esp8266.com/stable/package_esp8266com_index.json) Libraries:
-  Keypad by Mark Stanley, ArduinoJson by Benoit Blanchon (v7),
-  WiFiManager by tzapu (tablatronix)
+  Keypad by Mark Stanley, ArduinoJson by Benoit Blanchon (v7)
 */
 #include <ArduinoJson.h>
-#include <ArduinoOTA.h>
 #include <ESP8266HTTPClient.h>
 #include <ESP8266WiFi.h>
 #include <Keypad.h>
 #include <WiFiClientSecureBearSSL.h>
-#include <WiFiManager.h>
 #include <time.h>
 
 // ================= Settings =================
-// SETUP_AP_PASSWORD and OTA_PASSWORD live in secrets.h (copy secrets.example.h,
-// fill it in).
+// WIFI_SSID and WIFI_PASSWORD live in secrets.h (copy secrets.example.h, fill it in).
 #include "secrets.h"
-const char *SETUP_AP_NAME = "CampusDrop-Setup"; // network the box opens for WiFi setup
-const char *OTA_HOSTNAME = "campusdrop-b01";    // name shown in the IDE's Port menu
 // Realtime Database host from the Firebase console, without https:// and
 // without a trailing slash.
 const char *FIREBASE_HOST =
@@ -400,73 +386,22 @@ void heartbeat() {
          WiFi.localIP().toString() + "\"" + ",\"rssi\":" + WiFi.RSSI() + "}");
 }
 
-// ================= WiFi setup portal =================
-// The ESP8266 keeps the last WiFi login in its own flash, so nothing is typed
-// into this sketch. When it can't join a network it opens "CampusDrop-Setup".
-void onSetupPortal(WiFiManager *) {
-  DBG("WiFi setup portal open");
-  lcd("Join this WiFi:", SETUP_AP_NAME); // 16 chars fit the LCD exactly
-}
-
-// Joins the saved WiFi, or opens the setup portal. Blocks for at most
-// 20 s + 2 min, then returns (the loop keeps retrying).
-void connectWiFi(bool forcePortal = false) {
+void connectWiFi() {
   WiFi.mode(WIFI_STA);
   WiFi.setAutoReconnect(true);
-  WiFiManager wm;
-  wm.setDebugOutput(false); // Serial is the UNO link, keep it clean
-  wm.setConnectTimeout(20);
-  wm.setConfigPortalTimeout(120);
-  wm.setAPCallback(onSetupPortal);
-  lcd("Connecting WiFi", "Please wait...");
-  bool ok = forcePortal ? wm.startConfigPortal(SETUP_AP_NAME, SETUP_AP_PASSWORD)
-                        : wm.autoConnect(SETUP_AP_NAME, SETUP_AP_PASSWORD);
-  if (ok || WiFi.status() == WL_CONNECTED) {
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  lcd("Connecting WiFi", WIFI_SSID);
+  unsigned long t = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - t < 20000) {
+    delay(250);
+    readUno();
+  }
+  if (WiFi.status() == WL_CONNECTED) {
     DBG("WiFi " + WiFi.localIP().toString());
     lcd("WiFi connected", WiFi.localIP().toString());
   } else {
-    DBG("WiFi not connected, will keep retrying");
+    DBG("WiFi failed, will keep retrying");
     lcd("WiFi failed", "Retrying...");
-  }
-}
-
-// ================= Over-the-air updates =================
-bool otaStarted = false;
-
-void startOta() {
-  ArduinoOTA.setHostname(OTA_HOSTNAME);
-  ArduinoOTA.setPassword(OTA_PASSWORD);
-  ArduinoOTA.onStart([]() { lcd("Updating...", "Do not unplug"); });
-  ArduinoOTA.onEnd([]() { lcd("Update done", "Restarting..."); });
-  ArduinoOTA.onError([](ota_error_t) { lcd("Update failed", "Restarting..."); });
-  ArduinoOTA.begin();
-  otaStarted = true;
-  DBG(String("OTA ready as ") + OTA_HOSTNAME);
-}
-
-// Called from loop(): serves OTA, and reopens the WiFi setup portal when the
-// box has been offline for 3 minutes (e.g. the WiFi password changed).
-unsigned long offlineSince = 0;
-const unsigned long OFFLINE_PORTAL_MS = 180000;
-
-void maintainWiFi() {
-  if (WiFi.status() == WL_CONNECTED) {
-    offlineSince = 0;
-    if (!otaStarted)
-      startOta();
-    ArduinoOTA.handle();
-    return;
-  }
-  unsigned long now = millis();
-  if (!offlineSince) {
-    offlineSince = now;
-    return;
-  }
-  if (now - offlineSince > OFFLINE_PORTAL_MS) {
-    if (!locked)
-      setLocked(true, "offline"); // never leave the door open while we're away
-    connectWiFi(true);
-    offlineSince = 0;
   }
 }
 
@@ -492,7 +427,6 @@ void setup() {
 
 void loop() {
   readUno();
-  maintainWiFi(); // OTA updates + WiFi setup portal when offline for too long
 
   char k = keypad.getKey();
   if (k)
