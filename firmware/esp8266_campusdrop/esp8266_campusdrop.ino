@@ -33,6 +33,7 @@
 #include <ESP8266HTTPClient.h>
 #include <ESP8266WiFi.h>
 #include <Keypad.h>
+#include <SoftwareSerial.h>
 #include <WiFiClientSecureBearSSL.h>
 #include <time.h>
 
@@ -85,6 +86,16 @@ String lastCommandId;
 bool commandSeen = false;
 bool unoAck = false;
 String unoLine;
+
+// UNO → ESP8266 link. The UNO's TX wire (through the 1k/2k divider) can go to
+// the RX pin (hardware serial) OR to D2 (software serial). The box listens on
+// both and reports how many bytes arrived on each in boxes/B01 (unoRxHw,
+// unoRxSw), plus the last characters seen (unoTail), so a dead link can be
+// diagnosed from the website's database without a cable.
+SoftwareSerial unoSw(D2);
+String unoSwLine;
+String unoTail;
+unsigned long unoBytesHw = 0, unoBytesSw = 0, unoLines = 0;
 
 #define DBG(x)                                                                 \
   do {                                                                         \
@@ -149,6 +160,8 @@ String epochMsPlus(unsigned long addMs) {
 // ================= UNO link =================
 void handleUnoLine(String l) {
   l.trim();
+  if (l.length())
+    unoLines++;
   if (l.startsWith("ACK:")) {
     unoAck = true;
     return;
@@ -179,15 +192,24 @@ void handleUnoLine(String l) {
   }
 }
 
+// Adds one received byte to its line buffer; a full line is handled at '\n'.
+void feedUno(char c, String &buf, unsigned long &counter) {
+  counter++;
+  unoTail += (c >= 32 && c < 127 && c != '"' && c != '\\') ? c : '?';
+  if (unoTail.length() > 24)
+    unoTail.remove(0, unoTail.length() - 24);
+  if (c == '\n') {
+    handleUnoLine(buf);
+    buf = "";
+  } else if (c != '\r' && buf.length() < 64)
+    buf += c;
+}
+
 void readUno() {
-  while (Serial.available()) {
-    char c = Serial.read();
-    if (c == '\n') {
-      handleUnoLine(unoLine);
-      unoLine = "";
-    } else if (c != '\r' && unoLine.length() < 64)
-      unoLine += c;
-  }
+  while (Serial.available())
+    feedUno((char)Serial.read(), unoLine, unoBytesHw);
+  while (unoSw.available())
+    feedUno((char)unoSw.read(), unoSwLine, unoBytesSw);
 }
 
 // Sends LOCK/UNLOCK and waits up to 1.5 s for the UNO's ACK.
@@ -383,7 +405,10 @@ void heartbeat() {
          (locked ? "true" : "false") + ",\"servoAngle\":" + (locked ? 0 : 90) +
          ",\"parcelPresent\":" + (parcelPresent ? "true" : "false") +
          ",\"distanceCm\":" + String(distanceCm, 1) + ",\"ip\":\"" +
-         WiFi.localIP().toString() + "\"" + ",\"rssi\":" + WiFi.RSSI() + "}");
+         WiFi.localIP().toString() + "\"" + ",\"rssi\":" + WiFi.RSSI() +
+         ",\"unoRxHw\":" + String(unoBytesHw) + ",\"unoRxSw\":" +
+         String(unoBytesSw) + ",\"unoLines\":" + String(unoLines) +
+         ",\"unoTail\":\"" + unoTail + "\"}");
 }
 
 void connectWiFi() {
@@ -407,6 +432,7 @@ void connectWiFi() {
 
 void setup() {
   Serial.begin(9600);
+  unoSw.begin(9600);
   delay(300);
   tls.setInsecure(); // prototype: skip certificate check
   http.setTimeout(5000);

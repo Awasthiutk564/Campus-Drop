@@ -174,5 +174,6 @@ Lines starting with `#` are ESP8266 debug messages; the UNO ignores them.
 | Keys 1, 2, 3, A don't work | R1 is still on D0; see the wiring note above. |
 | ESP8266 won't start or upload | Unplug the UNO's wire from ESP RX, and don't press keys while it powers on. |
 | Servo moves but the UNO resets | Add a 470 µF capacitor, or give the servo its own 5 V supply. |
+| Dashboard shows no distance / "Box is empty" with a parcel inside (`distanceCm` stays `-1`) | The UNO's replies aren't reaching the ESP8266. In Firebase, `boxes/B01` has `unoRxHw` (bytes heard on the RX pin) and `unoRxSw` (bytes heard on **D2**), and `unoTail` (the last characters). The ESP8266 listens on both, so connect the UNO's divider output to either RX or D2 (not both). A NodeMCU powered over USB can fight with external signals on its RX pin, so if `unoRxHw` stays 0, move that wire to D2. If both stay 0, check the UNO's TX wire and the 1 kΩ / 2 kΩ divider. If `unoTail` shows odd symbols, the baud rate or ground is wrong. |
 | LCD blank | Adjust contrast; try `LCD_ADDRESS 0x3F`. |
 | Parcel never detected | Recalibrate `PARCEL_THRESHOLD_CM` (section 3). The sensor must point into the box. |
